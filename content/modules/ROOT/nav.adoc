@@ -1,7 +1,13 @@
-* xref:module-01.adoc[1. RPM Native Container]
-** xref:module-01.adoc#repositories[Repositories]
-** xref:module-01.adoc#software[Software]
+* xref:module-01.adoc[1. OpenShift Lightspeed Basics]
+** xref:module-01.adoc#starter-question[Starter Question]
+** xref:module-01.adoc#follow-up-question[Follow-up Question]
+** xref:module-01.adoc#yaml-generation[YAML Generation]
 
-* xref:module-02.adoc[2. GitHub Sourced Container]
-** xref:module-02.adoc#prerequisites[Install Prerequisites]
-** xref:module-02.adoc#container[Enable Container]
+* xref:module-02.adoc[2. Bring Your Own Knowledge]
+** xref:module-02.adoc#examine-the-openshift-lightspeed-configuration[Examine the Configuration]
+** xref:module-02.adoc#check-the-internal-documentation[Check the Internal Documentation]
+** xref:module-02.adoc#byok-enters-the-chat[BYOK Enters the Chat]
+
+* xref:module-03.adoc[3. Cluster Interaction]
+
+* xref:module-04.adoc[4. Troubleshooting]

@@ -1,149 +1,68 @@
-= Building an Application with rpms
+= OpenShift Lightspeed Basics
 
-== Downloading the UBI
+OpenShift Lightspeed uses a natural language interface to allow users to ask questions. You have used many chat interfaces before, so OpenShift Lightspeed should feel very comfortable to use.
 
-In this lab, you will be installing software into the container 
-image running as an interactive application. To do this you will
-need `yum`, but do not need `systemd` for managing services within the
-container environment.  For that reason, you will be using the *Standard*
-UBI image (as opposed to the Minimal or Multi-service images).
+OpenShift Lightspeed is designed only to answer OpenShift-related questions, and it will generally attempt to reject questions that are unrelated to OpenShift and Kubernetes. If you try hard enough, you can probably get it to do something it wasn't explicitly designed to do, but this is a shortcoming of all non-deterministic language-model-based systems. It is a bit of a game of whack-a-mole trying to keep up with all of the possible negative outcomes, and trying to prevent them is a topic of active PhD research right now. If you see something bad, be sure to report it using the feedback feature. We will always do our best to improve the quality and safety of the system.
 
-Using the "buildah from" command will download and meld the container image. This particular image we are using is the Red Hat Universal Base Image or UBI. From the ourput of the command, you will notice that we are pulling down the latest one, which is for RHEL 9. 
+== Starter Question
 
-. Execute the  download the Standard UBI
-image from Red Hat's registry.
+Log into the OpenShift web console by clicking the link:
 
-+
-[source,sh,role=execute]
+{openshift_cluster_console_url}[OpenShift Console,window=_blank]
+
+Username:
+[source,role="execute",subs=attributes+]
 ----
-buildah from registry.access.redhat.com/ubi9/ubi
+{openshift_cluster_admin_username}
 ----
 
-[#repositories]
-== Installing Repositories
-In this lab, you are going to containerize a software package that is already
-packaged in RPM format and stored in the Extra Packages for Enterprise Linux
-(EPEL) repository.
-
-Software often has requirements for prerequisite software that must be installed
-on the machine for it to work properly.  `yum` will resolve those
-dependencies for you, as long as it can locate the required packages in
-repositories defined on the machine.  The Red Hat Universal Base Image (UBI)
-downloaded in the previous step has access to some Red Hat Enterprise Linux
-repositories.  However, the target package for the lab is from EPEL.  
-
-. In the command below, `buildah` is going to run a command on the
-`ubi-working-container` image.  The `--` indicates that the command should be
-executed from within the container, which means the results will be applied into
-the container image.  Lastly, you are providing the `yum` command to install a
-package that defines all of the repositories from EPEL, `epel-release-latest-9`.
-
-+
-[source,bash]
+Password:
+[source,role="execute",subs=attributes+]
 ----
-buildah run ubi-working-container -- yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+{openshift_cluster_admin_password}
 ----
 
+Once you have logged-in, you should see the OpenShift Lightspeed button in the bottom-right corner of the OpenShift console:
 
-. You can verify that the above command did not install the RPM on the host system.
+image::ols-icon.png[]
 
-+
-[source,bash]
+Click the button, and it will open the chat interface:
+
+image::ols-interface.png[]
+
+Why don't you start out by asking an easy question like:
+
+[source,role="execute",subs=attributes+]
 ----
-rpm -q epel-release
-----
-
-NOTE: If your repository configurations are not distributed as an RPM, but instead as
-individual `.repo` files, you could use the `buildah copy` command to copy
-files from the host operating system into the container image.  You will see
-an example of using `buildah copy` later in this lab.
-
-[#software]
-== Installing Software
-
-
-. Now that the yum repositories are defined within the container, execute 
-another `yum install`, within the container, to install the target
-software: `moon-buggy`.
-
-+
-[source,bash]
-----
-buildah run ubi-working-container -- yum -y install moon-buggy
+What are OpenShift Routes?
 ----
 
+OpenShift Lightspeed should provide a detailed answer about how to do it. And, if you scroll to the bottom of the chat window, you will see that OpenShift Lightspeed has also provided a link to the documentation that was used to generate its response:
 
-== Committing the Container Image
+image::related-docs.png[]
 
-. At this point, the container is configured.  It is time to transition from a
-working container into a committed image.  In the command below, you will use
-the `buildah` command to commit the working container to an image called:
-`moon-buggy`.
+== Follow-up Question
 
-+
-[source,bash]
+OpenShift Lightspeed maintains context from your previous questions within the same chat session, allowing you to ask follow-up questions naturally. This conversational approach makes it easy to dive deeper into topics or move from theory to practice. For example, now that you understand what OpenShift Routes are, you can ask a practical follow-up question like:
+
+[source,role="execute",subs=attributes+]
 ----
-buildah commit ubi-working-container moon-buggy
-----
-
-+
-. The output of `podman image list` should confirm the image was created.
-
-+
-[source,bash]
-----
-podman image list
+How do I expose a service using a Route?
 ----
 
+OpenShift Lightspeed remembers your conversation thanks to the PostgreSQL database we saw in the architecture image, and provides a more detailed, practical answer based on your previous question. This makes the learning experience more fluid and efficient.
 
-== Deploy the Container
+== YAML Generation
 
-Now the software has been installed and a new container image created.  It is
-time to spawn a runtime of the container image and validate the software.  The
-software we are using is a command line command.  
+Beyond providing explanations and guidance, OpenShift Lightspeed can also generate YAML manifests for you. This is particularly useful when you need to create or modify Kubernetes/OpenShift resources quickly. Building on your previous conversation about Routes, you can ask OpenShift Lightspeed to generate actual YAML configuration. Try asking:
 
-. When you `run` the container,
-it will be in interactive (`-it`) mode, based on the `moon-buggy` container
-image and the command run interactively will be `/usr/bin/moon-buggy`.
-
-+
-[source,bash]
+[source,role="execute",subs=attributes+]
 ----
-podman run -it moon-buggy /usr/bin/moon-buggy
+Can you generate a Route YAML that exposes a service on port 8080 with TLS edge termination?
 ----
 
-+
-[source,textinfo]
-----
+OpenShift Lightspeed will provide you with a complete YAML manifest that you can copy and apply to your cluster. The generated YAML follows OpenShift best practices and includes the relevant fields based on your specific requirements. You can then customize this YAML further if needed, or apply it directly.
 
-<<< OUTPUT ABRIDGED >>>
-               MM     MM   OOOOO    OOOOO   NN     N
-               M M   M M  O     O  O     O  N N    N
-               M  M M  M  O     O  O     O  N  N   N
-               M   M   M  O     O  O     O  N   N  N
-               M       M  O     O  O     O  N    N N
-               M       M   OOOOO    OOOOO   N     NN
+== Problem!
 
-                     BBBBBB   U     U   GGGGG    GGGGG   Y     Y
-                     B     B  U     U  G     G  G     G   Y   Y
-                     BBBBBB   U     U  G        G          Y Y
-                     B     B  U     U  G   GGG  G   GGG     Y
-                     B     B  U     U  G     G  G     G    Y
-                     BBBBBB    UUUUU    GGGGG    GGGGG   YY
-
-<<< OUTPUT ABRIDGED >>>
-----
-
-. You can now play the Moon Buggy game, which is a text-based version of the
-popular Moon Patrol.  When you are finished, use the `q` command to quit the
-game, which will terminate the container.
-
-+
-Alternatively, you can use `podman` to kill the running container from
-*Terminal 2*.
-
-+
-[source,bash]
-----
-podman kill $(podman ps | grep -v CONTAINER | cut -f1 -d" " )
-----
+We can keep asking questions about OpenShift resources all day and OpenShift Lightspeed will provide us with the standard documentation it knows about. But what happens when those procedures are different for your team or organization? For example, at ACME Corp, pod autoscalers are not allowed to be used by default, and there is a special process for enabling autoscaling. Continue to the next section of the lab to learn how you can add your own organizational knowledge, documentation, and policy information to OpenShift Lightspeed.
