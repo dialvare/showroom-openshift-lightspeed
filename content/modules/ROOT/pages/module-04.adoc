@@ -6,7 +6,7 @@ image::broken-project-select.png[]
 
 Now, in the pod list, click on the one pod which you can see is in the _Pending_ state.
 
-If you closed the OpenShift Lightspeed window, re-open it. Make sure to click the _Clear Chat_ button in the OpenShift Lightspeed interface. Then, click the _+_ button to attach information. In this case, as this pod is currently _Pending_, there are no logs we can attach, and we don't really care about the events, either. Go ahead and attach the _Filtered YAML_, which will include the status information for this pod.
+Navigate to the chat interface. Make sure to click the _Clear Chat_ button in the OpenShift Lightspeed interface. Then, click the _+_ button to attach information. In this case, as this pod is currently _Pending_, there are no logs we can attach, and we don't really care about the events, either. Go ahead and attach the _Filtered YAML_, which will include the status information for this pod.
 
 image::attach-button.png[]
 
