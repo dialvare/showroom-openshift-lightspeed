@@ -42,4 +42,4 @@ So far, we've explored how OpenShift Lightspeed helps with traditional container
 
 With OpenShift Virtualization, you can run virtual machines alongside your containers on the same OpenShift platform. And here's the interesting part: at the end of the day, virtual machines in OpenShift are just OpenShift custom resources. This means OpenShift Lightspeed can help you with your virtual machine workloads too. Whether you need to understand VM networking, troubleshoot a VM that won't start, or generate YAML for a new virtual machine configuration, OpenShift Lightspeed has the knowledge to assist you.
 
-Ready to see how OpenShift Lightspeed handles virtualization workloads? Let's explore that in the next section.
+Ready to see how OpenShift Lightspeed handles virtualization workloads? Continue to the next module to explore OpenShift Lightspeed and Virtualization.

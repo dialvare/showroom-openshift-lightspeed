@@ -24,7 +24,7 @@ spec:
     introspectionEnabled: true
 ----
 
-When this flag is enabled, OpenShift Lightspeed deploys an MCP server already preconfigured to communicate with the OpenShift API. This server provides some MCP tools, such as _events_list_, _namespaces_list_, _pods_list_in_namespace_, etc. When a user ask a question, the model may choose to call one of those tools to retrieve relevant information directly from the cluster to support the query. All tool usage is performed using the user's own credentials and access rights, preventing any privilege escalation.
+When this flag is enabled, OpenShift Lightspeed deploys an MCP server already preconfigured to communicate with the OpenShift API. This server provides some MCP tools, such as _events_list_, _namespaces_list_, _pods_list_in_namespace_, etc. When a user asks a question, the model may choose to call one of those tools to retrieve relevant information directly from the cluster to support the query. All tool usage is performed using the user's own credentials and access rights, preventing any privilege escalation.
 
 == Gathering Information from the Cluster
 

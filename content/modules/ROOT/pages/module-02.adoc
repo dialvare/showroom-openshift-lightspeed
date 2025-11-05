@@ -6,7 +6,7 @@ As you learned earlier, OpenShift Lightspeed only uses the OpenShift documentati
 
 NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 
-== Examine the Bring Youw Own Knowledge Configuration
+== Examine the Bring Your Own Knowledge Configuration
 
 The OpenShift Lightspeed Operator has been pre-configured in this lab environment to point to a container image with ACME Corp-specific knowledge. Let's examine this configuration to understand how BYOK works.
 
@@ -52,7 +52,7 @@ If you closed the OpenShift Lightspeed window, re-open it. Make sure to click th
 
 [source,sh,role="execute",subs=attributes+]
 ----
-How can I use a pod autoscaler at ACME corp?
+How can I use a pod autoscaler at ACME Corp?
 ----
 
 You should see an answer that refers to the prohibition on autoscalers and the specific processes required to get one.
