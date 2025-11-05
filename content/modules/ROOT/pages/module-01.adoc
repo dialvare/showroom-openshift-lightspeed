@@ -24,7 +24,7 @@ Password:
 
 Once you have logged-in, you should see the OpenShift Lightspeed button in the bottom-right corner of the OpenShift console:
 
-image::ols-icon.jpg[OpenShift Lightspeed icon]
+image::ols-icon.jpg[OpenShift Lightspeed icon, 50%]
 
 Click the button, and it will open the chat interface:
 
@@ -37,7 +37,7 @@ Why don't you start out by asking an easy question like:
 What are OpenShift Routes?
 ----
 
-OpenShift Lightspeed should provide a detailed answer about how to do it. And, if you scroll to the bottom of the chat window, you will see that OpenShift Lightspeed has also provided a link to the documentation that was used to generate its response:
+OpenShift Lightspeed should provide a detailed answer about what OpenShift routes are and key feature. And, if you scroll to the bottom of the chat window, you will see that OpenShift Lightspeed has also provided a link to the documentation that was used to generate its response:
 
 image::related-docs.png[Related documentation]
 

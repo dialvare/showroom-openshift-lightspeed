@@ -6,22 +6,22 @@ As you learned earlier, OpenShift Lightspeed only uses the OpenShift documentati
 
 NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 
-== Examine the OpenShift Lightspeed Configuration
+== Examine the Bring Youw Own Knowledge Configuration
 
 The OpenShift Lightspeed Operator has been pre-configured in this lab environment to point to a container image with ACME Corp-specific knowledge. Let's examine this configuration to understand how BYOK works.
 
 NOTE: The process of building and creating the BYOK container image is outside the scope of this lab. If you want to learn more about how to create your own BYOK images, please check the official https://docs.redhat.com/en/documentation/red_hat_openshift_lightspeed/1.0/html/configure/ols-configuring-openshift-lightspeed#about-the-byo-knowledge-tool_ols-configuring-openshift-lightspeed[Bring Your Own Knowledge documentation].
 
-In the OpenShift Console, click _Operators_ and then _Installed Operators_ in the left hand navigation.
+In the OpenShift Console, click *Operators* and then *Installed Operators* in the left hand menu.
 
-Next, click the `OLSConfig` tab, and then click the single `OLSConfig` instance called `cluster` in the list.
+Next, click the *OLSConfig* tab, and then click the single OLSConfig instance called `cluster` in the list. Finally, select the *YAML* tab.
 
-Finally, select the `YAML` tab.
-
-In the YAML editor, scroll down until you spot the `rag` stanza under `.spec.ols.rag` that should look something like:
+In the YAML editor, scroll down until you spot the `rag` stanza under `.spec.ols.rag`. It should look something like:
 
 [source,yaml,role="execute",subs=attributes+]
 ----
+...
+spec:
 ...
   ols:
 ...
@@ -31,16 +31,16 @@ In the YAML editor, scroll down until you spot the `rag` stanza under `.spec.ols
         indexPath: /rag/vector_db
 ----
 
-NOTE: You can define multiple RAG databases this way, if you want to add multiple sources. The `rag` stanza just takes an array of image references.
+NOTE: You can define multiple RAG databases if you want to add multiple sources. The _rag_ stanza just takes an array of image references.
 
 == Check the Internal Documentation
 
 As you just saw, OpenShift Lightspeed is configured to use a container image from Quay (`quay.io/dialvare/acme-byok:latest`) that contains ACME Corp's internal procedures and policies. But where does this content come from? 
 
-This BYOK image was built from markdown docs. The documentation used is located in this GitOps repository under the `byok` folder and consists of just two documents:
+This BYOK image was built from markdown docs. The documentation used is located in this https://github.com/dialvare/showroom-openshift-lightspeed[GitOps repository] under the `byok` folder and consists of just two documents:
 
-* the specific ACME process for horizontal pod autoscaling
-* the specific ACME process for adding GPU nodes
+* The specific ACME process for horizontal pod autoscaling
+* The specific ACME process for adding GPU nodes
 
 Take a look at those to get an understanding of what they are discussing.
 

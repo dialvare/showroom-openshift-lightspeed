@@ -1,16 +1,55 @@
-== Cluster Interaction
+= Cluster Interaction
 
 The Cluster Interaction feature allows OpenShift Lightspeed to interact and gather information from your OpenShift cluster in a read-only manner. This enables the LLM to generate highly customized responses for your environment.
 
 NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 
-OpenShift Lightspeed includes an MCP server already preconfigured to communicate with the OpenShift API. This server provides some built-in tools, such as _oc_get_, _oc_describe_, _oc_logs_, etc. When the cluster interaction flag is enabled, the model may choose to call one of those tools to retrieve relevant information directly from the cluster to support your query. All tool usage is performed using the user's own credentials and access rights, preventing any privilege escalation.
+== Check the Cluster Interaction Configuration
 
-Cluster Interaction is enabled in our environment, so you can try asking some questions about cluster resources and see how OpenShift Lightspeed responds. For example, you can ask:
+The OpenShift Lightspeed operator has been also configured to use the cluster interaction feature by default in this lab. Optionally, you can check how it is enabled in the _OLSConfig_ resource.
+
+Again, navigate to *Operators* and then *Installed Operators* in the left hand menu.
+
+Now, click the *OLSConfig* tab, and then click on the `cluster` instance. Finally, select the *YAML* tab.
+
+In the YAML editor, scroll down until you spot the `introspectionEnabled` flag under `.spec.ols.introspectionEnabled`. It should be set to `true`:
+
+[source,yaml,role="execute",subs=attributes+]
+----
+...
+spec:
+...
+  ols:
+...
+    introspectionEnabled: true
+----
+
+When this flag is enabled, OpenShift Lightspeed deploys an MCP server already preconfigured to communicate with the OpenShift API. This server provides some MCP tools, such as _events_list_, _namespaces_list_, _pods_list_in_namespace_, etc. When a user ask a question, the model may choose to call one of those tools to retrieve relevant information directly from the cluster to support the query. All tool usage is performed using the user's own credentials and access rights, preventing any privilege escalation.
+
+== Gathering Information from the Cluster
+
+Now that we have seen that cluster interaction is available, you can try asking some questions about cluster resources and see how OpenShift Lightspeed responds. For example, you can ask:
 
 [source,role="execute",subs=attributes+]
 ----
 What are the pods in the openshift-lightspeed namespace?
 ----
 
-The GPT-4 model likely chose to use the _oc_get_ tool to retrieve pod information from the `openshift-lightspeed` namespace. You can view the tool's output by clicking the **oc_get** button displayed after the response. This information was used by the model to generate the final answer containing the list of all pods in that namespace.
+The GPT-4 model likely chose to use the _pods_list_in_namespace_ tool to retrieve pod information from the `openshift-lightspeed` namespace. You can view the tool's output by clicking the **pods_list_in_namespace** button displayed after the response. This information was used by the model to generate the final answer containing the list of all pods in that namespace.
+
+Let's take cluster interaction one step further by combining it with follow-up questions. OpenShift Lightspeed can not only gather information from your cluster but also analyze it when you ask follow-up questions within the same chat session.
+
+For example, let's ask OpenShift Lightspeed to retrieve and analyze the logs from the PostgreSQL server pod. In the same chat session, ask:
+
+[source,role="execute",subs=attributes+]
+----
+Can you get and analyze the logs of the last pod?
+----
+
+OpenShift Lightspeed will use the _pods_log_ tool to retrieve the recent logs from the PostgreSQL database pod and then provide you with an analysis of what's happening in those logs. This demonstrates the power of combining cluster interaction with the conversational context maintained from your previous questions to navigate across different components and resources within the cluster.
+
+== What if there's something wrong?
+
+In the examples above, we saw that the pods were running healthy and their logs showed no issues. But what happens when you're actually facing a real problem that needs troubleshooting?
+
+One of the most powerful features of OpenShift Lightspeed is the ability to attach resource information directly to your questions. By attaching YAML manifests, logs, or events from problematic resources, you provide OpenShift Lightspeed with the specific context it needs to diagnose issues effectively. Let's put this into practice in the next section by diagnosing and resolving a real issue in your cluster.

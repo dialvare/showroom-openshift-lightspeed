@@ -1,4 +1,4 @@
-== Troubleshooting
+= Troubleshooting
 
 In your environment there is a pod that is failing to schedule for some reason. In the OpenShift console, click _Workloads_ on the left, then _Pods_, and then make sure to select the project named `broken` from the dropdown at the top of the page:
 
