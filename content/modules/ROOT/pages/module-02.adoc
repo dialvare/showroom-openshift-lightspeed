@@ -62,3 +62,9 @@ Great!
 OpenShift Lightspeed assigns greater weight to BYOK content, allowing it to prioritize your internal procedures over the default OpenShift documentation. This ensures that organization-specific knowledge takes precedence when generating responses, providing more relevant and tailored answers for your environment.
 
 Try asking questions about adding GPU nodes and see if you can get a response based on the internal documentation.
+
+== What's Next?
+
+So far, you've learned how OpenShift Lightspeed uses the OpenShift documentation and your own organizational knowledge (BYOK) to provide accurate answers. But what if OpenShift Lightspeed could go beyond static documentation and actually query your live cluster to provide real-time, environment-specific answers?
+
+That's exactly what the Cluster Interaction feature enables. Continue to the next section to learn how OpenShift Lightspeed can directly interact with your OpenShift cluster to retrieve current information about your pods, deployments, and other resources.

@@ -10,7 +10,7 @@ OpenShift Lightspeed today is a relatively small and lightweight system that you
 * A back-end server (the chat interface calls the server)
 * A PostgreSQL database (for temporary conversation caching)
 
-image::ols-arch.png[]
+image::ols-arch.png[OpenShift Lightspeed architecture]
 
 You can also see that OpenShift Lightspeed talks to a model provider. In the case of this lab environment, that provider is Azure OpenAI using the GPT-4 model. There are three supported public model providers:
 

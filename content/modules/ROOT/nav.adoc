@@ -4,8 +4,8 @@
 ** xref:module-01.adoc#yaml-generation[YAML Generation]
 
 * xref:module-02.adoc[2. Bring Your Own Knowledge]
-** xref:module-02.adoc#examine-the-openshift-lightspeed-configuration[Examine the Configuration]
-** xref:module-02.adoc#check-the-internal-documentation[Check the Internal Documentation]
+** xref:module-02.adoc#examine-the-openshift-lightspeed-configuration[Examine the OLSConfig]
+** xref:module-02.adoc#check-the-internal-documentation[Internal Documentation]
 ** xref:module-02.adoc#byok-enters-the-chat[BYOK Enters the Chat]
 
 * xref:module-03.adoc[3. Cluster Interaction]
