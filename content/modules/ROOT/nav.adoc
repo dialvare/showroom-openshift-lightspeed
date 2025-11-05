@@ -13,3 +13,4 @@
 ** xref:module-03.adoc#gathering-information-from-the-cluster[Gathering Information]
 
 * xref:module-04.adoc[4. Troubleshooting]
+** xref:module-04.adoc#attaching-resources-to-the-query[Attaching Resources]

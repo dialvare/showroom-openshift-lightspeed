@@ -28,7 +28,7 @@ When this flag is enabled, OpenShift Lightspeed deploys an MCP server already pr
 
 == Gathering Information from the Cluster
 
-Now that we have seen that cluster interaction is available, you can try asking some questions about cluster resources and see how OpenShift Lightspeed responds. For example, you can ask:
+Now that we have seen that cluster interaction is available, you can try asking some questions about cluster resources and see how OpenShift Lightspeed responds. Open the chat interface, click the *Clear Chat* button and ask:
 
 [source,role="execute",subs=attributes+]
 ----

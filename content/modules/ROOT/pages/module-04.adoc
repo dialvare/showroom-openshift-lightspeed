@@ -1,12 +1,16 @@
-= Troubleshooting
+= Troubleshooting issues in the cluster
 
-In your environment there is a pod that is failing to schedule for some reason. In the OpenShift console, click _Workloads_ on the left, then _Pods_, and then make sure to select the project named `broken` from the dropdown at the top of the page:
+Time to put OpenShift Lightspeed to the real test. The key to effective troubleshooting with OpenShift Lightspeed is using the resource attachment feature. By clicking the _+_ button in the chat interface, you can attach YAML definitions and other components to your question, giving the AI assistant the precise context it needs to diagnose the problem.
+
+== Attaching Resources to the Query
+
+In your environment there is a pod that is failing to schedule for some reason. In the OpenShift console, click *Workloads* on the left, then *Pods*, and then make sure to select the project named `broken` from the dropdown at the top of the page:
 
 image::broken-project-select.png[Broken project selection]
 
 Now, in the pod list, click on the one pod which you can see is in the _Pending_ state.
 
-Navigate to the chat interface. Make sure to click the _Clear Chat_ button in the OpenShift Lightspeed interface. Then, click the _+_ button to attach information. In this case, as this pod is currently _Pending_, there are no logs we can attach, and we don't really care about the events, either. Go ahead and attach the _Filtered YAML_, which will include the status information for this pod.
+Navigate to the chat interface. Make sure to click the *Clear Chat* button in the OpenShift Lightspeed interface. Then, click the *+* button to attach information. In this case, as this pod is currently _Pending_, there are no logs we can attach, and we don't really care about the events, either. Go ahead and attach the *Filtered YAML*, which will include the status information for this pod.
 
 image::attach-button.png[Attachment options in OpenShift Lightspeed]
 
@@ -19,7 +23,7 @@ What's wrong with this pod?
 
 You should get some detailed information about nodes and node selectors.
 
-Now go ahead and attach the complete YAML, and then simply ask:
+Now go ahead and attach the *Full YAML*, and then ask:
 
 [source,role="execute",subs=attributes+]
 ----
@@ -31,3 +35,11 @@ Fortunately, this is a pretty obvious typo: `worker` is spelled wrong. And, GPT-
 Can you see how the simple act of attaching details to your request can dramatically improve troubleshooting outcomes?
 
 Note that you can attach multiple things to your request at the same time, like a service, a route, and a deployment. This can make more complicated troubleshooting scenarios easier.
+
+== Lightspeed Beyond Containers
+
+So far, we've explored how OpenShift Lightspeed helps with traditional containerized workloads—pods, deployments, routes, and services. But OpenShift is more than just containers. What about virtual machines?
+
+With OpenShift Virtualization, you can run virtual machines alongside your containers on the same OpenShift platform. And here's the interesting part: at the end of the day, virtual machines in OpenShift are just OpenShift custom resources. This means OpenShift Lightspeed can help you with your virtual machine workloads too. Whether you need to understand VM networking, troubleshoot a VM that won't start, or generate YAML for a new virtual machine configuration, OpenShift Lightspeed has the knowledge to assist you.
+
+Ready to see how OpenShift Lightspeed handles virtualization workloads? Let's explore that in the next section.

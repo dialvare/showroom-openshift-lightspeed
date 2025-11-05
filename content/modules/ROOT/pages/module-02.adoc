@@ -48,11 +48,11 @@ Take a look at those to get an understanding of what they are discussing.
 
 Now that you know the contents of the internal ACME Corp policies and that OpenShift Lightspeed is pointing to the additional RAG database, you should be able to get answers based on that custom knowledge and content.
 
-If you closed the OpenShift Lightspeed window, re-open it. Make sure to click the _Clear Chat_ button in the OpenShift Lightspeed interface and then ask the following question:
+If you closed the OpenShift Lightspeed window, re-open it. Make sure to click the *Clear Chat* button in the OpenShift Lightspeed interface and then ask the following question:
 
 [source,sh,role="execute",subs=attributes+]
 ----
-How can I use a pod autoscaler at ACME?
+How can I use a pod autoscaler at ACME corp?
 ----
 
 You should see an answer that refers to the prohibition on autoscalers and the specific processes required to get one.
