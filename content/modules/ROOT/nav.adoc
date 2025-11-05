@@ -15,7 +15,7 @@
 * xref:module-04.adoc[4. Troubleshooting issues]
 ** xref:module-04.adoc#attaching-resources-to-the-query[Attaching Resources]
 
-* xref:module-05.adoc[5. Lightspeed for Virtualization]
+* xref:module-05.adoc[5. Lightspeed for VMs]
 ** xref:module-05.adoc#new-virtualization-users[New Virtualization Users]
 ** xref:module-05.adoc#users-coming-from-different-platforms[New terminology learning]
 ** xref:module-05.adoc#troubleshooting-virtual-machines[Troubleshooting VMs]
