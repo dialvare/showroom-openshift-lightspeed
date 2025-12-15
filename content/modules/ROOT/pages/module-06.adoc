@@ -5,7 +5,6 @@ Congratulations! You've completed this comprehensive journey through OpenShift L
 This lab has only scratched the surface of what's possible. OpenShift Lightspeed continues to evolve with new features and capabilities. We encourage you to keep exploring—try it with your own workloads, integrate your team's documentation, and discover new ways it can streamline your OpenShift operations. The more you use OpenShift Lightspeed, the more productive you'll become with OpenShift.
 
 If you want to continue learning more, take a look at the https://interact.redhat.com/share/gOHOHHzfqFlgtM5bMuBZ[interactive OpenShift Lightspeed demo^] for a hands-on experience with additional features and use cases:
-
 ++++
 <iframe 
   src="https://demo.arcade.software/gOHOHHzfqFlgtM5bMuBZ?embed&embed_mobile=tab&embed_desktop=inline&show_copy_link=true" 
@@ -15,5 +14,4 @@ If you want to continue learning more, take a look at the https://interact.redha
   allowfullscreen>
 </iframe>
 ++++
-
 Thank you for taking the time to master OpenShift Lightspeed. We hope this assistant becomes an invaluable part of your daily OpenShift workflow!
