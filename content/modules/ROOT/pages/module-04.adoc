@@ -1,6 +1,6 @@
 = Troubleshooting issues in the cluster
 
-Time to put OpenShift Lightspeed to the real test. The key to effective troubleshooting with OpenShift Lightspeed is using the resource attachment feature. By clicking the _+_ button in the chat interface, you can attach YAML definitions and other components to your question, giving the AI assistant the precise context it needs to diagnose the problem.
+Time to put OpenShift Lightspeed to the real test. The key to effective troubleshooting with OpenShift Lightspeed is using the resource attachment feature. By clicking the *clip* icon in the chat interface, you can attach YAML definitions and other components to your question, giving the AI assistant the precise context it needs to diagnose the problem.
 
 == Attaching Resources to the Query
 
@@ -8,9 +8,9 @@ In your environment there is a pod that is failing to schedule for some reason. 
 
 image::broken-project-select.png[Broken project selection]
 
-Now, in the pod list, click on the one pod which you can see is in the _Pending_ state.
+Now, in the pod list, click on the *broken-pod* which you can see is in the _Pending_ state.
 
-Navigate to the chat interface. Make sure to click the *Clear Chat* button in the OpenShift Lightspeed interface. Then, click the *+* button to attach information. In this case, as this pod is currently _Pending_, there are no logs we can attach, and we don't really care about the events, either. Go ahead and attach the *Filtered YAML*, which will include the status information for this pod.
+Navigate to the chat interface. Make sure to click the *Clear Chat (x)* button in the OpenShift Lightspeed interface. Then, click the *clip* button to attach information. In this case, as this pod is currently _Pending_, there are no logs we can attach, and we don't really care about the events, either. Go ahead and attach the *Filtered YAML*, which will include the status information for this pod.
 
 image::attach-button.png[Attachment options in OpenShift Lightspeed]
 
@@ -38,7 +38,7 @@ Note that you can attach multiple things to your request at the same time, like 
 
 == Lightspeed Beyond Containers
 
-So far, we've explored how OpenShift Lightspeed helps with traditional containerized workloads—pods, deployments, routes, and services. But OpenShift is more than just containers. What about virtual machines?
+So far, we've explored how OpenShift Lightspeed helps with traditional containerized workloads like pods, deployments, routes, and services. But OpenShift is more than just containers. What about virtual machines?
 
 With OpenShift Virtualization, you can run virtual machines alongside your containers on the same OpenShift platform. And here's the interesting part: at the end of the day, virtual machines in OpenShift are just OpenShift custom resources. This means OpenShift Lightspeed can help you with your virtual machine workloads too. Whether you need to understand VM networking, troubleshoot a VM that won't start, or generate YAML for a new virtual machine configuration, OpenShift Lightspeed has the knowledge to assist you.
 

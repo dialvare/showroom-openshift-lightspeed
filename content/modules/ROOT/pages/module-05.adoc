@@ -8,7 +8,7 @@ This lab environment comes with OpenShift Virtualization already deployed and co
 
 If you're new to OpenShift Virtualization, there's a lot to learn. OpenShift Lightspeed can help you understand the key concepts and resources you'll be working with.
 
-For example, two important concepts when it comes to creating your first virtual machine in OpenShift Virtualization are InstanceTypes and VM Templates. Let's ask OpenShift Lightspeed to explain the difference:
+For example, two important concepts when it comes to creating your first virtual machine in OpenShift Virtualization are InstanceTypes and VM Templates. Click the *Clear Chat (x)* button and then ask OpenShift Lightspeed to explain the difference between both resources:
 
 [source,role="execute",subs=attributes+]
 ----
@@ -54,11 +54,11 @@ First, let's use cluster interaction to check if there are any VMs having proble
 Are there any VMs failing in the cluster?
 ----
 
-OpenShift Lightspeed will use cluster interaction tools to query the VirtualMachine resources across your cluster. You should see that there's a Fedora VM in a Pending state that's failing to start.
+OpenShift Lightspeed will use cluster interaction tools to query the VirtualMachine resources across your cluster. You should see that there's a RHEL 9 VM in a ImagePullBackOff state that's failing to start.
 
-Now let's dig deeper into what's wrong with this VM. In the OpenShift console, navigate to *Virtualization* in the left menu, then click on *VirtualMachines*. Find the Fedora VM that's in Pending state and click on the VM name to open its details page.
+Now let's dig deeper into what's wrong with this VM. In the OpenShift console, navigate to *Virtualization* in the left menu, then click on *VirtualMachines*. Make sure the project selected is *All Projects*. Find the RHEL 9 VM that's in failing and click on the VM name to open its details page.
 
-Now, return to the OpenShift Lightspeed chat interface. Then click the *+* button to attach information. Go ahead and attach the *Full YAML* for this VM. 
+Now, return to the OpenShift Lightspeed chat interface. Then click the *clip* button to attach information. Go ahead and attach the *Full YAML* for this VM. 
 
 image::broken-vm.png[Broken virtual machine]
 
@@ -69,16 +69,8 @@ Then you can ask:
 Why is this VM not starting?
 ----
 
-OpenShift Lightspeed will analyze the attached YAML and identify the problem: there's a nodeSelector in the VM configuration that's trying to schedule the VM on nodes with a specific label, but no nodes in your cluster match that label.
+OpenShift Lightspeed will analyze the attached YAML and identify the problem: the container image _quay.io/containerdisks/rhel:9-latest_ cannot be pulled because access to the resource is unauthorized.
 
-The response will likely explain why the VM can't be scheduled (no matching nodes) and how to fix it—either by removing the nodeSelector, modifying it to match available nodes, or adding the required label to appropriate nodes
+The response will likely explain why the container imag can't be pulled and some suggestions to be able to fix it.
 
 This demonstrates how OpenShift Lightspeed can troubleshoot virtual machine issues using the same attachment techniques you learned for containerized workloads. Whether you're dealing with pods or VMs, the troubleshooting workflow is consistent and intuitive.
-
-== Key Takeaways
-
-Congratulations! You've completed this comprehensive journey through OpenShift Lightspeed's capabilities. Throughout this lab, you've learned how to leverage OpenShift Lightspeed for much more than just answering basic questions. You started with simple queries and YAML generation, then progressed to integrating your organization's specific knowledge through BYOK, using real-time cluster interaction for dynamic troubleshooting, adding resource attachments to diagnose complex issues, and finally extending all these capabilities to virtual machine workloads.
-
-This lab has only scratched the surface of what's possible. OpenShift Lightspeed continues to evolve with new features and capabilities. We encourage you to keep exploring—try it with your own workloads, integrate your team's documentation, and discover new ways it can streamline your OpenShift operations. The more you use OpenShift Lightspeed, the more productive you'll become with OpenShift.
-
-Thank you for taking the time to master OpenShift Lightspeed. We hope this assistant becomes an invaluable part of your daily OpenShift workflow!

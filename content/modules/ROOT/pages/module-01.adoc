@@ -8,7 +8,7 @@ OpenShift Lightspeed is designed only to answer OpenShift-related questions, and
 
 Log into the OpenShift web console by clicking the link:
 
-{openshift_cluster_console_url}[OpenShift Console,window=_blank]
+{openshift_cluster_console_url}[Red Hat OpenShift Web Console,window=_blank]
 
 Username:
 [source,role="execute",subs=attributes+]
@@ -22,11 +22,11 @@ Password:
 {openshift_cluster_admin_password}
 ----
 
-Once you have logged-in, you should see the OpenShift Lightspeed button in the bottom-right corner of the OpenShift console:
+Once you have logged-in, you should see the OpenShift Lightspeed icon in the bottom-right corner of the OpenShift console:
 
 image::ols-icon.jpg[OpenShift Lightspeed icon, 50%]
 
-Click the button, and it will open the chat interface:
+Click the icon, and it will open the chat interface:
 
 image::ols-interface.png[OpenShift Lightspeed chat interface]
 
@@ -37,7 +37,7 @@ Why don't you start out by asking an easy question like:
 What are OpenShift Routes?
 ----
 
-OpenShift Lightspeed should provide a detailed answer about what OpenShift routes are and key features. And, if you scroll to the bottom of the chat window, you will see that OpenShift Lightspeed has also provided a link to the documentation that was used to generate its response:
+OpenShift Lightspeed should provide a detailed answer about what OpenShift routes are and key features. And, if you scroll to the bottom of the response, you will see that OpenShift Lightspeed has also provided a link to the documentation that was used to generate its response:
 
 image::related-docs.png[Related documentation]
 

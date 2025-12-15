@@ -20,3 +20,5 @@
 ** xref:module-05.adoc#users-coming-from-different-platforms[New terminology learning]
 ** xref:module-05.adoc#troubleshooting-virtual-machines[Troubleshooting VMs]
 ** xref:module-05.adoc#key-takeaways[Key Takeaways]
+
+* xref:module-06.adoc[6. Key Takeaways]

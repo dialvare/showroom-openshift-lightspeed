@@ -8,9 +8,9 @@ NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 
 The OpenShift Lightspeed operator has been also configured to use the cluster interaction feature by default in this lab. Optionally, you can check how it is enabled in the _OLSConfig_ resource.
 
-Again, navigate to *Operators* and then *Installed Operators* in the left hand menu.
+Again, navigate to *Ecosystem* and then *Installed Operators* in the left hand menu.
 
-Now, click the *OLSConfig* tab, and then click on the `cluster` instance. Finally, select the *YAML* tab.
+Now, click the *OpenShift Lightspeed Operator* and navigate to the *OLSConfig* tab. Then click on the `cluster` instance. Finally, select the *YAML* tab.
 
 In the YAML editor, scroll down until you spot the `introspectionEnabled` flag under `.spec.ols.introspectionEnabled`. It should be set to `true`:
 
@@ -28,14 +28,14 @@ When this flag is enabled, OpenShift Lightspeed deploys an MCP server already pr
 
 == Gathering Information from the Cluster
 
-Now that we have seen that cluster interaction is available, you can try asking some questions about cluster resources and see how OpenShift Lightspeed responds. Open the chat interface, click the *Clear Chat* button and ask:
+Now that we have seen that cluster interaction is available, you can try asking some questions about cluster resources and see how OpenShift Lightspeed responds. Open the chat interface, click the *Clear Chat (x)* button and ask:
 
 [source,role="execute",subs=attributes+]
 ----
-What are the pods in the openshift-lightspeed namespace?
+Show me the pods in the openshift-lightspeed namespace
 ----
 
-The GPT-4 model likely chose to use the _pods_list_in_namespace_ tool to retrieve pod information from the `openshift-lightspeed` namespace. You can view the tool's output by clicking the **pods_list_in_namespace** button displayed after the response. This information was used by the model to generate the final answer containing the list of all pods in that namespace.
+The GPT-4 model likely chose to use the _pods_list_in_namespace_ tool to retrieve pod information from the _openshift-lightspeed_ namespace. You can view the tool's output by clicking the `pods_list_in_namespace` button displayed after the response. This information was used by the model to generate the final answer containing the list of all pods in that namespace.
 
 Let's take cluster interaction one step further by combining it with follow-up questions. OpenShift Lightspeed can not only gather information from your cluster but also analyze it when you ask follow-up questions within the same chat session.
 

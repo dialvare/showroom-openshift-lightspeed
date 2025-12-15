@@ -12,7 +12,7 @@ The OpenShift Lightspeed Operator has been pre-configured in this lab environmen
 
 NOTE: The process of building and creating the BYOK container image is outside the scope of this lab. If you want to learn more about how to create your own BYOK images, please check the official https://docs.redhat.com/en/documentation/red_hat_openshift_lightspeed/1.0/html/configure/ols-configuring-openshift-lightspeed#about-the-byo-knowledge-tool_ols-configuring-openshift-lightspeed[Bring Your Own Knowledge documentation].
 
-In the OpenShift Console, click *Operators* and then *Installed Operators* in the left hand menu.
+In the OpenShift Console, click *Ecosystem* and then *Installed Operators* in the left hand menu. Locate the *OpenShift Lightspeed Operator*.
 
 Next, click the *OLSConfig* tab, and then click the single OLSConfig instance called `cluster` in the list. Finally, select the *YAML* tab.
 
@@ -27,7 +27,7 @@ spec:
 ...
     rag:
       - image: 'quay.io/dialvare/acme-byok:latest'
-        indexID: vector_db_index
+        indexID: ''
         indexPath: /rag/vector_db
 ----
 
@@ -48,7 +48,7 @@ Take a look at those to get an understanding of what they are discussing.
 
 Now that you know the contents of the internal ACME Corp policies and that OpenShift Lightspeed is pointing to the additional RAG database, you should be able to get answers based on that custom knowledge and content.
 
-If you closed the OpenShift Lightspeed window, re-open it. Make sure to click the *Clear Chat* button in the OpenShift Lightspeed interface and then ask the following question:
+If you closed the OpenShift Lightspeed window, re-open it. Make sure to click the cross icon *x* at the top right of the OpenShift Lightspeed interface to clear the chat and then ask the following question:
 
 [source,sh,role="execute",subs=attributes+]
 ----

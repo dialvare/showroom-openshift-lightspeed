@@ -12,7 +12,7 @@ OpenShift Lightspeed today is a relatively small and lightweight system that you
 
 image::ols-arch.png[OpenShift Lightspeed architecture]
 
-You can also see that OpenShift Lightspeed talks to a model provider. In the case of this lab environment, that provider is Azure OpenAI using the GPT-4 model. There are three supported public model providers:
+You can also see that OpenShift Lightspeed talks to a model provider. In the case of this lab environment, that provider is *Azure OpenAI* using the *GPT-4 model*. There are three supported public model providers:
 
 * WatsonX
 * Azure OpenAI
@@ -20,7 +20,7 @@ You can also see that OpenShift Lightspeed talks to a model provider. In the cas
 
 Additionally, if you want to self-manage your LLM, we also support the Red Hat on-premise model provider solutions:
 
-* OpenShift AI
+* Red Hat OpenShift AI
 * RHEL AI
 
 The little box that says RAG means retrieval-augmented generation.
