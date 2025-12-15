@@ -4,6 +4,7 @@ The Cluster Interaction feature allows OpenShift Lightspeed to interact and gath
 
 NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 
+[#check-the-cluster-interaction-configuration]
 == Check the Cluster Interaction Configuration
 
 The OpenShift Lightspeed operator has been also configured to use the cluster interaction feature by default in this lab. Optionally, you can check how it is enabled in the _OLSConfig_ resource.
@@ -26,6 +27,7 @@ spec:
 
 When this flag is enabled, OpenShift Lightspeed deploys an MCP server already preconfigured to communicate with the OpenShift API. This server provides some MCP tools, such as _events_list_, _namespaces_list_, _pods_list_in_namespace_, etc. When a user asks a question, the model may choose to call one of those tools to retrieve relevant information directly from the cluster to support the query. All tool usage is performed using the user's own credentials and access rights, preventing any privilege escalation.
 
+[#gathering-information-from-the-cluster]
 == Gathering Information from the Cluster
 
 Now that we have seen that cluster interaction is available, you can try asking some questions about cluster resources and see how OpenShift Lightspeed responds. Open the chat interface, click the *Clear Chat (x)* button and ask:

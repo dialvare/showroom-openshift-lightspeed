@@ -4,6 +4,7 @@ OpenShift Lightspeed uses a natural language interface to allow users to ask que
 
 OpenShift Lightspeed is designed only to answer OpenShift-related questions, and it will generally attempt to reject questions that are unrelated to OpenShift and Kubernetes. If you try hard enough, you can probably get it to do something it wasn't explicitly designed to do, but this is a shortcoming of all non-deterministic language-model-based systems. It is a bit of a game of whack-a-mole trying to keep up with all of the possible negative outcomes, and trying to prevent them is a topic of active PhD research right now. If you see something bad, be sure to report it using the feedback feature. We will always do our best to improve the quality and safety of the system.
 
+[#starter-question]
 == Starter Question
 
 Log into the OpenShift web console by clicking the link:
@@ -41,6 +42,7 @@ OpenShift Lightspeed should provide a detailed answer about what OpenShift route
 
 image::related-docs.png[Related documentation]
 
+[#follow-up-question]
 == Follow-up Question
 
 OpenShift Lightspeed maintains context from your previous questions within the same chat session, allowing you to ask follow-up questions naturally. This conversational approach makes it easy to dive deeper into topics or move from theory to practice. For example, now that you understand what OpenShift Routes are, you can ask a practical follow-up question like:
@@ -52,6 +54,7 @@ How do I expose a service using a Route?
 
 OpenShift Lightspeed remembers your conversation thanks to the PostgreSQL database we saw in the architecture image, and provides a more detailed, practical answer based on your previous question. This makes the learning experience more fluid and efficient.
 
+[#yaml-generation]
 == YAML Generation
 
 Beyond providing explanations and guidance, OpenShift Lightspeed can also generate YAML manifests for you. This is particularly useful when you need to create or modify Kubernetes/OpenShift resources quickly. Building on your previous conversation about Routes, you can ask OpenShift Lightspeed to generate actual YAML configuration. Try asking:

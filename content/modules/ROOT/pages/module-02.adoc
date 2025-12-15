@@ -6,6 +6,7 @@ As you learned earlier, OpenShift Lightspeed only uses the OpenShift documentati
 
 NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 
+[#examine-the-bring-your-own-knowledge-configuration]
 == Examine the Bring Your Own Knowledge Configuration
 
 The OpenShift Lightspeed Operator has been pre-configured in this lab environment to point to a container image with ACME Corp-specific knowledge. Let's examine this configuration to understand how BYOK works.
@@ -33,6 +34,7 @@ spec:
 
 NOTE: You can define multiple RAG databases if you want to add multiple sources. The _rag_ stanza just takes an array of image references.
 
+[#check-the-internal-documentation]
 == Check the Internal Documentation
 
 As you just saw, OpenShift Lightspeed is configured to use a container image from Quay (`quay.io/dialvare/acme-byok:latest`) that contains ACME Corp's internal procedures and policies. But where does this content come from? 
@@ -44,6 +46,7 @@ This BYOK image was built from markdown docs. The documentation used is located 
 
 Take a look at those to get an understanding of what they are discussing.
 
+[#byok-enters-the-chat]
 == BYOK Enters the Chat
 
 Now that you know the contents of the internal ACME Corp policies and that OpenShift Lightspeed is pointing to the additional RAG database, you should be able to get answers based on that custom knowledge and content.

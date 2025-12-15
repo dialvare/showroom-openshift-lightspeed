@@ -4,6 +4,7 @@ As we mentioned in the previous module, OpenShift Virtualization allows you to r
 
 This lab environment comes with OpenShift Virtualization already deployed and configured. You can start working with virtual machines right away. In this module, we'll explore how OpenShift Lightspeed assists with virtualization workloads across different user scenarios—from newcomers learning the basics to experienced admins migrating from other platforms.
 
+[#new-virtualization-users]
 == New Virtualization User
 
 If you're new to OpenShift Virtualization, there's a lot to learn. OpenShift Lightspeed can help you understand the key concepts and resources you'll be working with.
@@ -28,6 +29,7 @@ How do I create a Fedora VM from a template?
 
 OpenShift Lightspeed provides the guidance needed to navigate the cluster in order to create the virtual machine. As you can see, in just 5 minutes you were able to spin up your first virtual machine with seamless effort. The initial learning curve is much easier thanks to the assistance that OpenShift Lightspeed provides.
 
+[#users-coming-from-different-platforms]
 == User Coming from a Different Platform
 
 If you're migrating to OpenShift Virtualization from another platform like VMware, you might be familiar with different terminology. The good news is that OpenShift Lightspeed understands this and can help you translate concepts between platforms.
@@ -43,6 +45,7 @@ OpenShift Lightspeed understands that you're asking about live migration using V
 
 This capability is incredibly valuable because it allows users to keep using the terminology they're already familiar with and learn the OpenShift Virtualization equivalents naturally over time by getting answers that bridge their existing knowledge with new concepts.
 
+[#troubleshooting-virtual-machines]
 == Troubleshooting Virtual Machines
 
 Just like with containerized workloads, things can go wrong with virtual machines. Let's combine what we've learned about cluster interaction and resource attachments to troubleshoot a VM issue.
