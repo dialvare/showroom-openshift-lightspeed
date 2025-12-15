@@ -1,4 +1,4 @@
-== Key Takeaways
+= Key Takeaways
 
 Congratulations! You've completed this comprehensive journey through OpenShift Lightspeed's capabilities. Throughout this lab, you've learned how to leverage OpenShift Lightspeed for much more than just answering basic questions. You started with simple queries and YAML generation, then progressed to integrating your organization's specific knowledge through BYOK, using real-time cluster interaction for dynamic troubleshooting, adding resource attachments to diagnose complex issues, and finally extending all these capabilities to virtual machine workloads.
 
