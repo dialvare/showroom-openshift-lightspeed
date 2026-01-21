@@ -6,19 +6,25 @@ NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 
 In this module, you'll deploy the Insights Result MCP server that connects to Red Hat Insights and provides two tools:
 
-* _get_last_result_for_cluster_: returns a dictionary with the cluster result.
-* _get_upgrade_risk_prediction_for_cluster_: returns a dictionary with the upgrade risks prediction for the given cluster.
+* _get_last_result_for_cluster:_ returns a dictionary with the cluster result.
+* _get_upgrade_risk_prediction_for_cluster:_ returns a dictionary with the upgrade risks prediction for the given cluster.
 
 [#deploy-the-insights-result-mcp-server]
 == Deploy the Insights Result MCP server
 
 OpenShift Lightspeed can connect to MCP servers running outside the cluster, but in this case, the Insights Result MCP server will be deployed directly within our OpenShift cluster.
 
-In order to deploy the MCP server, we will need to create several resources in our cluster. Some of them will be created via YAML in the OpenShift Dashboard, while others that require environment variables will be created from the Terminal.
+In order to deploy the MCP server, we will need to create several resources in our cluster. Some of them will be created via YAML in the OpenShift Dashboard, while others that require environment variables will be created from the Command Line.
 
-Let's prepare the Web console to easily apply all the resources. In the upper-right corner menu, click on the *OpenShift command line*. This will open a new tab at the bottom of your page. There, select *Connect*. 
+Let's prepare the Web console to easily apply all the resources. In the upper-right corner menu, click on the *OpenShift command line* option.
 
-In the same upper-right menu, you can spot the *Quick create* button, where we will be able to Import the _Project_, _Deployment_ and _Service_ YAML resources.
+image::command-line.png[OpenShift Command Line menu]
+
+This will open a new tab at the bottom of your page. There, select *Start*. 
+
+In the same upper-right menu, you can spot the *Quick create* button, where we will be able to Import the _Project_, _Deployment_ and _Service_ YAML resources:
+
+image::import-yaml.png[OpenShift Import YAML menu]
 
 === Deploy the Project:
 
@@ -36,7 +42,7 @@ metadata:
 
 === Create the secret:
 
-The _Secret_ needs to include our cluster's pull secret. To dynamically generate this resource and inject that value, run the following command in your terminal at the bottom:
+The _Secret_ needs to include our cluster's pull secret. To dynamically generate this resource and inject that value, run the following command in your Terminal at the bottom:
 
 [source,role="execute",subs=attributes+]
 ----
@@ -54,7 +60,7 @@ oc create -n insights-results-mcp configmap cluster-info \
   --from-literal=CLUSTER_ID="$(oc get clusterversion -o jsonpath='{.items[].spec.clusterID}')"
 ----
 
-That's the last resource we will create using the Terminal, so you can close the Terminal window at the bottom.
+That's the last resource we will create using the command line, so you can close the Terminal window at the bottom.
 
 === Generate Deployment:
 
@@ -146,7 +152,11 @@ The Insights Result MCP server is now configured and running in our cluster. It'
 [#configure-openshift-lightspeed]
 == Configure Openshift Lightspeed
 
-As we have seen in previous sections, the configuration in our OpenShift Lightspeed operator needs to be done in the OLSConfig resource. Navigate to *Ecosystem* and then *Installed Operators* in the left hand menu. Make sure you select *Project: All Projects* to list all the operators in the cluster. Click the *OpenShift Lightspeed Operator* and navigate to the *OLSConfig* tab. Then click on the `cluster` instance. Finally, select the *YAML* tab.
+As we have seen in previous sections, the configuration in our OpenShift Lightspeed operator needs to be done in the OLSConfig resource. 
+
+Navigate to *Ecosystem* and then *Installed Operators* in the left hand menu, and make sure you select *Project: All Projects* to list all the operators in the cluster. 
+
+Click the *OpenShift Lightspeed Operator* and navigate to the *OLSConfig* tab. Then click on the `cluster` instance. Finally, select the *YAML* tab.
 
 Once in the OLSConfig YAML resource, add the following lines and click *Save*:
 
@@ -187,5 +197,3 @@ It's likely that the LLM has decided to use the _get_last_result_for_cluster_ to
 So far, we've explored how OpenShift Lightspeed helps with traditional containerized workloads like pods, deployments, routes, and services. But OpenShift is more than just containers. What about virtual machines?
 
 With OpenShift Virtualization, you can run virtual machines alongside your containers on the same OpenShift platform. And here's the interesting part: at the end of the day, virtual machines in OpenShift are just OpenShift custom resources. This means OpenShift Lightspeed can help you with your virtual machine workloads too. Whether you need to understand VM networking, troubleshoot a VM that won't start, or generate YAML for a new virtual machine configuration, OpenShift Lightspeed has the knowledge to assist you.
-
-Ready to see how OpenShift Lightspeed handles virtualization workloads? Continue to the next module to explore OpenShift Lightspeed and Virtualization.
