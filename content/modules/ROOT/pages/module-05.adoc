@@ -18,13 +18,13 @@ In order to deploy the MCP server, we will need to create several resources in o
 
 Let's prepare the Web console to easily apply all the resources. In the upper-right corner menu, click on the *OpenShift command line* option.
 
-image::command-line.png[OpenShift Command Line menu]
+image::command-line.png[OpenShift Command Line menu, 50%]
 
 This will open a new tab at the bottom of your page. There, select *Start*. 
 
 In the same upper-right menu, you can spot the *Quick create* button, where we will be able to Import the _Project_, _Deployment_ and _Service_ YAML resources:
 
-image::import-yaml.png[OpenShift Import YAML menu]
+image::import-yaml.png[OpenShift Import YAML menu, 50%]
 
 === Deploy the Project:
 
@@ -116,7 +116,7 @@ spec:
       terminationGracePeriodSeconds: 30
 ----
 
-In the Web Console interface, you will see a Pod being created that will reach the _Running_ status in a few seconds.
+In the Web Console interface, you will see a Pod being created and Running after a few seconds.
 
 === Generate Service:
 
@@ -165,7 +165,7 @@ Once in the OLSConfig YAML resource, add the following lines and click *Save*:
 ...
 spec:
 ...
-  ols:
+  llm:
 ...
   featureGates:
     - MCPServer
@@ -178,7 +178,7 @@ spec:
         url: 'http://insights-results-mcp-server.insights-results-mcp.svc.cluster.local:5000/api/insights-results-mcp'
 ----
 
-This new configuration will re-deploy the OpenShift Lightspeed service pod. Please wait a minute before starting to interact with OpenShift Lightspeed.
+This new configuration will re-deploy the OpenShift Lightspeed app server pod. Please wait a minute before starting to interact with OpenShift Lightspeed.
 
 [#use-your-custom-mcp-server]
 == Use your custom MCP server
