@@ -1,79 +1,191 @@
-= Simplify VM management with OpenShift Lightspeed
+= Bring your Custom MCP Servers into OpenShift Lightspeed
 
-As we mentioned in the previous module, OpenShift Virtualization allows you to run virtual machines alongside your containerized workloads. Virtual machines in OpenShift are managed as custom resources, which means OpenShift Lightspeed can help you understand, configure, and troubleshoot them just like any other OpenShift resource.
+OpenShift Lightspeed can be extended beyond its built-in capabilities by integrating custom MCP servers. This feature allows you to add additional MCP servers that provide new tools to the OpenShift Lightspeed instance, enabling the LLM to use these external tools when generating answers to your questions. 
 
-This lab environment comes with OpenShift Virtualization already deployed and configured. You can start working with virtual machines right away. In this module, we'll explore how OpenShift Lightspeed assists with virtualization workloads across different user scenarios—from newcomers learning the basics to experienced admins migrating from other platforms.
+NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 
-[#new-virtualization-users]
-== New Virtualization User
+In this module, you'll deploy the Insights Result MCP server that connects to Red Hat Insights and provides two tools:
 
-If you're new to OpenShift Virtualization, there's a lot to learn. OpenShift Lightspeed can help you understand the key concepts and resources you'll be working with.
+* _get_last_result_for_cluster_: returns a dictionary with the cluster result.
+* _get_upgrade_risk_prediction_for_cluster_: returns a dictionary with the upgrade risks prediction for the given cluster.
 
-For example, two important concepts when it comes to creating your first virtual machine in OpenShift Virtualization are InstanceTypes and VM Templates. Click the *Clear Chat (x)* button and then ask OpenShift Lightspeed to explain the difference between both resources:
+[#deploy-the-insights-result-mcp-server]
+== Deploy the Insights Result MCP server
+
+OpenShift Lightspeed can connect to MCP servers running outside the cluster, but in this case, the Insights Result MCP server will be deployed directly within our OpenShift cluster.
+
+In order to deploy the MCP server, we will need to create several resources in our cluster. Some of them will be created via YAML in the OpenShift Dashboard, while others that require environment variables will be created from the Terminal.
+
+Let's prepare the Web console to easily apply all the resources. In the upper-right corner menu, click on the *OpenShift command line*. This will open a new tab at the bottom of your page. There, select *Connect*. 
+
+In the same upper-right menu, you can spot the *Quick create* button, where we will be able to Import the _Project_, _Deployment_ and _Service_ YAML resources.
+
+=== Deploy the Project:
+
+Start by creating the _Project_. Click on *Quick create* > *Import YAML* in the top-right corner. Then, paste the following YAML and click *Create*:
+
+[source,yaml,role="execute",subs=attributes+]
+----
+apiVersion: project.openshift.io/v1
+kind: Project
+metadata:
+  labels:
+    kubernetes.io/metadata.name: insights-results-mcp
+  name: insights-results-mcp
+----
+
+=== Create the secret:
+
+The _Secret_ needs to include our cluster's pull secret. To dynamically generate this resource and inject that value, run the following command in your terminal at the bottom:
 
 [source,role="execute",subs=attributes+]
 ----
-What's the difference between a VM InstanceType and a VM Template?
+oc create -n insights-results-mcp secret generic insights-results-secret \
+  --from-literal=CONSOLE_REDHAT_PULL_SECRET="$(oc get secrets pull-secret -n openshift-config -o json | jq -r '.data.".dockerconfigjson"' | base64 -d | jq -r '.auths."cloud.openshift.com".auth')"
 ----
 
-OpenShift Lightspeed will provide a clear explanation of both concepts, when it makes sense to use one or either and the difference between both resources. 
+=== Create the ConfigMap:
 
-This kind of conceptual guidance helps you quickly understand the building blocks of OpenShift Virtualization and provides direct links to the relevant documentation sections if you want to dive deeper.
-
-Now that the difference is clear the new Virtualization user can decide what to choose. For example, let's see what's the procedure to create a virtual machine from a template:
+Similar to what we did with the Secret, run the following command to generate the _ConfigMap_ that includes our cluster's ID:
 
 [source,role="execute",subs=attributes+]
 ----
-How do I create a Fedora VM from a template?
+oc create -n insights-results-mcp configmap cluster-info \
+  --from-literal=CLUSTER_ID="$(oc get clusterversion -o jsonpath='{.items[].spec.clusterID}')"
 ----
 
-OpenShift Lightspeed provides the guidance needed to navigate the cluster in order to create the virtual machine. As you can see, in just 5 minutes you were able to spin up your first virtual machine with seamless effort. The initial learning curve is much easier thanks to the assistance that OpenShift Lightspeed provides.
+That's the last resource we will create using the Terminal, so you can close the Terminal window at the bottom.
 
-[#users-coming-from-different-platforms]
-== User Coming from a Different Platform
+=== Generate Deployment:
 
-If you're migrating to OpenShift Virtualization from another platform like VMware, you might be familiar with different terminology. The good news is that OpenShift Lightspeed understands this and can help you translate concepts between platforms.
+Now, let's go back to the YAML creation procedure. To create the _Deployment_, navigate to *Quick create* > *Import YAML* in the top-right corner and then paste the following YAML before clicking *Create*:
 
-Let's try an example. If you come from a VMware background, you're probably familiar with vMotion—VMware's technology for live migrating VMs between hosts. Let's ask OpenShift Lightspeed about this:
+[source,yaml,role="execute",subs=attributes+]
+----
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: insights-results-mcp
+  name: insights-results-mcp-server
+  namespace: insights-results-mcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: insights-results-mcp-server
+  template:
+    metadata:
+      labels:
+        app: insights-results-mcp-server
+    spec:
+      containers:
+      - env:
+        - name: TRANSPORT
+          value: streamable-http
+        - name: CLUSTER_ID
+          valueFrom:
+            configMapKeyRef:
+              name: cluster-info
+              key: CLUSTER_ID
+        - name: CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: insights-results-secret
+              key: CONSOLE_REDHAT_PULL_SECRET
+        image: quay.io/joseluis/insights-results-mcp:latest
+        imagePullPolicy: Always
+        name: container
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+          name: mcp
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+----
+
+In the Web Console interface, you will see a Pod being created that will reach the _Running_ status in a few seconds.
+
+=== Generate Service:
+
+Finally, create the _Service_ to expose the MCP url. Again, click on *Quick create* > *Import YAML*. There, copy the contents of the following YAML and press *Create*.
+
+[source,yaml,role="execute",subs=attributes+]
+----
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/name: insights-results-mcp
+  name: insights-results-mcp-server
+  namespace: insights-results-mcp
+spec:
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: mcp
+    port: 5000
+    protocol: TCP
+    targetPort: mcp
+  selector:
+    app: insights-results-mcp-server
+  sessionAffinity: None
+  type: ClusterIP
+----
+
+The Insights Result MCP server is now configured and running in our cluster. It's time to connect it to our OpenShift Lightspeed instance. 
+
+[#configure-openshift-lightspeed]
+== Configure Openshift Lightspeed
+
+As we have seen in previous sections, the configuration in our OpenShift Lightspeed operator needs to be done in the OLSConfig resource. Navigate to *Ecosystem* and then *Installed Operators* in the left hand menu. Make sure you select *Project: All Projects* to list all the operators in the cluster. Click the *OpenShift Lightspeed Operator* and navigate to the *OLSConfig* tab. Then click on the `cluster` instance. Finally, select the *YAML* tab.
+
+Once in the OLSConfig YAML resource, add the following lines and click *Save*:
+
+[source,yaml,role="execute",subs=attributes+]
+----
+...
+spec:
+...
+  ols:
+...
+  featureGates:
+    - MCPServer
+  mcpServers:
+    - name: insights-results-mcp
+      streamableHTTP:
+        enableSSE: false
+        sseReadTimeout: 10
+        timeout: 5
+        url: 'http://insights-results-mcp-server.insights-results-mcp.svc.cluster.local:5000/api/insights-results-mcp'
+----
+
+This new configuration will re-deploy the OpenShift Lightspeed service pod. Please wait a minute before starting to interact with OpenShift Lightspeed.
+
+[#use-your-custom-mcp-server]
+== Use your custom MCP server
+
+Now try asking OpenShift Lightspeed the following question about your Insights inventory. The model should use one of the tools that the new MCP server provides: 
 
 [source,role="execute",subs=attributes+]
 ----
-How do I vMotion a VM in OpenShift Virtualization?
+Show me the systems in my Insights inventory
 ----
 
-OpenShift Lightspeed understands that you're asking about live migration using VMware terminology. It will explain that the OpenShift Virtualization equivalent is called **Live Migration**, and likely it will provide you with information on how to proceed in OpenShift Virtualization.
+It's likely that the LLM has decided to use the _get_last_result_for_cluster_ tool provided by the Insights Result MCP server. Since the cluster should be healthy, the response will probably indicate that there are no issues listed. This doesn't mean the tool call failed—quite the opposite! The tool successfully retrieved that information from Insights.
 
-This capability is incredibly valuable because it allows users to keep using the terminology they're already familiar with and learn the OpenShift Virtualization equivalents naturally over time by getting answers that bridge their existing knowledge with new concepts.
+== Lightspeed Beyond Containers
 
-[#troubleshooting-virtual-machines]
-== Troubleshooting Virtual Machines
+So far, we've explored how OpenShift Lightspeed helps with traditional containerized workloads like pods, deployments, routes, and services. But OpenShift is more than just containers. What about virtual machines?
 
-Just like with containerized workloads, things can go wrong with virtual machines. Let's combine what we've learned about cluster interaction and resource attachments to troubleshoot a VM issue.
+With OpenShift Virtualization, you can run virtual machines alongside your containers on the same OpenShift platform. And here's the interesting part: at the end of the day, virtual machines in OpenShift are just OpenShift custom resources. This means OpenShift Lightspeed can help you with your virtual machine workloads too. Whether you need to understand VM networking, troubleshoot a VM that won't start, or generate YAML for a new virtual machine configuration, OpenShift Lightspeed has the knowledge to assist you.
 
-First, let's use cluster interaction to check if there are any VMs having problems. Clear your chat session and ask:
-
-[source,role="execute",subs=attributes+]
-----
-Are there any VMs failing in the cluster?
-----
-
-OpenShift Lightspeed will use cluster interaction tools to query the VirtualMachine resources across your cluster. You should see that there's a RHEL 9 VM in a ImagePullBackOff state that's failing to start.
-
-Now let's dig deeper into what's wrong with this VM. In the OpenShift console, navigate to *Virtualization* in the left menu, then click on *VirtualMachines*. Make sure the project selected is *All Projects*. Find the RHEL 9 VM that's in failing and click on the VM name to open its details page.
-
-Now, return to the OpenShift Lightspeed chat interface. Then click the *clip* button to attach information. Go ahead and attach the *Full YAML* for this VM. 
-
-image::broken-vm.png[Broken virtual machine]
-
-Then you can ask:
-
-[source,role="execute",subs=attributes+]
-----
-Why is this VM not starting?
-----
-
-OpenShift Lightspeed will analyze the attached YAML and identify the problem: the container image _quay.io/containerdisks/rhel:9-latest_ cannot be pulled because access to the resource is unauthorized.
-
-The response will likely explain why the container imag can't be pulled and some suggestions to be able to fix it.
-
-This demonstrates how OpenShift Lightspeed can troubleshoot virtual machine issues using the same attachment techniques you learned for containerized workloads. Whether you're dealing with pods or VMs, the troubleshooting workflow is consistent and intuitive.
+Ready to see how OpenShift Lightspeed handles virtualization workloads? Continue to the next module to explore OpenShift Lightspeed and Virtualization.

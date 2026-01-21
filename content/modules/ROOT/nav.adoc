@@ -15,9 +15,14 @@
 * xref:module-04.adoc[4. Troubleshooting issues]
 ** xref:module-04.adoc#attaching-resources-to-the-query[Attaching Resources]
 
-* xref:module-05.adoc[5. Lightspeed for VMs]
-** xref:module-05.adoc#new-virtualization-users[New Virtualization Users]
-** xref:module-05.adoc#users-coming-from-different-platforms[New terminology learning]
-** xref:module-05.adoc#troubleshooting-virtual-machines[Troubleshooting VMs]
+* xref:module-05.adoc[5. Custom MCP servers]
+** xref:module-05.adoc#deploy-the-insights-result-mcp-server[Deploy the MCP server]
+** xref:module-05.adoc#configure-openshift-lightspeed[Configure Lightspeed]
+** xref:module-05.adoc#use-your-custom-mcp-server[Use your MCP server]
 
-* xref:module-06.adoc[6. Key Takeaways]
+* xref:module-06.adoc[6. Lightspeed for VMs]
+** xref:module-06.adoc#new-virtualization-users[New Virtualization Users]
+** xref:module-06.adoc#users-coming-from-different-platforms[New terminology learning]
+** xref:module-06.adoc#troubleshooting-virtual-machines[Troubleshooting VMs]
+
+* xref:module-07.adoc[7. Key Takeaways]

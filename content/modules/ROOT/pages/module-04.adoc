@@ -37,10 +37,6 @@ Can you see how the simple act of attaching details to your request can dramatic
 
 Note that you can attach multiple things to your request at the same time, like a service, a route, and a deployment. This can make more complicated troubleshooting scenarios easier.
 
-== Lightspeed Beyond Containers
+== Expanding Capabilities
 
-So far, we've explored how OpenShift Lightspeed helps with traditional containerized workloads like pods, deployments, routes, and services. But OpenShift is more than just containers. What about virtual machines?
-
-With OpenShift Virtualization, you can run virtual machines alongside your containers on the same OpenShift platform. And here's the interesting part: at the end of the day, virtual machines in OpenShift are just OpenShift custom resources. This means OpenShift Lightspeed can help you with your virtual machine workloads too. Whether you need to understand VM networking, troubleshoot a VM that won't start, or generate YAML for a new virtual machine configuration, OpenShift Lightspeed has the knowledge to assist you.
-
-Ready to see how OpenShift Lightspeed handles virtualization workloads? Continue to the next module to explore OpenShift Lightspeed and Virtualization.
+Throughout this lab, you've seen how OpenShift Lightspeed uses cluster interaction and attachments to assist with your OpenShift workloads. But what if you could extend OpenShift Lightspeed even further by connecting it to external tools? In the next module, you'll learn how to integrate custom MCP servers into OpenShift Lightspeed.
