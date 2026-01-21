@@ -190,7 +190,7 @@ Now try asking OpenShift Lightspeed the following question about your Insights i
 Show me the systems in my Insights inventory
 ----
 
-It's likely that the LLM has decided to use the _get_last_result_for_cluster_ tool provided by the Insights Result MCP server. Since the cluster should be healthy, the response will probably indicate that there are no issues listed. This doesn't mean the tool call failed—quite the opposite! The tool successfully retrieved that information from Insights.
+It's likely that the LLM has decided to use the `get_last_result_for_cluster` tool provided by the Insights Result MCP server. Since the cluster should be healthy, the response will probably indicate that there are no issues listed. This doesn't mean the tool call failed—quite the opposite! The tool successfully retrieved that information from Insights.
 
 == Lightspeed Beyond Containers
 
