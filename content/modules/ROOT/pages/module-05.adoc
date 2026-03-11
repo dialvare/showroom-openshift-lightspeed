@@ -171,11 +171,8 @@ spec:
     - MCPServer
   mcpServers:
     - name: insights-results-mcp
-      streamableHTTP:
-        enableSSE: false
-        sseReadTimeout: 10
-        timeout: 5
-        url: 'http://insights-results-mcp-server.insights-results-mcp.svc.cluster.local:5000/api/insights-results-mcp'
+      timeout: 5
+      url: 'http://insights-results-mcp-server.insights-results-mcp.svc.cluster.local:5000/api/insights-results-mcp'
 ----
 
 This new configuration will re-deploy the OpenShift Lightspeed app server pod. Please wait a minute before starting to interact with OpenShift Lightspeed.
