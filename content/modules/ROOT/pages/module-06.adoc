@@ -54,7 +54,7 @@ First, let's use cluster interaction to check if there are any VMs having proble
 
 [source,role="execute",subs=attributes+]
 ----
-Are there any VMs failing in the cluster?
+Are there any VMs not working properly in the cluster?
 ----
 
 OpenShift Lightspeed will use cluster interaction tools to query the VirtualMachine resources across your cluster. You should see that there's a RHEL 9 VM in a ImagePullBackOff state that's failing to start.
@@ -74,6 +74,6 @@ Why is this VM not starting?
 
 OpenShift Lightspeed will analyze the attached YAML and identify the problem: the container image _quay.io/containerdisks/rhel:9-latest_ cannot be pulled because access to the resource is unauthorized.
 
-The response will likely explain why the container imag can't be pulled and some suggestions to be able to fix it.
+The response will likely explain why the container image can't be pulled and some suggestions to be able to fix it.
 
 This demonstrates how OpenShift Lightspeed can troubleshoot virtual machine issues using the same attachment techniques you learned for containerized workloads. Whether you're dealing with pods or VMs, the troubleshooting workflow is consistent and intuitive.
