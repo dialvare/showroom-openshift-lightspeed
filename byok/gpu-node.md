@@ -1,5 +1,6 @@
 ---
 title: ITOCP-AI | Adding GPU Node Pool to AI Clusters
+url: "https://github.com/dialvare/showroom-openshift-lightspeed/blob/main/byok/gpu-node.md"
 ---
 
 # Adding a GPU Node Pool to AI Clusters
