@@ -1,3 +1,8 @@
+---
+title: ACME corp | Using Horizontal pod autoscalers
+url: "https://github.com/dialvare/showroom-openshift-lightspeed/blob/main/byok/autoscaling-rules.md"
+---
+
 # Autoscaling Rules
 
 At ACME corp, horizontal pod autoscalers may not be used by default. You do
