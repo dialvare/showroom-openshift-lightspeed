@@ -150,7 +150,7 @@ spec:
 The Insights Result MCP server is now configured and running in our cluster. It's time to connect it to our OpenShift Lightspeed instance. 
 
 [#configure-openshift-lightspeed]
-== Configure Openshift Lightspeed
+== Configure OpenShift Lightspeed
 
 As we have seen in previous sections, the configuration in our OpenShift Lightspeed operator needs to be done in the OLSConfig resource. 
 
@@ -176,6 +176,8 @@ spec:
 ----
 
 This new configuration will re-deploy the OpenShift Lightspeed app server pod. Please wait a minute before starting to interact with OpenShift Lightspeed.
+
+NOTE: The Insights Result MCP server used in this lab does not require authentication from OpenShift Lightspeed, but the `mcpServers` configuration also supports sending custom HTTP headers to servers that do. Header values can come from a Secret, from the logged-in user's own Kubernetes token, or from the connecting client — so you can integrate MCP servers that enforce their own authentication and authorization.
 
 [#use-your-custom-mcp-server]
 == Use your custom MCP server

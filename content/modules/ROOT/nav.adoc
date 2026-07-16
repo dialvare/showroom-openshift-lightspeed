@@ -11,6 +11,8 @@
 * xref:module-03.adoc[3. Cluster Interaction]
 ** xref:module-03.adoc#check-the-cluster-interaction-configuration[Check the OLSConfig]
 ** xref:module-03.adoc#gathering-information-from-the-cluster[Gathering Information]
+** xref:module-03.adoc#alerts-and-metrics[Alerts and Metrics]
+** xref:module-03.adoc#query-filters[Redacting Sensitive Data]
 
 * xref:module-04.adoc[4. Troubleshooting issues]
 ** xref:module-04.adoc#attaching-resources-to-the-query[Attaching Resources]

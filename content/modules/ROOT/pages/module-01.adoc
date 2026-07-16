@@ -2,7 +2,7 @@
 
 OpenShift Lightspeed uses a natural language interface to allow users to ask questions. You have used many chat interfaces before, so OpenShift Lightspeed should feel very comfortable to use.
 
-OpenShift Lightspeed is designed only to answer OpenShift-related questions, and it will generally attempt to reject questions that are unrelated to OpenShift and Kubernetes. If you try hard enough, you can probably get it to do something it wasn't explicitly designed to do, but this is a shortcoming of all non-deterministic language-model-based systems. It is a bit of a game of whack-a-mole trying to keep up with all of the possible negative outcomes, and trying to prevent them is a topic of active PhD research right now. If you see something bad, be sure to report it using the feedback feature. We will always do our best to improve the quality and safety of the system.
+OpenShift Lightspeed is designed only to answer OpenShift-related questions, and it will generally attempt to reject questions that are unrelated to OpenShift and Kubernetes. If you try hard enough, you can probably get it to do something it wasn't explicitly designed to do, but this is a shortcoming of all non-deterministic language-model-based systems. It is a bit of a game of whack-a-mole trying to keep up with all of the possible negative outcomes, and trying to prevent them is a topic of active research. If you see something bad, be sure to report it using the built-in feedback feature — the thumbs-up/thumbs-down buttons underneath each response, where you can also leave written comments. We will always do our best to improve the quality and safety of the system.
 
 [#starter-question]
 == Starter Question
@@ -65,6 +65,8 @@ Generate a Route YAML that exposes a service on port 8080 with TLS edge terminat
 ----
 
 OpenShift Lightspeed will provide you with a complete YAML manifest that you can copy and apply to your cluster. The generated YAML follows OpenShift best practices and includes the relevant fields based on your specific requirements. You can then customize this YAML further if needed.
+
+TIP: When you copy a response, the rich-text formatting is preserved, so answers paste cleanly into documents and runbooks. Long code blocks in responses can also be expanded and collapsed to keep the conversation easy to read.
 
 == Problem!
 

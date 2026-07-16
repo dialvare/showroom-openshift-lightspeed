@@ -7,7 +7,7 @@ NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 [#check-the-cluster-interaction-configuration]
 == Check the Cluster Interaction Configuration
 
-The OpenShift Lightspeed operator has been also configured to use the cluster interaction feature by default in this lab. Optionally, you can check how it is enabled in the _OLSConfig_ resource.
+Starting with OpenShift Lightspeed 1.1, the cluster interaction feature is enabled by default on new installations, and that is how this lab environment is running. Optionally, you can check how it is enabled in the _OLSConfig_ resource.
 
 Again, navigate to *Ecosystem* and then *Installed Operators* in the left hand menu.
 
@@ -27,10 +27,14 @@ spec:
 
 When this flag is enabled, OpenShift Lightspeed deploys an MCP server already preconfigured to communicate with the OpenShift API. This server provides some MCP tools, such as _events_list_, _namespaces_list_, _pods_list_in_namespace_, etc. When a user asks a question, the model may choose to call one of those tools to retrieve relevant information directly from the cluster to support the query. All tool usage is performed using the user's own credentials and access rights, preventing any privilege escalation.
 
+NOTE: The built-in MCP server has security guardrails baked in: it is explicitly blocked from reading Secrets and RBAC resources, so sensitive data such as credentials can never reach the LLM through it — regardless of how a question is phrased or how many permissions the logged-in user has.
+
+TIP: Tool calling consumes extra tokens from the model's context window. If you are tuning your own installation, `.spec.ols.maxIterations` limits how many tool-calling rounds the model may take per question, and the per-model `parameters.toolBudgetRatio` setting controls how much of the context window may be spent on tool output.
+
 [#gathering-information-from-the-cluster]
 == Gathering Information from the Cluster
 
-Now that we have seen that cluster interaction is available, you can try asking some questions about cluster resources and see how OpenShift Lightspeed responds. Open the chat interface, click the *Clear Chat (x)* button and ask:
+Now that we have seen that cluster interaction is available, you can try asking some questions about cluster resources and see how OpenShift Lightspeed responds. Open the chat interface, click the *Clear chat* (trash can) button if you have an ongoing conversation, and ask:
 
 [source,role="execute",subs=attributes+]
 ----
@@ -49,6 +53,47 @@ Can you get and analyze the logs of the last pod?
 ----
 
 OpenShift Lightspeed will use the _pods_log_ tool to retrieve the recent logs from the PostgreSQL database pod and then provide you with an analysis of what's happening in those logs. This demonstrates the power of combining cluster interaction with the conversational context maintained from your previous questions to navigate across different components and resources within the cluster.
+
+[#alerts-and-metrics]
+== Beyond the Kubernetes API: Alerts and Metrics
+
+Cluster interaction is not limited to Kubernetes resources. The built-in MCP server is also connected to the OpenShift monitoring stack (Prometheus and Alertmanager), which means OpenShift Lightspeed can reason about the live health of your cluster. Click the *Clear chat* (trash can) button and ask:
+
+[source,role="execute",subs=attributes+]
+----
+Are there any alerts firing in the cluster right now?
+----
+
+This time the model calls the _get_alerts_ tool, retrieves the alerts currently firing from the monitoring stack, and summarizes them for you — including each alert's severity and description. As before, you can ask follow-up questions about any alert that catches your attention, and the model will combine the alert data with other cluster interaction tools to dig deeper.
+
+[#query-filters]
+== Keeping Sensitive Data Away from the LLM
+
+Everything you type into the chat is ultimately sent to the configured model provider, which for many organizations raises an important question: what about sensitive data? OpenShift Lightspeed includes a redaction layer for exactly this purpose. Administrators can define *query filters* — regular expressions that scrub matching patterns from questions before they leave the cluster.
+
+This lab environment is configured to redact IPv4 addresses. You can see the filter definition in the same _OLSConfig_ resource you examined earlier, under `.spec.ols.queryFilters`:
+
+[source,yaml,role="execute"]
+----
+...
+spec:
+...
+  ols:
+...
+    queryFilters:
+      - name: ip-address
+        pattern: ((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}
+        replaceWith: <IP-ADDRESS>
+----
+
+Let's see it in action. Clear the chat and ask:
+
+[source,role="execute",subs=attributes+]
+----
+My pod at 192.168.4.22 cannot reach the API server. Repeat the exact question I asked, then explain what could be wrong.
+----
+
+Look closely at the response: when the model repeats your question back, the IP address has been replaced with `<IP-ADDRESS>`. The model never saw the real address — it was redacted before the query left your cluster. You can define as many filters as you need, for example for hostnames, usernames, or internal project names.
 
 == What if there's something wrong?
 

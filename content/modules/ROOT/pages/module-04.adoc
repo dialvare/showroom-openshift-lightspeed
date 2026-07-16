@@ -1,6 +1,8 @@
 = Troubleshooting issues in the cluster
 
-Time to put OpenShift Lightspeed to the real test. The key to effective troubleshooting with OpenShift Lightspeed is using the resource attachment feature. By clicking the *clip* icon in the chat interface, you can attach YAML definitions and other components to your question, giving the AI assistant the precise context it needs to diagnose the problem.
+Time to put OpenShift Lightspeed to the real test. The key to effective troubleshooting with OpenShift Lightspeed is using the resource attachment feature. By clicking the *+* button next to the message box in the chat interface, you can attach YAML definitions and other components to your question, giving the AI assistant the precise context it needs to diagnose the problem.
+
+TIP: Right next to the *+* button you will also find a mode selector with two modes: *Ask*, for expert guidance and clear answers, and *Troubleshooting*, tuned for diagnosing issues and finding solutions. Feel free to switch to *Troubleshooting* mode for this module.
 
 [#attaching-resources-to-the-query]
 == Attaching Resources to the Query
@@ -11,7 +13,7 @@ image::broken-project-select.png[Broken project selection]
 
 Now, in the pod list, click on the *broken-pod* which you can see is in the _Pending_ state.
 
-Navigate to the chat interface. Make sure to click the *Clear Chat (x)* button in the OpenShift Lightspeed interface. Then, click the *clip* button to attach information. In this case, as this pod is currently _Pending_, there are no logs we can attach, and we don't really care about the events, either. Go ahead and attach the *Filtered YAML*, which will include the status information for this pod.
+Navigate to the chat interface. Make sure to click the *Clear chat* (trash can) button in the OpenShift Lightspeed interface. Then, click the *+* button to attach information. Because you are on the pod's details page, the attach menu shows the resource you are currently viewing along with options like _Full YAML file_, _Filtered YAML_, _Events_ and _Logs_. In this case, as this pod is currently _Pending_, there are no logs we can attach, and we don't really care about the events, either. Go ahead and attach the *Filtered YAML*, which will include the status information for this pod.
 
 image::attach-button.png[Attachment options in OpenShift Lightspeed]
 
@@ -24,7 +26,7 @@ What's wrong with this pod?
 
 You should get some detailed information about nodes and node selectors.
 
-Now go ahead and attach the *Full YAML*, and then ask:
+Now go ahead and attach the *Full YAML file*, and then ask:
 
 [source,role="execute",subs=attributes+]
 ----
@@ -36,6 +38,8 @@ Fortunately, this is a pretty obvious typo: `worker` is spelled wrong. And, GPT-
 Can you see how the simple act of attaching details to your request can dramatically improve troubleshooting outcomes?
 
 Note that you can attach multiple things to your request at the same time, like a service, a route, and a deployment. This can make more complicated troubleshooting scenarios easier.
+
+TIP: Workload resources are not the only thing you can attach. From the *Observe* -> *Alerting* section of the console you can attach firing alerts to your questions, and since OpenShift Lightspeed 1.1 you can also attach alerting rules and Alertmanager silences directly from their details pages — very handy when you want the assistant to explain an alert or review a silence before you commit to it. And if the context you need lives outside the cluster entirely, the attach menu's *Upload from computer* option lets you attach a local file, such as a log you exported earlier.
 
 == Expanding Capabilities
 

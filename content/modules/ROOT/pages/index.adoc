@@ -12,16 +12,17 @@ OpenShift Lightspeed today is a relatively small and lightweight system that you
 
 image::ols-arch.png[OpenShift Lightspeed architecture]
 
-You can also see that OpenShift Lightspeed talks to a model provider. In the case of this lab environment, that provider is *Azure OpenAI* using the *GPT-4 model*. There are three supported public model providers:
+You can also see that OpenShift Lightspeed talks to a model provider. In the case of this lab environment, that provider is *Azure OpenAI* using the *GPT-4 model*. There are four supported public model providers:
 
-* WatsonX
-* Azure OpenAI
 * OpenAI
+* Microsoft Azure OpenAI
+* IBM watsonx
+* Google Vertex AI (Gemini models, as well as Anthropic Claude models running on Vertex)
 
 Additionally, if you want to self-manage your LLM, we also support the Red Hat on-premise model provider solutions:
 
 * Red Hat OpenShift AI
-* RHEL AI
+* Red Hat Enterprise Linux AI (RHEL AI)
 
 The little box that says RAG means retrieval-augmented generation.
 
@@ -37,5 +38,7 @@ When providing contextual information to the LLM at the time of asking a questio
 OpenShift Lightspeed will grab the relevant OpenShift Container Platform documentation to match the cluster version when it deploys, and it uses that documentation as the additional context for answering user questions.
 
 The specific details of vector databases and embedding and encoding are outside the scope of this lab.
+
+NOTE: This lab environment runs version 1.1 of the OpenShift Lightspeed operator. If you are running an older version of the operator in your own environment, some of the features covered in this lab may not be available yet.
 
 Now, with your understanding of the fundamentals, let's try and use OpenShift Lightspeed.

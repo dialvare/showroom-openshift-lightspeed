@@ -5,11 +5,11 @@ As we mentioned in the previous module, OpenShift Virtualization allows you to r
 This lab environment comes with OpenShift Virtualization already deployed and configured. You can start working with virtual machines right away. In this module, we'll explore how OpenShift Lightspeed assists with virtualization workloads across different user scenarios—from newcomers learning the basics to experienced admins migrating from other platforms.
 
 [#new-virtualization-users]
-== New Virtualization User
+== New Virtualization Users
 
 If you're new to OpenShift Virtualization, there's a lot to learn. OpenShift Lightspeed can help you understand the key concepts and resources you'll be working with.
 
-For example, two important concepts when it comes to creating your first virtual machine in OpenShift Virtualization are InstanceTypes and VM Templates. Click the *Clear Chat (x)* button and then ask OpenShift Lightspeed to explain the difference between both resources:
+For example, two important concepts when it comes to creating your first virtual machine in OpenShift Virtualization are InstanceTypes and VM Templates. Click the *Clear chat* (trash can) button and then ask OpenShift Lightspeed to explain the difference between both resources:
 
 [source,role="execute",subs=attributes+]
 ----
@@ -20,14 +20,14 @@ OpenShift Lightspeed will provide a clear explanation of both concepts, when it 
 
 This kind of conceptual guidance helps you quickly understand the building blocks of OpenShift Virtualization and provides direct links to the relevant documentation sections if you want to dive deeper.
 
-Now that the difference is clear the new Virtualization user can decide what to choose. For example, let's see what's the procedure to create a virtual machine from a template:
+Now that the difference is clear, a new Virtualization user can decide which approach to take. For example, let's ask for the procedure to create a virtual machine from a template:
 
 [source,role="execute",subs=attributes+]
 ----
 How do I create a Fedora VM from a template?
 ----
 
-OpenShift Lightspeed provides the guidance needed to navigate the cluster in order to create the virtual machine. As you can see, in just 5 minutes you were able to spin up your first virtual machine with seamless effort. The initial learning curve is much easier thanks to the assistance that OpenShift Lightspeed provides.
+OpenShift Lightspeed provides the guidance needed to navigate the cluster in order to create the virtual machine. As you can see, in just a few minutes you were able to spin up your first virtual machine with minimal effort. The initial learning curve is much gentler thanks to the assistance that OpenShift Lightspeed provides.
 
 [#users-coming-from-different-platforms]
 == User Coming from a Different Platform
@@ -57,11 +57,11 @@ First, let's use cluster interaction to check if there are any VMs having proble
 Are there any VMs not working properly in the cluster?
 ----
 
-OpenShift Lightspeed will use cluster interaction tools to query the VirtualMachine resources across your cluster. You should see that there's a RHEL 9 VM in a ImagePullBackOff state that's failing to start.
+OpenShift Lightspeed will use cluster interaction tools to query the VirtualMachine resources across your cluster. You should see that there's a RHEL 9 VM in an _ImagePullBackOff_ state that's failing to start.
 
-Now let's dig deeper into what's wrong with this VM. In the OpenShift console, navigate to *Virtualization* in the left menu, then click on *VirtualMachines*. Make sure the project selected is *All Projects*. Find the RHEL 9 VM that's in failing and click on the VM name to open its details page.
+Now let's dig deeper into what's wrong with this VM. In the OpenShift console, navigate to *Virtualization* in the left menu, then click on *VirtualMachines*. Make sure the project selected is *All Projects*. Find the RHEL 9 VM that's failing and click on the VM name to open its details page.
 
-Now, return to the OpenShift Lightspeed chat interface. Then click the *clip* button to attach information. Go ahead and attach the *Full YAML* for this VM. 
+Now, return to the OpenShift Lightspeed chat interface. Then click the *+* button to attach information. Go ahead and attach the *Full YAML file* for this VM. 
 
 image::broken-vm.png[Broken virtual machine]
 
