@@ -2,6 +2,10 @@
 
 In the previous module you consumed a BYOK image that was already built for you. In this optional module, you will build one yourself — from writing the markdown document to watching OpenShift Lightspeed answer questions from it. If you are short on time, you can skip ahead to the Cluster Interaction module; nothing later in the lab depends on this exercise.
 
+image::arch-build.svg[Architecture with the BYOK build pipeline highlighted]
+
+_In this module you work with the highlighted pieces: the on-cluster image build that feeds a new vector database into OpenShift Lightspeed._
+
 NOTE: The official https://docs.redhat.com/en/documentation/red_hat_openshift_lightspeed/1.0/html/configure/ols-configuring-openshift-lightspeed#providing-custom-knowledge-to-llm_ols-configuring-openshift-lightspeed[BYO Knowledge procedure] uses `podman` on your workstation. Since this lab environment doesn't include a workstation with podman, we will do something arguably more elegant: build the image directly on the cluster with an OpenShift build, and serve it from the cluster's internal image registry. The same RAG tool image does the heavy lifting either way.
 
 [#write-the-documentation]

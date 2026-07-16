@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 640" font-family="'Red Hat Text',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6a6e73"/>
+    </marker>
+    <marker id="arrhl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#ee0000"/>
+    </marker>
+  </defs>
+  <style>
+    .box { fill:#ffffff; stroke:#6a6e73; stroke-width:1.5; rx:6; }
+    .inner { fill:#f5f5f5; stroke:#8a8d90; stroke-width:1; rx:4; }
+    .zone { fill:#fafafa; stroke:#c7c9cb; stroke-width:1.5; stroke-dasharray:5 4; rx:8; }
+    .t { fill:#151515; }
+    .tt { fill:#151515; font-weight:600; font-size:14px; }
+    .ts { fill:#6a6e73; font-size:11.5px; }
+    .lbl { fill:#6a6e73; font-size:11px; font-style:italic; }
+    .ln { stroke:#6a6e73; stroke-width:1.5; fill:none; marker-end:url(#arr); }
+    .lnd { stroke:#8a8d90; stroke-width:1.5; fill:none; stroke-dasharray:4 4; marker-end:url(#arr); }
+    .dim { opacity:0.25; }
+    g.hl rect.box, g.hl rect.inner { stroke:#ee0000; stroke-width:2.5; fill:#fff5f5; }
+    g.hl path.ln, g.hl path.lnd, g.hl line.ln { stroke:#ee0000; stroke-width:2.2; marker-end:url(#arrhl); }
+    g.hl .lbl { fill:#ee0000; font-weight:600; font-style:normal; }
+  </style>
+
+  <!-- User -->
+  <g class="">
+    <rect class="box" x="20" y="70" width="120" height="60" rx="6"/>
+    <text class="tt" x="80" y="96" text-anchor="middle">You</text>
+    <text class="ts" x="80" y="114" text-anchor="middle">web browser</text>
+    <line class="ln" x1="140" y1="100" x2="176" y2="100"/>
+  </g>
+
+  <!-- Console -->
+  <g class="">
+    <rect class="box" x="180" y="55" width="220" height="90" rx="6"/>
+    <text class="tt" x="290" y="83" text-anchor="middle">OpenShift web console</text>
+    <text class="t" x="290" y="103" text-anchor="middle">Lightspeed chat plugin</text>
+    <text class="ts" x="290" y="122" text-anchor="middle">questions &#183; attachments &#183; feedback</text>
+    <path class="ln" d="M400,100 L456,100"/>
+    <text class="lbl" x="428" y="90" text-anchor="middle">HTTPS</text>
+  </g>
+
+  <!-- App server -->
+  <g class="">
+    <rect class="zone" x="460" y="30" width="330" height="250"/>
+    <text class="tt" x="625" y="55" text-anchor="middle">Lightspeed app server</text>
+    <text class="ts" x="625" y="72" text-anchor="middle">openshift-lightspeed namespace &#183; REST API</text>
+  </g>
+  <g class="dim">
+    <rect class="inner" x="480" y="85" width="290" height="46" rx="4"/>
+    <text class="t" x="625" y="104" text-anchor="middle">Query filters (redaction)</text>
+    <text class="ts" x="625" y="121" text-anchor="middle">e.g. IP addresses &#8594; &lt;IP-ADDRESS&gt;</text>
+  </g>
+  <g class="">
+    <rect class="inner" x="480" y="150" width="140" height="60" rx="4"/>
+    <text class="t" x="550" y="175" text-anchor="middle">RAG retrieval</text>
+    <text class="ts" x="550" y="192" text-anchor="middle">vector search</text>
+    <rect class="inner" x="630" y="150" width="140" height="60" rx="4"/>
+    <text class="t" x="700" y="175" text-anchor="middle">Agent loop</text>
+    <text class="ts" x="700" y="192" text-anchor="middle">tool calling</text>
+  </g>
+
+  <!-- LLM provider -->
+  <g class="">
+    <rect class="box" x="850" y="55" width="210" height="150" rx="6"/>
+    <text class="tt" x="955" y="83" text-anchor="middle">LLM provider</text>
+    <text class="t" x="955" y="106" text-anchor="middle">Azure OpenAI &#183; GPT-4</text>
+    <text class="ts" x="955" y="122" text-anchor="middle">(this lab)</text>
+    <text class="ts" x="955" y="145" text-anchor="middle">also: OpenAI &#183; IBM watsonx</text>
+    <text class="ts" x="955" y="161" text-anchor="middle">Google Vertex AI</text>
+    <text class="ts" x="955" y="177" text-anchor="middle">self-hosted: OpenShift AI &#183; RHEL AI</text>
+    <path class="ln" d="M790,110 L846,110"/>
+    <text class="lbl" x="818" y="88" text-anchor="middle">redacted</text>
+    <text class="lbl" x="818" y="101" text-anchor="middle">prompt</text>
+    <path class="lnd" d="M850,150 L794,150"/>
+    <text class="lbl" x="822" y="167" text-anchor="middle">answer &#183;</text>
+    <text class="lbl" x="822" y="180" text-anchor="middle">tool picks</text>
+  </g>
+
+  <!-- PostgreSQL -->
+  <g class="dim">
+    <rect class="box" x="460" y="330" width="150" height="80" rx="6"/>
+    <text class="tt" x="535" y="360" text-anchor="middle">PostgreSQL</text>
+    <text class="ts" x="535" y="380" text-anchor="middle">conversation cache</text>
+    <line class="ln" x1="535" y1="280" x2="535" y2="326"/>
+  </g>
+
+  <!-- RAG databases -->
+  <g class="dim">
+    <rect class="box" x="640" y="330" width="220" height="110" rx="6"/>
+    <text class="tt" x="750" y="355" text-anchor="middle">Vector databases (RAG)</text>
+    <text class="t" x="750" y="378" text-anchor="middle">OpenShift 4.20 docs (built-in)</text>
+    <text class="t" x="750" y="398" text-anchor="middle">BYOK: acme-byok (quay.io)</text>
+    <text class="ts" x="750" y="418" text-anchor="middle">BYOK: your image (module 2b)</text>
+    <path class="ln" d="M700,280 L735,326"/>
+    <text class="lbl" x="686" y="305" text-anchor="middle">search</text>
+  </g>
+
+  <!-- Built-in MCP -->
+  <g class="">
+    <rect class="box" x="180" y="330" width="220" height="80" rx="6"/>
+    <text class="tt" x="290" y="356" text-anchor="middle">Built-in &#8220;openshift&#8221;</text>
+    <text class="t" x="290" y="374" text-anchor="middle">MCP server (sidecar)</text>
+    <text class="ts" x="290" y="392" text-anchor="middle">introspectionEnabled &#183; no Secrets/RBAC</text>
+    <path class="ln" d="M480,240 L290,240 L290,326"/>
+    <text class="lbl" x="330" y="230" text-anchor="middle">tool calls (your RBAC)</text>
+    <rect class="box" x="20" y="320" width="120" height="50" rx="6"/>
+    <text class="t" x="80" y="342" text-anchor="middle">Kubernetes</text>
+    <text class="t" x="80" y="358" text-anchor="middle">API</text>
+    <rect class="box" x="20" y="385" width="120" height="56" rx="6"/>
+    <text class="t" x="80" y="407" text-anchor="middle">Prometheus /</text>
+    <text class="t" x="80" y="423" text-anchor="middle">Alertmanager</text>
+    <path class="ln" d="M180,355 L144,347"/>
+    <path class="ln" d="M180,395 L144,407"/>
+  </g>
+
+  <!-- Custom MCP -->
+  <g class="hl">
+    <rect class="box" x="180" y="480" width="220" height="90" rx="6"/>
+    <text class="tt" x="290" y="506" text-anchor="middle">Custom MCP servers</text>
+    <text class="t" x="290" y="526" text-anchor="middle">Insights MCP (module 5)</text>
+    <text class="ts" x="290" y="546" text-anchor="middle">featureGates: MCPServer &#183; URL needs</text>
+    <text class="ts" x="290" y="560" text-anchor="middle">trailing slash!</text>
+    <path class="ln" d="M460,265 L430,265 L430,510 L404,510"/>
+    <rect class="box" x="20" y="495" width="120" height="60" rx="6"/>
+    <text class="t" x="80" y="519" text-anchor="middle">Red Hat</text>
+    <text class="t" x="80" y="535" text-anchor="middle">Insights</text>
+    <path class="ln" d="M180,525 L144,525"/>
+  </g>
+
+  <!-- BYOK build -->
+  <g class="dim">
+    <rect class="box" x="640" y="480" width="220" height="90" rx="6"/>
+    <text class="tt" x="750" y="506" text-anchor="middle">BYOK image build</text>
+    <text class="t" x="750" y="526" text-anchor="middle">markdown &#8594; BuildConfig</text>
+    <text class="ts" x="750" y="546" text-anchor="middle">RAG tool image &#183; internal registry</text>
+    <text class="ts" x="750" y="560" text-anchor="middle">(optional module 2b)</text>
+    <path class="ln" d="M750,480 L750,444"/>
+    <text class="lbl" x="784" y="465" text-anchor="middle">pushes</text>
+  </g>
+
+  <!-- Operator -->
+  <g class="dim">
+    <rect class="box" x="880" y="480" width="180" height="90" rx="6"/>
+    <text class="tt" x="970" y="510" text-anchor="middle">Lightspeed operator</text>
+    <text class="t" x="970" y="530" text-anchor="middle">watches OLSConfig</text>
+    <text class="ts" x="970" y="550" text-anchor="middle">deploys &#183; configures everything</text>
+    <path class="lnd" d="M970,480 L970,255 L794,255"/>
+  </g>
+</svg>

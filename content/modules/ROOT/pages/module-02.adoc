@@ -4,6 +4,10 @@ Most organizations that have been using OpenShift Container Platform for any len
 
 As you learned earlier, OpenShift Lightspeed only uses the OpenShift documentation to support answers by default. So, how can you get your important internal knowledge into the system? Well, there's a feature for that called Bring Your Own Knowledge (BYOK).
 
+image::arch-rag.svg[Architecture with the RAG databases highlighted]
+
+_In this module you work with the highlighted piece: the vector databases that ground OpenShift Lightspeed's answers._
+
 NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 
 [#examine-the-bring-your-own-knowledge-configuration]

@@ -2,6 +2,10 @@
 
 The Cluster Interaction feature allows OpenShift Lightspeed to interact and gather information from your OpenShift cluster in a read-only manner. This enables the LLM to generate highly customized responses for your environment.
 
+image::arch-cluster.svg[Architecture with the built-in MCP server and query filters highlighted]
+
+_In this module you work with the highlighted pieces: the built-in MCP server that reads your cluster (and its monitoring stack), plus the query filters that redact sensitive data._
+
 NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 
 [#check-the-cluster-interaction-configuration]

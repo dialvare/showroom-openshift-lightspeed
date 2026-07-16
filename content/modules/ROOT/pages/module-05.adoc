@@ -1,6 +1,10 @@
 = Bring your Custom MCP Servers into OpenShift Lightspeed
 
-OpenShift Lightspeed can be extended beyond its built-in capabilities by integrating custom MCP servers. This feature allows you to add additional MCP servers that provide new tools to the OpenShift Lightspeed instance, enabling the LLM to use these external tools when generating answers to your questions. 
+OpenShift Lightspeed can be extended beyond its built-in capabilities by integrating custom MCP servers. This feature allows you to add additional MCP servers that provide new tools to the OpenShift Lightspeed instance, enabling the LLM to use these external tools when generating answers to your questions.
+
+image::arch-mcp.svg[Architecture with custom MCP servers highlighted]
+
+_In this module you work with the highlighted piece: a custom MCP server you deploy and register with OpenShift Lightspeed. Note how it sits alongside the built-in one._
 
 NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 
