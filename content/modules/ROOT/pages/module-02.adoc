@@ -11,7 +11,7 @@ NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 
 The OpenShift Lightspeed Operator has been pre-configured in this lab environment to point to a container image with ACME Corp-specific knowledge. Let's examine this configuration to understand how BYOK works.
 
-NOTE: The process of building and creating the BYOK container image is outside the scope of this lab. If you want to learn more about how to create your own BYOK images, please check the official https://docs.redhat.com/en/documentation/red_hat_openshift_lightspeed/1.0/html/configure/ols-configuring-openshift-lightspeed#about-the-byo-knowledge-tool_ols-configuring-openshift-lightspeed[Bring Your Own Knowledge documentation].
+NOTE: In this module you consume a BYOK image that has already been built. If you want to build one yourself, the optional xref:module-02b.adoc[Build Your Own BYOK Image] module walks you through the whole process on this very cluster — and the official https://docs.redhat.com/en/documentation/red_hat_openshift_lightspeed/1.0/html/configure/ols-configuring-openshift-lightspeed#about-the-byo-knowledge-tool_ols-configuring-openshift-lightspeed[Bring Your Own Knowledge documentation] covers the podman-based workflow.
 
 In the OpenShift Console, click *Ecosystem* and then *Installed Operators* in the left hand menu. Locate the *OpenShift Lightspeed Operator*.
 

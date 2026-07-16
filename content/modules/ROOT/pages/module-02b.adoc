@@ -1,0 +1,139 @@
+= Build Your Own BYOK Image (Optional)
+
+In the previous module you consumed a BYOK image that was already built for you. In this optional module, you will build one yourself — from writing the markdown document to watching OpenShift Lightspeed answer questions from it. If you are short on time, you can skip ahead to the Cluster Interaction module; nothing later in the lab depends on this exercise.
+
+NOTE: The official https://docs.redhat.com/en/documentation/red_hat_openshift_lightspeed/1.0/html/configure/ols-configuring-openshift-lightspeed#providing-custom-knowledge-to-llm_ols-configuring-openshift-lightspeed[BYO Knowledge procedure] uses `podman` on your workstation. Since this lab environment doesn't include a workstation with podman, we will do something arguably more elegant: build the image directly on the cluster with an OpenShift build, and serve it from the cluster's internal image registry. The same RAG tool image does the heavy lifting either way.
+
+[#write-the-documentation]
+== Write the Documentation
+
+Let's give ACME Corp one more internal document: their disaster recovery drill procedure. Open the web terminal by clicking the *Command line terminal* (`>_`) button in the upper-right corner of the console, and click *Start* if prompted.
+
+First, create a project for the build and a working directory:
+
+[source,role="execute",subs=attributes+]
+----
+oc new-project byok-workshop && mkdir ~/byok && cd ~/byok
+----
+
+Now create the markdown document. Note the metadata block at the top: the BYOK tool uses the `title` and `url` attributes as the source reference that OpenShift Lightspeed displays alongside its answers. If you omit them, the first heading becomes the title and the file path becomes the URL.
+
+[source,role="execute",subs=attributes+]
+----
+cat > dr-drills.md <<'EOF'
+---
+title: "ACME Corp disaster recovery drill procedure for OpenShift"
+url: "https://wiki.acme.example/openshift/dr-drills"
+---
+
+# ACME Corp disaster recovery drill procedure for OpenShift
+
+ACME Corp requires every production OpenShift cluster to complete a disaster
+recovery (DR) drill once per quarter. Drills are coordinated by the Platform
+Reliability team and tracked in the ACME-DR Jira project.
+
+## Drill requirements
+
+- DR drills must be scheduled at least two weeks in advance through the
+  ACME-DR Jira project.
+- The drill must simulate the loss of one availability zone by cordoning and
+  draining all nodes in that zone.
+- etcd backups must be restored to the staging cluster `acme-dr-staging` and
+  validated by the application teams.
+- The maximum tolerated recovery time objective (RTO) at ACME Corp is
+  45 minutes. Drills that exceed 45 minutes must be repeated within 30 days.
+
+## Sign-off
+
+After a successful drill, the Platform Reliability team lead records the
+results in the ACME-DR Jira project and notifies the compliance team via the
+#acme-compliance Slack channel. Compliance sign-off is mandatory before the
+next production change window opens.
+EOF
+----
+
+Feel free to write your own document instead — anything the base model couldn't possibly know makes for a convincing test.
+
+[#build-the-image]
+== Build the Image
+
+The BYOK image recipe is a simple two-stage build. The first stage uses Red Hat's RAG tool image to chunk your markdown, run it through the embedding model, and produce a vector database. The second stage copies just that database into a clean base image — the same layout you saw in module 2 (`/rag/vector_db`).
+
+Create the Dockerfile:
+
+[source,role="execute",subs=attributes+]
+----
+cat > Dockerfile <<'EOF'
+FROM registry.redhat.io/openshift-lightspeed-tech-preview/lightspeed-rag-tool-rhel9:latest AS tool
+USER 0
+WORKDIR /workdir
+COPY *.md /markdown/
+RUN python3.12 generate_embeddings_tool.py -i /markdown -emd embeddings_model \
+    -emn sentence-transformers/all-mpnet-base-v2 -o vector_db -id workshop_index
+
+FROM registry.access.redhat.com/ubi9/ubi:latest
+COPY --from=tool /workdir/vector_db /rag/vector_db
+EOF
+----
+
+Now create a binary build configuration and start the build, streaming your working directory to it:
+
+[source,role="execute",subs=attributes+]
+----
+oc new-build --binary --strategy=docker --name=acme-dr-byok -n byok-workshop
+----
+
+[source,role="execute",subs=attributes+]
+----
+oc start-build acme-dr-byok -n byok-workshop --from-dir=. --follow
+----
+
+The first build pulls the RAG tool image (it's large — it bundles the embedding model), so expect a few minutes. When it finishes you will see `Push successful`: your BYOK image now lives in the cluster's internal registry at `image-registry.openshift-image-registry.svc:5000/byok-workshop/acme-dr-byok:latest`.
+
+[#connect-it-to-lightspeed]
+== Connect It to OpenShift Lightspeed
+
+OpenShift Lightspeed runs in the `openshift-lightspeed` namespace, so its service accounts need permission to pull images from your `byok-workshop` namespace. Grant it:
+
+[source,role="execute",subs=attributes+]
+----
+oc policy add-role-to-group system:image-puller system:serviceaccounts:openshift-lightspeed -n byok-workshop
+----
+
+NOTE: The command prints `Warning: Group 'system:serviceaccounts:openshift-lightspeed' not found`. That is expected — it is a _virtual_ group representing every service account in that namespace, so no Group object exists. The role binding is created regardless.
+
+Now add your image as a second RAG database. As in module 2, navigate to *Ecosystem* -> *Installed Operators* -> *OpenShift Lightspeed Operator* -> *OLSConfig* -> `cluster` -> *YAML*, and extend the `rag` list:
+
+[source,yaml,role="execute"]
+----
+...
+spec:
+...
+  ols:
+...
+    rag:
+      - image: 'quay.io/dialvare/acme-byok:latest'
+        indexID: ''
+        indexPath: /rag/vector_db
+      - image: 'image-registry.openshift-image-registry.svc:5000/byok-workshop/acme-dr-byok:latest'
+        indexID: ''
+        indexPath: /rag/vector_db
+----
+
+Click *Save*. The OpenShift Lightspeed app server pod redeploys to load the new database — give it a minute or two.
+
+[#test-your-knowledge]
+== Test Your Knowledge
+
+Open the OpenShift Lightspeed chat, click the *Clear chat* (trash can) button if needed, and ask:
+
+[source,role="execute",subs=attributes+]
+----
+What is the ACME Corp procedure for disaster recovery drills on OpenShift?
+----
+
+The answer should walk through exactly what you wrote: the two-week scheduling requirement in the ACME-DR Jira project, the 45-minute RTO, and the compliance sign-off via the #acme-compliance Slack channel. Scroll to the bottom of the response and you will also find your document's title — _ACME Corp disaster recovery drill procedure for OpenShift_ — listed among the referenced sources, exactly as the `title` metadata promised.
+
+In one optional module, you went from a markdown file to a knowledge source that OpenShift Lightspeed cites by name — all without leaving the cluster.
+
+TIP: Because your image uses the floating `latest` tag, OpenShift Lightspeed keeps it fresh automatically: image changes are detected through ImageStream objects, which the cluster re-checks every 15 minutes. Rebuild the image with updated docs and the assistant's knowledge follows — no OLSConfig edits required.

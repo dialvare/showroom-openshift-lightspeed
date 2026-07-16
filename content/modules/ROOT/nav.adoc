@@ -8,6 +8,12 @@
 ** xref:module-02.adoc#check-the-internal-documentation[Internal Documentation]
 ** xref:module-02.adoc#byok-enters-the-chat[BYOK Enters the Chat]
 
+* xref:module-02b.adoc[2b. Build a BYOK Image (Optional)]
+** xref:module-02b.adoc#write-the-documentation[Write the Documentation]
+** xref:module-02b.adoc#build-the-image[Build the Image]
+** xref:module-02b.adoc#connect-it-to-lightspeed[Connect It to Lightspeed]
+** xref:module-02b.adoc#test-your-knowledge[Test Your Knowledge]
+
 * xref:module-03.adoc[3. Cluster Interaction]
 ** xref:module-03.adoc#check-the-cluster-interaction-configuration[Check the OLSConfig]
 ** xref:module-03.adoc#gathering-information-from-the-cluster[Gathering Information]
