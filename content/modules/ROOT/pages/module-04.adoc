@@ -2,8 +2,6 @@
 
 Time to put OpenShift Lightspeed to the real test. The key to effective troubleshooting with OpenShift Lightspeed is using the resource attachment feature. By clicking the *+* button next to the message box in the chat interface, you can attach YAML definitions and other components to your question, giving the AI assistant the precise context it needs to diagnose the problem.
 
-TIP: Right next to the *+* button you will also find a mode selector with two modes: *Ask*, for expert guidance and clear answers, and *Troubleshooting*, tuned for diagnosing issues and finding solutions. Feel free to switch to *Troubleshooting* mode for this module.
-
 [#attaching-resources-to-the-query]
 == Attaching Resources to the Query
 
