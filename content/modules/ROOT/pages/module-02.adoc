@@ -4,6 +4,10 @@ Most organizations that have been using OpenShift Container Platform for any len
 
 As you learned earlier, OpenShift Lightspeed only uses the OpenShift documentation to support answers by default. So, how can you get your important internal knowledge into the system? Well, there's a feature for that called Bring Your Own Knowledge (BYOK).
 
+image::arch-rag.svg[Architecture with the RAG databases highlighted]
+
+_In this module you work with the highlighted piece: the vector databases that ground OpenShift Lightspeed's answers._
+
 NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 
 [#examine-the-bring-your-own-knowledge-configuration]
@@ -11,7 +15,7 @@ NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 
 The OpenShift Lightspeed Operator has been pre-configured in this lab environment to point to a container image with ACME Corp-specific knowledge. Let's examine this configuration to understand how BYOK works.
 
-NOTE: The process of building and creating the BYOK container image is outside the scope of this lab. If you want to learn more about how to create your own BYOK images, please check the official https://docs.redhat.com/en/documentation/red_hat_openshift_lightspeed/1.0/html/configure/ols-configuring-openshift-lightspeed#about-the-byo-knowledge-tool_ols-configuring-openshift-lightspeed[Bring Your Own Knowledge documentation].
+NOTE: In this module you consume a BYOK image that has already been built. If you want to build one yourself, the optional xref:module-02b.adoc[Build Your Own BYOK Image] module walks you through the whole process on this very cluster — and the official https://docs.redhat.com/en/documentation/red_hat_openshift_lightspeed/1.0/html/configure/ols-configuring-openshift-lightspeed#about-the-byo-knowledge-tool_ols-configuring-openshift-lightspeed[Bring Your Own Knowledge documentation] covers the podman-based workflow.
 
 In the OpenShift Console, click *Ecosystem* and then *Installed Operators* in the left hand menu. Locate the *OpenShift Lightspeed Operator*.
 
@@ -32,26 +36,27 @@ spec:
         indexPath: /rag/vector_db
 ----
 
-NOTE: You can define multiple RAG databases if you want to add multiple sources. The _rag_ stanza just takes an array of image references.
+NOTE: You can define multiple RAG databases if you want to add multiple sources. The _rag_ stanza just takes an array of image references. If you want OpenShift Lightspeed to answer *exclusively* from your own content, you can additionally set `byokRAGOnly: true` under `.spec.ols`, which tells OpenShift Lightspeed to ignore the built-in OpenShift documentation entirely. Images hosted in private registries are supported too, via the `imagePullSecrets` field.
 
 [#check-the-internal-documentation]
 == Check the Internal Documentation
 
 As you just saw, OpenShift Lightspeed is configured to use a container image from Quay (`quay.io/dialvare/acme-byok:latest`) that contains ACME Corp's internal procedures and policies. But where does this content come from? 
 
-This BYOK image was built from markdown docs. The documentation used is located in this https://github.com/dialvare/showroom-openshift-lightspeed[GitOps repository] under the `byok` folder and consists of just two documents:
+This BYOK image was built from markdown docs. The documentation used is located in this https://github.com/dialvare/showroom-openshift-lightspeed[GitOps repository] under the `byok` folder and consists of three documents:
 
 * The specific ACME process for horizontal pod autoscaling
 * The specific ACME process for adding GPU nodes
+* Vendor-supplied documentation for the Dell APEX Cloud Platform API gateway certificate
 
-Take a look at those to get an understanding of what they are discussing.
+Take a look at those to get an understanding of what they are discussing. Notice that BYOK is not limited to internal policy documents: the third document is an example of vendor or partner documentation that is not part of the official OpenShift documentation set, but that your teams may rely on every day.
 
 [#byok-enters-the-chat]
 == BYOK Enters the Chat
 
 Now that you know the contents of the internal ACME Corp policies and that OpenShift Lightspeed is pointing to the additional RAG database, you should be able to get answers based on that custom knowledge and content.
 
-If you closed the OpenShift Lightspeed window, re-open it. Make sure to click the cross icon *x* at the top right of the OpenShift Lightspeed interface to clear the chat and then ask the following question:
+If you closed the OpenShift Lightspeed window, re-open it. Make sure to click the *Clear chat* button — the trash can icon at the top of the chat window, which appears once a conversation is underway — and then ask the following question:
 
 [source,sh,role="execute",subs=attributes+]
 ----
@@ -64,7 +69,7 @@ Great!
 
 OpenShift Lightspeed assigns greater weight to BYOK content, allowing it to prioritize your internal procedures over the default OpenShift documentation. This ensures that organization-specific knowledge takes precedence when generating responses, providing more relevant and tailored answers for your environment.
 
-Try asking questions about adding GPU nodes and see if you can get a response based on the internal documentation.
+Try asking questions about adding GPU nodes — or about the APEX Cloud Platform API gateway certificate — and see if you can get responses based on the embedded documentation.
 
 == What's Next?
 
