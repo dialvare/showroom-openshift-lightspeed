@@ -1,81 +1,114 @@
-= Cluster Interaction
+= Build Your Own BYOK Image (Optional)
 
-The Cluster Interaction feature allows OpenShift Lightspeed to interact and gather information from your OpenShift cluster in a read-only manner. This enables the LLM to generate highly customized responses for your environment.
+In the previous module you consumed a BYOK image that was already built for you. In this optional module, you will build one yourself — from writing the Markdown document to watching OpenShift Lightspeed answer questions from it. If you are short on time, you can skip ahead to the Cluster Interaction module; nothing later in the lab depends on this exercise.
 
-image::arch-cluster.svg[Architecture with the built-in MCP server and query filters highlighted]
+image::arch-module03.svg[Architecture with the BYOK build pipeline highlighted]
 
-_In this module you work with the highlighted pieces: the built-in MCP server that reads your cluster (and its monitoring stack), plus the query filters that redact sensitive data._
+In this module you work with the highlighted pieces: the on-cluster image build that feeds a new vector database into OpenShift Lightspeed.
 
-NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
+NOTE: The official https://docs.redhat.com/en/documentation/red_hat_openshift_lightspeed/1.0/html/configure/ols-configuring-openshift-lightspeed#providing-custom-knowledge-to-llm_ols-configuring-openshift-lightspeed[BYO Knowledge procedure] uses podman on your workstation. Since this lab environment doesn't include a workstation with podman, we will do something arguably more elegant: build the image directly on the cluster with an OpenShift build, and serve it from the cluster's internal image registry. The same RAG tool image does the heavy lifting either way.
 
-[#check-the-cluster-interaction-configuration]
-== Check the Cluster Interaction Configuration
+[#write-the-documentation]
+== Write the Documentation
 
-Starting with OpenShift Lightspeed 1.1, the cluster interaction feature is enabled by default on new installations, and that is how this lab environment is running. Optionally, you can check how it is enabled in the _OLSConfig_ resource.
+Let's give ACME Corp one more internal document: their disaster recovery drill procedure. Open the web terminal by clicking the *OpenShift command line* (`>_`) button in the upper-right corner of the console, and click *Start* if prompted. You can minimize the OpenShift Lightspeed interface to help you work here more easily. 
 
-Again, navigate to *Ecosystem* and then *Installed Operators* in the left hand menu.
-
-Now, click the *OpenShift Lightspeed Operator* and navigate to the *OLSConfig* tab. Then click on the `cluster` instance. Finally, select the *YAML* tab.
-
-In the YAML editor, scroll down until you spot the `introspectionEnabled` flag under `.spec.ols.introspectionEnabled`. It should be set to `true`:
-
-[source,yaml,role="execute",subs=attributes+]
-----
-...
-spec:
-...
-  ols:
-...
-    introspectionEnabled: true
-----
-
-When this flag is enabled, OpenShift Lightspeed deploys an MCP server already preconfigured to communicate with the OpenShift API. This server provides some MCP tools, such as _events_list_, _namespaces_list_, _pods_list_in_namespace_, etc. When a user asks a question, the model may choose to call one of those tools to retrieve relevant information directly from the cluster to support the query. All tool usage is performed using the user's own credentials and access rights, preventing any privilege escalation.
-
-NOTE: The built-in MCP server has security guardrails baked in: it is explicitly blocked from reading Secrets and RBAC resources, so sensitive data such as credentials can never reach the LLM through it — regardless of how a question is phrased or how many permissions the logged-in user has.
-
-TIP: Tool calling consumes extra tokens from the model's context window. If you are tuning your own installation, `.spec.ols.maxIterations` limits how many tool-calling rounds the model may take per question, and the per-model `parameters.toolBudgetRatio` setting controls how much of the context window may be spent on tool output.
-
-[#gathering-information-from-the-cluster]
-== Gathering Information from the Cluster
-
-Now that we have seen that cluster interaction is available, you can try asking some questions about cluster resources and see how OpenShift Lightspeed responds. Open the chat interface, click the *Clear chat* (trash can) button if you have an ongoing conversation, and ask:
+First, create a project for the build and a working directory:
 
 [source,role="execute",subs=attributes+]
 ----
-Show me the pods in the openshift-lightspeed namespace
+oc new-project byok-workshop && mkdir ~/byok && cd ~/byok
 ----
 
-The GPT-4 model likely chose to use the _pods_list_in_namespace_ tool to retrieve pod information from the _openshift-lightspeed_ namespace. You can view the tool's output by clicking the `pods_list_in_namespace` button displayed after the response. This information was used by the model to generate the final answer containing the list of all pods in that namespace.
-
-Let's take cluster interaction one step further by combining it with follow-up questions. OpenShift Lightspeed can not only gather information from your cluster but also analyze it when you ask follow-up questions within the same chat session.
-
-For example, let's ask OpenShift Lightspeed to retrieve and analyze the logs from the PostgreSQL server pod. In the same chat session, ask:
+Now create the Markdown document. Note the metadata block at the top: the BYOK tool uses the _title_ and _url_ attributes as the source reference that OpenShift Lightspeed displays alongside its answers. If you omit them, the first heading becomes the title and the file path becomes the URL.
 
 [source,role="execute",subs=attributes+]
 ----
-Can you get and analyze the logs of the last pod?
+cat > dr-drills.md <<'EOF'
+---
+title: "ACME Corp disaster recovery drill procedure for OpenShift"
+url: "https://wiki.acme.example/openshift/dr-drills"
+---
+
+# ACME Corp disaster recovery drill procedure for OpenShift
+
+ACME Corp requires every production OpenShift cluster to complete a disaster
+recovery (DR) drill once per quarter. Drills are coordinated by the Platform
+Reliability team and tracked in the ACME-DR Jira project.
+
+## Drill requirements
+
+- DR drills must be scheduled at least two weeks in advance through the
+  ACME-DR Jira project.
+- The drill must simulate the loss of one availability zone by cordoning and
+  draining all nodes in that zone.
+- etcd backups must be restored to the staging cluster `acme-dr-staging` and
+  validated by the application teams.
+- The maximum tolerated recovery time objective (RTO) at ACME Corp is
+  45 minutes. Drills that exceed 45 minutes must be repeated within 30 days.
+
+## Sign-off
+
+After a successful drill, the Platform Reliability team lead records the
+results in the ACME-DR Jira project and notifies the compliance team via the
+#acme-compliance Slack channel. Compliance sign-off is mandatory before the
+next production change window opens.
+EOF
 ----
 
-OpenShift Lightspeed will use the _pods_log_ tool to retrieve the recent logs from the PostgreSQL database pod and then provide you with an analysis of what's happening in those logs. This demonstrates the power of combining cluster interaction with the conversational context maintained from your previous questions to navigate across different components and resources within the cluster.
+Feel free to write your own document instead — anything the base model couldn't possibly know makes for a convincing test.
 
-[#alerts-and-metrics]
-== Beyond the Kubernetes API: Alerts and Metrics
+[#build-the-image]
+== Build the Image
 
-Cluster interaction is not limited to Kubernetes resources. The built-in MCP server is also connected to the OpenShift monitoring stack (Prometheus and Alertmanager), which means OpenShift Lightspeed can reason about the live health of your cluster. Click the *Clear chat* (trash can) button and ask:
+The BYOK image recipe is a simple two-stage build. The first stage uses Red Hat's RAG tool image to chunk your Markdown, run it through the embedding model, and produce a vector database. The second stage copies just that database into a clean base image. 
+
+Create the Dockerfile:
 
 [source,role="execute",subs=attributes+]
 ----
-Are there any alerts firing in the cluster right now?
+cat > Dockerfile <<'EOF'
+FROM registry.redhat.io/openshift-lightspeed-tech-preview/lightspeed-rag-tool-rhel9:latest AS tool
+USER 0
+WORKDIR /workdir
+COPY *.md /Markdown/
+RUN python3.12 generate_embeddings_tool.py -i /Markdown -emd embeddings_model \
+    -emn sentence-transformers/all-mpnet-base-v2 -o vector_db -id workshop_index
+
+FROM registry.access.redhat.com/ubi9/ubi:latest
+COPY --from=tool /workdir/vector_db /rag/vector_db
+EOF
 ----
 
-This time the model calls the _get_alerts_ tool, retrieves the alerts currently firing from the monitoring stack, and summarizes them for you — including each alert's severity and description. As before, you can ask follow-up questions about any alert that catches your attention, and the model will combine the alert data with other cluster interaction tools to dig deeper.
+Now create a binary build configuration and start the build, streaming your working directory to it:
 
-[#query-filters]
-== Keeping Sensitive Data Away from the LLM
+[source,role="execute",subs=attributes+]
+----
+oc new-build --binary --strategy=docker --name=acme-dr-byok -n byok-workshop
+----
 
-Everything you type into the chat is ultimately sent to the configured model provider, which for many organizations raises an important question: what about sensitive data? OpenShift Lightspeed includes a redaction layer for exactly this purpose. Administrators can define *query filters* — regular expressions that scrub matching patterns from questions before they leave the cluster.
+[source,role="execute",subs=attributes+]
+----
+oc start-build acme-dr-byok -n byok-workshop --from-dir=. --follow
+----
 
-This lab environment is configured to redact IPv4 addresses. You can see the filter definition in the same _OLSConfig_ resource you examined earlier, under `.spec.ols.queryFilters`:
+The first build pulls the RAG tool image (it's large — it bundles the embedding model), so expect a few minutes. When it finishes, you will see *Push successful* meaning that your BYOK image now lives in the cluster's internal registry at `image-registry.openshift-image-registry.svc:5000/byok-workshop/acme-dr-byok:latest`.
+
+[#connect-it-to-lightspeed]
+== Connect It to OpenShift Lightspeed
+
+OpenShift Lightspeed runs in the `openshift-lightspeed` namespace, so its service accounts need permission to pull images from your `byok-workshop` namespace. Grant it:
+
+[source,role="execute",subs=attributes+]
+----
+oc policy add-role-to-group system:image-puller system:serviceaccounts:openshift-lightspeed -n byok-workshop
+----
+
+NOTE: The command prints _Warning: Group 'system:serviceaccounts:openshift-lightspeed' not found_. That is expected — it is a _virtual_ group representing every service account in that namespace, so no Group object exists. The role binding is created regardless.
+
+You can *Close the terminal*. Now add your image as a second RAG database. 
+
+As in module 2, navigate to *Ecosystem* -> *Installed Operators* -> *OpenShift Lightspeed Operator* -> *OLSConfig* -> `cluster` -> *YAML*, and extend the _rag_ list:
 
 [source,yaml,role="execute"]
 ----
@@ -84,23 +117,33 @@ spec:
 ...
   ols:
 ...
-    queryFilters:
-      - name: ip-address
-        pattern: ((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}
-        replaceWith: <IP-ADDRESS>
+    rag:
+      - image: 'quay.io/dialvare/acme-byok:latest'
+        indexID: ''
+        indexPath: /rag/vector_db
+      - image: 'image-registry.openshift-image-registry.svc:5000/byok-workshop/acme-dr-byok:latest'
+        indexID: ''
+        indexPath: /rag/vector_db
 ----
 
-Let's see it in action. Clear the chat and ask:
+Click *Save*. The OpenShift Lightspeed app server pod redeploys to load the new database — give it a minute or two.
+
+[#test-your-knowledge]
+== Test Your Knowledge
+
+Open the OpenShift Lightspeed chat, click the *Clear chat* (trash can) button if needed, and ask:
 
 [source,role="execute",subs=attributes+]
 ----
-My pod at 192.168.4.22 cannot reach the API server. Repeat the exact question I asked, then explain what could be wrong.
+What is the ACME Corp procedure for disaster recovery drills on OpenShift?
 ----
 
-Look closely at the response: when the model repeats your question back, the IP address has been replaced with `<IP-ADDRESS>`. The model never saw the real address — it was redacted before the query left your cluster. You can define as many filters as you need, for example for hostnames, usernames, or internal project names.
+The answer should walk through exactly what you wrote: the two-week scheduling requirement in the ACME-DR Jira project, the 45-minute RTO, and the compliance sign-off via the #acme-compliance Slack channel. Scroll to the bottom of the response and you will also find your document's title — _ACME Corp disaster recovery drill procedure for OpenShift_ — listed among the referenced sources, exactly as the title metadata promised.
 
-== What if there's something wrong?
+TIP: Because your image uses the floating _latest_ tag, OpenShift Lightspeed keeps it fresh automatically: image changes are detected through ImageStream objects, which the cluster re-checks every 15 minutes. Rebuild the image with updated docs and the assistant's knowledge follows — no OLSConfig edits required.
 
-In the examples above, we saw that the pods were running healthy and their logs showed no issues. But what happens when you're actually facing a real problem that needs troubleshooting?
+== What's Next?
 
-One of the most powerful features of OpenShift Lightspeed is the ability to attach resource information directly to your questions. By attaching YAML manifests, logs, or events from problematic resources, you provide OpenShift Lightspeed with the specific context it needs to diagnose issues effectively. Let's put this into practice in the next section by diagnosing and resolving a real issue in your cluster.
+So far, you've learned how OpenShift Lightspeed uses the OpenShift documentation and your own organizational knowledge (BYOK) to provide accurate answers. But what if OpenShift Lightspeed could go beyond static documentation and actually query your live cluster to provide real-time, environment-specific answers?
+
+That's exactly what the Cluster Interaction feature enables. Continue to the next section to learn how OpenShift Lightspeed can directly interact with your OpenShift cluster to retrieve current information about your pods, deployments, and other resources.

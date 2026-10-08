@@ -2,7 +2,13 @@
 
 OpenShift Lightspeed uses a natural language interface to allow users to ask questions. You have used many chat interfaces before, so OpenShift Lightspeed should feel very comfortable to use.
 
-OpenShift Lightspeed is designed only to answer OpenShift-related questions, and it will generally attempt to reject questions that are unrelated to OpenShift and Kubernetes. If you try hard enough, you can probably get it to do something it wasn't explicitly designed to do, but this is a shortcoming of all non-deterministic language-model-based systems. It is a bit of a game of whack-a-mole trying to keep up with all of the possible negative outcomes, and trying to prevent them is a topic of active research. If you see something bad, be sure to report it using the built-in feedback feature — the thumbs-up/thumbs-down buttons underneath each response, where you can also leave written comments. We will always do our best to improve the quality and safety of the system.
+OpenShift Lightspeed is primarily focused on OpenShift and Red Hat product topics, and will generally decline questions it considers unrelated to those domains. However, BYOK knowledge bases and custom MCP servers can extend its scope to cover your own systems and documentation. If you try hard enough, you can probably get it to do something it wasn't explicitly designed to do, but this is a shortcoming of all non-deterministic language-model-based systems. It is a bit of a game of whack-a-mole trying to keep up with all of the possible negative outcomes, and trying to prevent them is a topic of active research. 
+
+NOTE: If you see something bad, be sure to report it using the built-in feedback feature — the thumbs-up/thumbs-down buttons underneath each response, where you can also leave written comments. We will always do our best to improve the quality and safety of the system.
+
+image::arch-module01.svg[Architecture for module 1: core chat flow highlighted]
+
+In this module you work with the highlighted pieces: the core OpenShift Lightspeed components, including the PostgreSQL database and the Red Hat Offline Knowledge Portal (RHOKP) elements.
 
 [#starter-question]
 == Starter Question
@@ -23,24 +29,26 @@ Password:
 {openshift_cluster_admin_password}
 ----
 
-Once you have logged-in, you should see the OpenShift Lightspeed icon in the bottom-right corner of the OpenShift console:
+Once you have logged in, you should see the OpenShift Lightspeed icon in the bottom-right corner of the OpenShift console:
 
-image::ols-icon.jpg[OpenShift Lightspeed icon, 50%]
+image::ols-icon.png[OpenShift Lightspeed icon, 50%, align="center"]
 
 Click the icon, and it will open the chat interface:
 
 image::ols-interface.png[OpenShift Lightspeed chat interface]
 
-Why don't you start out by asking an easy question like:
+Why don't you start by asking an easy question like:
 
 [source,role="execute",subs=attributes+]
 ----
 What are OpenShift Routes?
 ----
 
-OpenShift Lightspeed should provide a detailed answer about what OpenShift routes are and key features. And, if you scroll to the bottom of the response, you will see that OpenShift Lightspeed has also provided a link to the documentation that was used to generate its response:
+OpenShift Lightspeed should provide a detailed answer about what OpenShift Routes are and their key features. And, if you scroll to the bottom of the response, you will see that OpenShift Lightspeed has also provided a link to the documentation that was used to generate its response:
 
 image::related-docs.png[Related documentation]
+
+This is a great feature because it allows you to go beyond the answer itself and explore the official Red Hat documentation at your own pace. Whether you want to validate the information, dig into advanced configuration options, or simply learn more about the topic, the referenced links give you a direct path to the authoritative source.
 
 [#follow-up-question]
 == Follow-up Question
@@ -52,7 +60,7 @@ OpenShift Lightspeed maintains context from your previous questions within the s
 How do I expose a service using a Route?
 ----
 
-OpenShift Lightspeed remembers your conversation thanks to the PostgreSQL database we saw in the architecture image, and provides a more detailed, practical answer based on your previous question. This makes the learning experience more fluid and efficient.
+OpenShift Lightspeed remembers your conversation thanks to a PostgreSQL backing store, and provides a more detailed, practical answer based on your previous question. This makes the learning experience more fluid and efficient.
 
 [#yaml-generation]
 == YAML Generation
@@ -68,6 +76,35 @@ OpenShift Lightspeed will provide you with a complete YAML manifest that you can
 
 TIP: When you copy a response, the rich-text formatting is preserved, so answers paste cleanly into documents and runbooks. Long code blocks in responses can also be expanded and collapsed to keep the conversation easy to read.
 
-== Problem!
+[#query-filters]
+== Keeping Sensitive Data Away from the LLM
 
-We can keep asking questions about OpenShift resources all day and OpenShift Lightspeed will provide us with the standard documentation it knows about. But what happens when those procedures are different for your team or organization? For example, at ACME Corp, pod autoscalers are not allowed to be used by default, and there is a special process for enabling autoscaling. Continue to the next section of the lab to learn how you can add your own organizational knowledge, documentation, and policy information to OpenShift Lightspeed.
+Everything you type into the chat is ultimately sent to the configured model provider, which for many organizations raises an important question: what about sensitive data? OpenShift Lightspeed includes a redaction layer for exactly this purpose. Administrators can define *query filters* — regular expressions that scrub matching patterns from questions before they leave the cluster.
+
+This lab environment is configured to redact IPv4 addresses. In the OpenShift Console, navigate to *Ecosystem* -> *Installed Operators* in the left-hand menu. Locate the *OpenShift Lightspeed Operator*. Next, click the *OLSConfig* tab, and then click the single OLSConfig instance called `cluster`. Finally, select the *YAML* tab. Find the filter definition under _queryFilters_:
+
+[source,yaml,role="execute"]
+----
+...
+spec:
+...
+  ols:
+...
+    queryFilters:
+      - name: ip-address
+        pattern: ((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}
+        replaceWith: <IP-ADDRESS>
+----
+
+Let's see it in action. In your OpenShift Lightspeed chat interface, make sure to click the *Clear chat* button — the trash can icon at the top of the chat window. Then ask:
+
+[source,role="execute",subs=attributes+]
+----
+My pod at 192.168.4.22 cannot reach the API server. Repeat the exact question I asked, then explain what could be wrong
+----
+
+Look closely at the response: when the model repeats your question back, the IP address has been replaced with `<IP-ADDRESS>`. The model never saw the real address — it was redacted before the query left your cluster. You can define as many filters as you need, for example for hostnames, usernames, or internal project names.
+
+== Beyond the Standard Documentation
+
+We can keep asking questions about OpenShift resources all day, and OpenShift Lightspeed will provide us with the standard documentation it knows about. But what happens when those procedures are different for your team or organization? For example, at ACME Corp, pod autoscalers are not allowed to be used by default, and there is a special process for enabling autoscaling. Continue to the next section of the lab to learn how you can add your own organizational knowledge, documentation, and policy information to OpenShift Lightspeed.

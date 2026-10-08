@@ -1,0 +1,193 @@
+= Agentic OpenShift Lightspeed (Optional)
+
+IMPORTANT: *Red Hat Internal Only* — This section describes a pre-release feature under active development. The information here has not been approved for public sharing. Do not distribute or reference this content outside of Red Hat.
+
+IMPORTANT: Agentic OpenShift Lightspeed is deployed in this 4.22 cluster exclusively for Red Hat field enablement purposes. These capabilities are not yet part of any generally available OpenShift release and will only become available in future major versions of OpenShift.
+
+NOTE: This section is optional. It only applies if Agentic OLS was enabled when this catalog item was provisioned and a valid OpenAI API Key was provided. If that is not the case for your environment, skip ahead to xref:module-10.adoc[Key Takeaways].
+
+So far in this lab, OpenShift Lightspeed has always waited for you to start the conversation. You asked the questions, you decided when to approve tool calls, and you chose what to investigate next. Agentic OLS changes that dynamic. Given a plain-language description of a problem, it can autonomously investigate root causes, propose a remediation plan, apply the approved fix, and verify the outcome — all without you having to find the right YAML, attach the right resource, or compose the right follow-up question.
+
+The core building block of Agentic OLS is the `AgenticRun` custom resource. Each run goes through the following lifecycle:
+
+* *Analysis*: the agent investigates the issue and proposes remediation options.
+* *Execution*: the approved option is applied to the cluster.
+* *Verification*: the agent confirms the fix worked.
+* *Escalation*: triggered only if Verification fails, creating a record of what failed for human review.
+
+Every phase runs in a short-lived sandbox pod that calls the LLM and exits when its step is done. The human-in-the-loop configuration lives in an `ApprovalPolicy` custom resource, where a cluster admin can define which phases run automatically and which require a human to approve or reject before proceeding.
+
+Apart from manually creating AgenticRuns, the *Alerts Adapter* is a companion service that polls Alertmanager and automatically creates AgenticRun CRs when firing alerts match a configured severity, closing the loop for fully autonomous remediation.
+
+image::arch-module09.svg[Agentic OLS Architecture, 100%]
+
+In this module you work with Agentic Lightspeed: manually creating an AgenticRun, enabling the Alerts Adapter for automatic triggering, and following each run through its full lifecycle.
+
+NOTE: The Alerts Adapter is deployed but its severity filter is commented out, so it is not creating any runs yet. You will enable that in the last exercise.
+
+[#pre-deployed-resources]
+== Exploring Pre-deployed Resources
+
+Let's get familiar with the building blocks that were pre-configured for you, directly from the OpenShift web console.
+
+Navigate to *Home* -> *Search* in the left navigation menu. Make sure the *Project* dropdown at the top is set to `openshift-lightspeed`.
+
+image::search-menu.png[Search menu in OpenShift web console]
+
+Now use the *Resources* box to search for the following custom resources:
+
+==== *LLMProvider*
+
+In the *Resources* box, type `LLMProvider` and select it from the drop-down. You will see the `openai` provider listed. Click on it and open the *YAML* tab, where you should see something similar to the following:
+
+[source,yaml,role="execute"]
+----
+apiVersion: agentic.openshift.io/v1alpha1
+kind: LLMProvider
+metadata:
+  name: openai
+spec:
+  openAI:
+    credentialsSecret:
+      name: llm-creds-openai
+  type: OpenAI
+----
+
+The provider points to the OpenAI endpoint and reads credentials from the `llm-creds-openai` secret. This secret was populated at provisioning time with the OpenAI API Key supplied when ordering this catalog item.
+
+==== *Agent*
+
+Navigate back to *Home* -> *Search*. In the *Resources* box, type `Agent` and select it from the drop-down. Open the `default` Agent and switch to the *YAML* tab:
+
+[source,yaml,role="execute"]
+----
+apiVersion: agentic.openshift.io/v1alpha1
+kind: Agent
+metadata:
+  name: default
+spec:
+  llmProvider:
+    name: openai
+  model: gpt-5.4
+  timeouts:
+    analysisSeconds: 120
+    executionSeconds: 120
+    verificationSeconds: 120
+----
+
+Notice the _model (gpt-5.4)_ field and the per-step _timeouts_. These can be tuned per agent. For example you could define a _fast_ agent pointing to a smaller model for quick analysis and a _smart_ agent pointing to a more capable LLM for complex remediation, and reference them independently within the same run.
+
+==== *ApprovalPolicy*
+
+Lastly, go back to *Home* -> *Search*, and search for `ApprovalPolicy`. Open the `cluster` resource that appears. In the *YAML* tab you can see that all phases run automatically except for Execution, which requires manual approval:
+
+[source,yaml,role="execute"]
+----
+apiVersion: agentic.openshift.io/v1alpha1
+kind: ApprovalPolicy
+metadata:
+  name: cluster
+spec:
+  maxConcurrentRuns: 5
+  stages:
+    - approval: Automatic
+      name: Analysis
+    - approval: Manual
+      name: Execution
+    - approval: Automatic
+      name: Verification
+    - approval: Automatic
+      name: Escalation
+----
+
+So here's the full picture: the `LLMProvider` supplies the LLM provider type and credentials (pointing to the API Key secret), the `Agent` defines the model to use and timeouts for each phase, and the `ApprovalPolicy` ensures that only Execution requires your sign-off while Analysis, Verification and Escalation run automatically. Let's put it to work.
+
+[#first-agentic-run]
+== Your First AgenticRun
+
+In the previous module, you used OpenShift Lightspeed to diagnose a broken virtual machine by attaching its YAML and asking follow-up questions. Now let's see the agent tackle a different kind of task: provisioning a workload. Instead of issuing commands step by step or composing YAML by hand, just describe what you want in plain language and submit it as an `AgenticRun`.
+
+In the OpenShift web console, click *Quick create* -> *Import YAML* in the top-right corner of the navigation bar.
+
+image::import-yaml.png[Import YAML, 50%]
+
+Paste the following manifest and click *Create*:
+
+[source,yaml,role="execute"]
+----
+apiVersion: agentic.openshift.io/v1alpha1
+kind: AgenticRun
+metadata:
+  name: deploy-test-workload
+  namespace: openshift-lightspeed
+spec:
+  request: |
+    Analyze the lightspeed-demo namespace and deploy a test workload.
+
+    1. Analysis: List current workloads and confirm there is no Deployment
+       named "hello-test" already running.
+    2. Execution: Create a Deployment named "hello-test" running nginx:latest
+       with 1 replica, and a ClusterIP Service named "hello-test" on port 80.
+       Verify the pod reaches Running state.
+  targetNamespaces:
+    - lightspeed-demo
+  analysis:
+    agent: default
+  execution:
+    agent: default
+----
+
+The _targetNamespaces_ field limits the sandbox pod's cluster access to the `lightspeed-demo` namespace, so the agent can only see and act on resources within that scope.
+
+In the left navigation menu, go to *Agentic Runs* -> *Agentic Runs*. You should see your run listed with the status *Analyzing*. Because Analysis is set to _Automatic_, the run moves straight from *Pending* to *Analyzing* without waiting for your input. Click on the `deploy-test-workload` run to open its detail view.
+
+While analyzing, a sandbox pod starts, queries the cluster for context, calls the LLM, and writes its findings. You can track the progress by clicking *View Analysis logs*.
+
+Once it finishes, the status transitions to *Proposed* — meaning the agent has a plan ready and is waiting for your decision before touching anything. The detail view shows the analysis results: confirmation that no conflicting _hello-test_ workload exists, and the plan of what will be created.
+
+NOTE: Nothing has been deployed yet. The agent completed the analysis and is now waiting. It cannot proceed without your explicit approval.
+
+This is the Human-in-the-Loop gate. Review the deployment plan the agent proposed. Once you agree with it, click the *Execute remediation* button to approve and unlock the next phase.
+
+The *Executing* phase begins: a sandbox pod is deployed, the agent runs the required commands against the cluster, and reports the result. You can follow the process by clicking *View Execution logs*.
+
+Once execution completes, *Verification* starts automatically. No further approval needed, because the verification phase was set to _Automatic_ in the ApprovalPolicy. The verification sandbox confirms the workload is running and the status moves to *Completed*.
+
+NOTE: If verification determines the workload did not reach the expected state, the run transitions to *Escalating* instead of *Completed*. An escalation record is created with details for human review — the agent tells you precisely what it could not complete rather than silently marking the run as successful.
+
+To confirm the workload was deployed, navigate to *Workloads* -> *Deployments* in the `lightspeed-demo` namespace. You should see the `hello-test` Deployment with its pod in *Running* state.
+
+[#enabling-alerts-adapter]
+== Enabling the Alerts Adapter
+
+So far you triggered remediation manually by describing the problem and submitting the AgenticRun. The Alerts Adapter closes the remaining gap: it polls Alertmanager on a 30-second cadence and automatically creates `AgenticRun` CRs whenever firing alerts match a configured severity, so an alert can go from firing to investigated to remediated without any manual trigger.
+
+Let's enable it. Go to *Workloads* -> *ConfigMaps*, make sure the project is set to `openshift-lightspeed`, and open `alerts-adapter-config`. Switch to the *YAML* tab and find the _filtering_ section where the _allowedReceivers_ block is commented out. Uncomment those lines to enable `critical` severity alerts as shown below, and click *Save*:
+
+[source,yaml,role="execute"]
+----
+    filtering:
+      allowedReceivers:
+        - critical
+----
+
+Now, we need to apply this configuration. Navigate to *Workloads* -> *Pods*. Make sure you select the `openshift-lightspeed` project and locate the `lightspeed-agentic-alerts-adapter` pod. On its right, you will find *three vertical dots*. Click on them and select *Delete Pod*. Don't worry, the pod will be regenerated automatically, but now with your new configuration.
+
+NOTE: In this demo environment, the OpenShift Lightspeed operator is not managing the alerts adapter, so it cannot automatically detect the ConfigMap change and roll out the new configuration. In a standard deployment, OpenShift Lightspeed handles this automatically.
+
+If you recall from the Troubleshooting module, there was a `PodDisruptionBudgetLimit` critical alert firing in the cluster. You can refresh your memory by navigating to *Observe* -> *Alerting* and switching to *All projects*.
+
+image::alert.png[Critical alert firing in the cluster]
+
+Agentic OpenShift Lightspeed is now monitoring your critical alerts. Navigate to *Agentic Runs* -> *Agentic Runs* and you will see a new `AgenticRun` created automatically, called `poddisruptionbudgetlimit-critical`. Follow the same procedure as before to drive it to completion:
+
+* The run starts in *Analyzing* automatically. A sandbox pod investigates the firing alert and writes its findings.
+* Once analysis finishes, the status moves to *Proposed*. Open the run detail view and review the remediation plan.
+* Click *Execute remediation* to approve execution. The phase changes to *Executing* until the agent applies the fix to the affected namespace.
+* *Verification* starts automatically once execution completes. The sandbox confirms the fix worked and the run reaches *Completed*.
+
+To confirm the alert has been resolved, navigate to *Observe* -> *Alerting* and switch to `All projects`. The critical alert that triggered this run should no longer appear in the firing alerts list.
+
+IMPORTANT: Remember that Agentic OpenShift Lightspeed is *Red Hat Internal Only*. Please do not distribute or reference this content outside of Red Hat.
+
+Continue to xref:module-10.adoc[Key Takeaways] to wrap up the lab.

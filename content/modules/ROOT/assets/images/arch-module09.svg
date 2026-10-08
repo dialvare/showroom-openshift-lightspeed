@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 25 1090 496" width="1090" height="496"
+     font-family="'Red Hat Text',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="13">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#0066cc"/>
+    </marker>
+    <marker id="arrhl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#0066cc"/>
+    </marker>
+  </defs>
+  <style>
+    .box   { fill:#ffffff; stroke:#0066cc; stroke-width:1.5; }
+    .inner { fill:#ffffff; stroke:#0066cc; stroke-width:1; }
+    .pre   { fill:#ffffff; stroke:#0066cc; stroke-width:1.5; }
+    .high  { fill:#ffffff; stroke:#0066cc; stroke-width:2; }
+    .eph   { fill:#ffffff; stroke:#0066cc; stroke-width:1.5; stroke-dasharray:5 3; }
+    .esc   { fill:#ffffff; stroke:#0066cc; stroke-width:1.5; stroke-dasharray:5 3; }
+    .plbl  { fill:#ffffff; stroke:#0066cc; stroke-width:1; }
+    .albl  { fill:#ffffff; stroke:#0066cc; stroke-width:1; }
+    .tt    { fill:#151515; font-weight:600; font-size:14px; }
+    .ts    { fill:#6a6e73; font-size:11.5px; }
+    .lbl   { fill:#6a6e73; font-size:11px; font-style:italic; }
+    .gt    { fill:#151515; font-weight:600; font-size:13px; }
+    .bt    { fill:#151515; font-weight:600; font-size:14px; }
+    .ort   { fill:#151515; font-weight:600; font-size:13px; }
+    .ln    { stroke:#0066cc; stroke-width:1.5; fill:none; marker-end:url(#arr); }
+    .lnhl  { stroke:#0066cc; stroke-width:2; fill:none; marker-end:url(#arrhl); }
+    .lnd   { stroke:#0066cc; stroke-width:1.5; fill:none; stroke-dasharray:5 4; marker-end:url(#arr); }
+    .lngrn { stroke:#0066cc; stroke-width:1.5; fill:none; stroke-dasharray:3 3; marker-end:url(#arr); }
+    .dim   { opacity:0.35; }
+  </style>
+
+  <!-- ═══════════════════════ LEFT COLUMN ═══════════════════════ -->
+
+  <rect class="box" x="15" y="45" width="155" height="65" rx="6"/>
+  <text class="tt" x="93" y="70" text-anchor="middle">You</text>
+  <text class="ts" x="93" y="88" text-anchor="middle">Manually create</text>
+  <text class="ts" x="93" y="104" text-anchor="middle">AgenticRun</text>
+
+  <rect class="pre" x="15" y="175" width="155" height="65" rx="6"/>
+  <text class="gt" x="93" y="200" text-anchor="middle">Alerts Adapter</text>
+  <text class="ts" x="93" y="218" text-anchor="middle">polls critical alerts</text>
+
+  <rect class="box" x="15" y="305" width="155" height="60" rx="6"/>
+  <text class="tt" x="93" y="330" text-anchor="middle">Alertmanager</text>
+  <text class="ts" x="93" y="348" text-anchor="middle">openshift-monitoring</text>
+  <path class="lnd" d="M93,240 L93,303"/>
+  <text class="lbl" x="99" y="275" text-anchor="start">polls</text>
+
+  <!-- ═══════════════════════ ARROWS → CONSOLE PLUGIN ═══════════════════════ -->
+
+  <path class="lnhl" d="M170,77 L230,130"/>
+  <path class="lnhl" d="M170,207 L230,155"/>
+
+  <!-- ═══════════════════════ TOP ROW (y=115) ═══════════════════════ -->
+
+  <rect class="pre" x="230" y="115" width="155" height="65" rx="6"/>
+  <text class="gt" x="308" y="143" text-anchor="middle">Console Plugin</text>
+  <text class="ts" x="308" y="161" text-anchor="middle">Agentic Runs UI</text>
+  <path class="lnhl" d="M385,147 L430,147"/>
+
+  <rect class="high" x="430" y="115" width="130" height="65" rx="6"/>
+  <text class="bt" x="495" y="143" text-anchor="middle">AgenticRun CR</text>
+  <text class="ts" x="495" y="160" text-anchor="middle">targetNamespaces</text>
+  <path class="ln" d="M560,147 L598,147"/>
+
+  <rect class="pre" x="600" y="115" width="130" height="65" rx="6"/>
+  <text class="gt" x="665" y="143" text-anchor="middle">Agent</text>
+  <text class="ts" x="665" y="160" text-anchor="middle">gpt-5.4</text>
+  <path class="ln" d="M730,147 L768,147"/>
+
+  <rect class="pre" x="770" y="115" width="130" height="65" rx="6"/>
+  <text class="gt" x="835" y="143" text-anchor="middle">LLMProvider</text>
+  <text class="ts" x="835" y="160" text-anchor="middle">OpenAI</text>
+  <path class="ln" d="M900,147 L938,147"/>
+
+  <rect class="box" x="940" y="115" width="130" height="65" rx="6"/>
+  <text class="tt" x="1005" y="143" text-anchor="middle">API Key</text>
+  <text class="ts" x="1005" y="160" text-anchor="middle">llm-creds-openai</text>
+
+  <!-- ═══════════════════════ AgenticRun → Analysis ═══════════════════════ -->
+
+  <path d="M495,180 L495,215 L430,215 L430,328"
+        style="stroke:#0066cc;stroke-width:1.5;fill:none;marker-end:url(#arr);"/>
+
+  <!-- ═══════════════════════ APPROVAL POLICY ═══════════════════════ -->
+
+  <rect class="pre" x="585" y="200" width="165" height="50" rx="6"/>
+  <text class="gt" x="668" y="222" text-anchor="middle">ApprovalPolicy</text>
+  <text class="ts" x="668" y="239" text-anchor="middle">cluster-scoped</text>
+
+  <!-- Vertical stub from box centre-bottom to horizontal bus -->
+  <line x1="668" y1="250" x2="668" y2="260" stroke="#0066cc" stroke-width="1.5" fill="none"/>
+
+  <!-- Horizontal bus bar -->
+  <line x1="430" y1="260" x2="905" y2="260" stroke="#0066cc" stroke-width="1.5" fill="none"/>
+
+  <!-- Drop 1 — Automatic (before Analysis, x=430) -->
+  <path d="M430,260 L430,328" style="stroke:#0066cc;stroke-width:1.5;fill:none;marker-end:url(#arr);"/>
+  <rect class="albl" x="390" y="280" width="80" height="14" rx="3"/>
+  <text x="430" y="291" text-anchor="middle" font-size="10" font-weight="700" fill="#151515">Automatic</text>
+
+  <!-- Drop 2 — Manual (Analysis → Execution gap, x=525) -->
+  <path d="M525,260 L525,357" style="stroke:#0066cc;stroke-width:1.5;fill:none;marker-end:url(#arr);"/>
+  <rect class="plbl" x="492" y="280" width="66" height="14" rx="3"/>
+  <text x="525" y="291" text-anchor="middle" font-size="10" font-weight="700" fill="#151515">Manual</text>
+
+  <!-- Drop 3 — Automatic (Execution → Verification gap, x=715) -->
+  <path d="M715,260 L715,357" style="stroke:#0066cc;stroke-width:1.5;fill:none;marker-end:url(#arr);"/>
+  <rect class="albl" x="675" y="280" width="80" height="14" rx="3"/>
+  <text x="715" y="291" text-anchor="middle" font-size="10" font-weight="700" fill="#151515">Automatic</text>
+
+  <!-- Drop 4 — Automatic (Verification → Escalation gap, x=905) -->
+  <path d="M905,260 L905,357" style="stroke:#0066cc;stroke-width:1.5;fill:none;marker-end:url(#arr);"/>
+  <rect class="albl" x="865" y="280" width="80" height="14" rx="3"/>
+  <text x="905" y="291" text-anchor="middle" font-size="10" font-weight="700" fill="#151515">Automatic</text>
+
+  <!-- ═══════════════════════ PHASE ROW (y=330, 50 px gaps) ═══════════════════════ -->
+
+  <!-- Analysis Sandbox -->
+  <rect class="eph" x="360" y="330" width="140" height="65" rx="6"/>
+  <text class="ort" x="430" y="352" text-anchor="middle">Analysis</text>
+  <text class="ts" x="430" y="368" text-anchor="middle">Sandbox Pod</text>
+  <text class="ts" x="430" y="384" text-anchor="middle">ephemeral</text>
+
+  <!-- Analysis → Execution -->
+  <path d="M500,362 L548,362" style="stroke:#0066cc;stroke-width:1.5;fill:none;marker-end:url(#arr);"/>
+
+  <!-- Execution Sandbox -->
+  <rect class="eph" x="550" y="330" width="140" height="65" rx="6"/>
+  <text class="ort" x="620" y="352" text-anchor="middle">Execution</text>
+  <text class="ts" x="620" y="368" text-anchor="middle">Sandbox Pod</text>
+  <text class="ts" x="620" y="384" text-anchor="middle">ephemeral</text>
+
+  <!-- Execution → Verification -->
+  <path d="M690,362 L738,362" style="stroke:#0066cc;stroke-width:1.5;fill:none;marker-end:url(#arr);"/>
+
+  <!-- Verification Sandbox -->
+  <rect class="eph" x="740" y="330" width="140" height="65" rx="6"/>
+  <text class="ort" x="810" y="352" text-anchor="middle">Verification</text>
+  <text class="ts" x="810" y="368" text-anchor="middle">Sandbox Pod</text>
+  <text class="ts" x="810" y="384" text-anchor="middle">ephemeral</text>
+
+  <!-- Verification → Escalation (dashed, conditional) -->
+  <path d="M880,362 L928,362" style="stroke:#0066cc;stroke-width:1.5;fill:none;stroke-dasharray:4 3;marker-end:url(#arr);"/>
+  <text class="lbl" x="904" y="390" text-anchor="middle">if failed</text>
+
+  <!-- Escalation Sandbox -->
+  <rect class="esc" x="930" y="330" width="140" height="65" rx="6"/>
+  <text class="ort" x="1000" y="352" text-anchor="middle">Escalation</text>
+  <text class="ts" x="1000" y="368" text-anchor="middle">Sandbox Pod</text>
+  <text class="ts" x="1000" y="384" text-anchor="middle">ephemeral</text>
+
+  <!-- Junction circles -->
+  <circle cx="525" cy="362" r="6" fill="#0066cc"/>
+  <circle cx="715" cy="362" r="6" fill="#0066cc"/>
+  <circle cx="905" cy="362" r="6" fill="#0066cc"/>
+
+  <!-- ═══════════════════════ RESULT CRs ═══════════════════════ -->
+
+  <path class="ln" d="M430,395 L430,453"/>
+  <path class="ln" d="M620,395 L620,453"/>
+  <path class="ln" d="M810,395 L810,453"/>
+  <path class="ln" d="M1000,395 L1000,453"/>
+
+  <rect class="inner" x="360" y="455" width="710" height="46" rx="4"/>
+  <text class="tt" x="715" y="475" text-anchor="middle">Result CRs</text>
+  <text class="ts" x="715" y="491" text-anchor="middle">AnalysisResult &#183; ExecutionResult &#183; VerificationResult &#183; EscalationResult</text>
+
+  <!-- ═══════════════════════ OTEL COLLECTOR ═══════════════════════ -->
+
+  <rect class="pre" x="130" y="455" width="185" height="46" rx="6"/>
+  <text class="gt" x="223" y="476" text-anchor="middle">OTEL Collector</text>
+  <text class="ts" x="223" y="492" text-anchor="middle">traces &#183; audit logs</text>
+  <!-- Bus bar at midpoint (y=424) of each phase→ResultCRs arrow, routing to OTEL Collector -->
+  <line x1="1000" y1="424" x2="223" y2="424" stroke="#0066cc" stroke-width="1.5" fill="none"/>
+  <path d="M223,424 L223,455" style="stroke:#0066cc;stroke-width:1.5;fill:none;marker-end:url(#arr);"/>
+  <circle cx="430" cy="424" r="4" fill="#0066cc"/>
+  <circle cx="620" cy="424" r="4" fill="#0066cc"/>
+  <circle cx="810" cy="424" r="4" fill="#0066cc"/>
+  <circle cx="1000" cy="424" r="4" fill="#0066cc"/>
+
+</svg>

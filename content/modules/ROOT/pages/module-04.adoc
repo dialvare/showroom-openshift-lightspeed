@@ -1,44 +1,112 @@
-= Troubleshooting issues in the cluster
+= Cluster Interaction
 
-Time to put OpenShift Lightspeed to the real test. The key to effective troubleshooting with OpenShift Lightspeed is using the resource attachment feature. By clicking the *+* button next to the message box in the chat interface, you can attach YAML definitions and other components to your question, giving the AI assistant the precise context it needs to diagnose the problem.
+The Cluster Interaction feature allows OpenShift Lightspeed to read and interact with your OpenShift cluster. This enables the LLM to generate highly customized responses for your environment and, when permitted, to take actions on your behalf.
 
-[#attaching-resources-to-the-query]
-== Attaching Resources to the Query
+image::arch-module04.svg[Architecture with the built-in MCP server highlighted]
 
-In your environment there is a pod that is failing to schedule for some reason. In the OpenShift console, click *Workloads* on the left, then *Pods*, and then make sure to select the project named `broken` from the dropdown at the top of the page:
+In this module you work with the highlighted pieces: the core OpenShift Lightspeed components plus the built-in MCP server that reads and writes your cluster.
 
-image::broken-project-select.png[Broken project selection]
+NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 
-Now, in the pod list, click on the *broken-pod* which you can see is in the _Pending_ state.
+[#check-the-cluster-interaction-configuration]
+== Check the Cluster Interaction Configuration
 
-Navigate to the chat interface. Make sure to click the *Clear chat* (trash can) button in the OpenShift Lightspeed interface. Then, click the *+* button to attach information. Because you are on the pod's details page, the attach menu shows the resource you are currently viewing along with options like _Full YAML file_, _Filtered YAML_, _Events_ and _Logs_. In this case, as this pod is currently _Pending_, there are no logs we can attach, and we don't really care about the events, either. Go ahead and attach the *Filtered YAML*, which will include the status information for this pod.
+Starting with OpenShift Lightspeed 1.1, the cluster interaction feature is enabled by default on new installations, and that is how this lab environment is running. Optionally, you can check how it is enabled in the _OLSConfig_ resource.
 
-image::attach-button.png[Attachment options in OpenShift Lightspeed]
+Again, navigate to *Ecosystem* -> *Installed Operators* -> *OpenShift Lightspeed Operator* -> *OLSConfig* -> `cluster` -> *YAML*. Once in the YAML editor, scroll down until you spot the _introspectionEnabled_ flag. It should be set to _true_:
 
-Then, simply ask:
+[source,yaml,role="execute",subs=attributes+]
+----
+...
+spec:
+...
+  ols:
+...
+    introspectionEnabled: true
+----
+
+When this flag is enabled, OpenShift Lightspeed deploys `openshift-mcp-server` as a dedicated standalone pod. This server loads four toolsets — `core`, `config`, `helm`, and `metrics` — covering both read and write operations.
+
+When a user asks a question, the model may call one or more of those tools to retrieve or modify cluster state. All tool usage is performed using the logged-in user's own credentials and access rights, preventing any privilege escalation.
+
+NOTE: The built-in MCP server has security guardrails baked in: it is explicitly blocked from reading Secrets and RBAC resources, so sensitive data such as credentials can never reach the LLM through it — regardless of how a question is phrased or how many permissions the logged-in user has.
+
+Important! By default, read-only tools execute automatically while write tools require explicit human approval before running — the chat interface will display the proposed tool call and ask you to confirm or reject it before anything is applied to the cluster. 
+
+NOTE: You can change this behaviour via _approvalType_ in the OLSConfig: set it to _always_ to require approval for every tool call regardless of whether it reads or writes, or to _never_ to let all tools run without any confirmation step — though the latter is not recommended for production environments where an unreviewed write operation could have unintended consequences.
+
+TIP: Tool calling consumes extra tokens from the model's context window. If you are tuning your own installation, _maxIterations_ limits how many tool-calling rounds the model may take per question, and the per-model _toolBudgetRatio_ setting controls how much of the context window may be spent on tool output.
+
+[#gathering-information-from-the-cluster]
+== Gathering Information from the Cluster
+
+Now that we have seen that cluster interaction is available, you can try asking some questions about cluster resources and see how OpenShift Lightspeed responds. Open the chat interface, click the *Clear chat* (trash can) button if you have an ongoing conversation, and ask:
 
 [source,role="execute",subs=attributes+]
 ----
-What's wrong with this pod?
+Show me the pods in the openshift-lightspeed namespace
 ----
 
-You should get some detailed information about nodes and node selectors.
+The model likely chose to use the _pods_list_in_namespace_ tool to retrieve pod information from the _openshift-lightspeed_ namespace. You can view the tool's output by clicking the `pods_list_in_namespace` button displayed after the response. This information was used by the model to generate the final answer containing the list of all pods in that namespace.
 
-Now go ahead and attach the *Full YAML file*, and then ask:
+Let's take cluster interaction one step further by combining it with follow-up questions. OpenShift Lightspeed can not only gather information from your cluster but also analyze it when you ask follow-up questions within the same chat session.
+
+For example, let's ask OpenShift Lightspeed to retrieve and analyze the logs from the PostgreSQL server pod. In the same chat session, ask:
 
 [source,role="execute",subs=attributes+]
 ----
-Can you fix it?
+Can you get and analyze the logs of the last pod?
 ----
 
-Fortunately, this is a pretty obvious typo: `worker` is spelled wrong. And, GPT-4 is a very capable model, so it suggests that this typo might be the problem, and suggests some ways for you to fix it.
+OpenShift Lightspeed will use the _pods_log_ tool to retrieve the recent logs from the last pod mentioned in the previous response and then provide you with an analysis of what's happening in those logs. This demonstrates the power of combining cluster interaction with the conversational context maintained from your previous questions to navigate across different components and resources within the cluster.
 
-Can you see how the simple act of attaching details to your request can dramatically improve troubleshooting outcomes?
+Cluster interaction is not limited to Kubernetes resources. The built-in MCP server is also connected to the OpenShift monitoring stack (Prometheus and Alertmanager), which means OpenShift Lightspeed can reason about the live health of your cluster. Click the *Clear chat* (trash can) button and ask:
 
-Note that you can attach multiple things to your request at the same time, like a service, a route, and a deployment. This can make more complicated troubleshooting scenarios easier.
+[source,role="execute",subs=attributes+]
+----
+Are there any alerts firing in the cluster right now?
+----
 
-TIP: Workload resources are not the only thing you can attach. From the *Observe* -> *Alerting* section of the console you can attach firing alerts to your questions, and since OpenShift Lightspeed 1.1 you can also attach alerting rules and Alertmanager silences directly from their details pages — very handy when you want the assistant to explain an alert or review a silence before you commit to it. And if the context you need lives outside the cluster entirely, the attach menu's *Upload from computer* option lets you attach a local file, such as a log you exported earlier.
+This time the model calls the _get_alerts_ tool, retrieves the alerts currently firing from the monitoring stack, and summarizes them for you — including each alert's severity and description. As before, you can ask follow-up questions about any alert that catches your attention, and the model will combine the alert data with other cluster interaction tools to dig deeper.
 
-== Expanding Capabilities
+[#write-tools]
+== Letting Lightspeed Take Action
 
-Throughout this lab, you've seen how OpenShift Lightspeed uses cluster interaction and attachments to assist with your OpenShift workloads. But what if you could extend OpenShift Lightspeed even further by connecting it to external tools? In the next module, you'll learn how to integrate custom MCP servers into OpenShift Lightspeed.
+So far we have used cluster interaction only to read information from the cluster. But the built-in MCP server also exposes write tools — meaning OpenShift Lightspeed can make changes on your behalf, subject to your RBAC permissions.
+
+Let's see this in action. *Clear* the chat and ask OpenShift Lightspeed to create a simple test workload in the existing _lightspeed-demo_ namespace:
+
+[source,role="execute",subs=attributes+]
+----
+Create a Deployment named hello-ols in the lightspeed-demo namespace with 1 replica of registry.access.redhat.com/ubi9/ubi, command sleep and argument infinity. Do not set fsGroup in the pod security context.
+----
+
+OpenShift Lightspeed will invoke the _resources_create_or_update_ tool to apply the Deployment manifest. As it is an operation that writes to your cluster, you will be asked to approve or reject the action. Go ahead and click *Approve*.
+
+image::approve-tool.png[Approve write execution MCP tool,600]
+
+Once approved, you can verify it in the console under *Workloads* -> *Deployments* in the `lightspeed-demo` namespace.
+
+Now scale it up to see another write tool in action:
+
+[source,role="execute",subs=attributes+]
+----
+Scale the hello-ols Deployment to 3 replicas
+----
+
+OpenShift Lightspeed calls _resources_scale_. *Approve* the execution again. Then check the Deployments view to confirm the replica count changes to 3.
+
+Finally, clean up the demo resource:
+
+[source,role="execute",subs=attributes+]
+----
+Delete the hello-ols Deployment
+----
+
+*Approve* the _resources_delete_ tool execution. The deployment should disappear from your cluster.
+
+== What if there's something wrong?
+
+In the examples above, we saw that the pods were running healthy and their logs showed no issues. But what happens when you're actually facing a real problem that needs troubleshooting?
+
+One powerful feature of OpenShift Lightspeed is the ability to attach resource information directly to your questions. By attaching YAML manifests, logs, or events from problematic resources, you provide OpenShift Lightspeed with the specific context it needs to diagnose issues effectively. Let's put this into practice in the next module by diagnosing and resolving a real issue in your cluster.

@@ -1,204 +1,80 @@
-= Bring your Custom MCP Servers into OpenShift Lightspeed
+= Troubleshooting issues in the cluster
 
-OpenShift Lightspeed can be extended beyond its built-in capabilities by integrating custom MCP servers. This feature allows you to add additional MCP servers that provide new tools to the OpenShift Lightspeed instance, enabling the LLM to use these external tools when generating answers to your questions.
+Time to put OpenShift Lightspeed to the real test. The key to effective troubleshooting with OpenShift Lightspeed is using the resource attachment feature. By clicking the *Plus (+)* button next to the message box in the chat interface, you can attach YAML definitions and other components to your question, giving the AI assistant the precise context it needs to diagnose the problem.
 
-image::arch-mcp.svg[Architecture with custom MCP servers highlighted]
+image::arch-module05.svg[Architecture with the built-in MCP server highlighted]
 
-_In this module you work with the highlighted piece: a custom MCP server you deploy and register with OpenShift Lightspeed. Note how it sits alongside the built-in one._
+In this module you work again with the highlighted pieces: the core OpenShift Lightspeed components plus the built-in MCP server that reads and writes your cluster.
 
-NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
+[#attaching-resources-to-the-query]
+== Attaching Resources to the Query
 
-In this module, you'll deploy the Insights Result MCP server that connects to Red Hat Insights and provides two tools:
+In your environment there is a pod that is failing to schedule for some reason. In the OpenShift console, navigate to *Workloads* -> *Pods*, and then make sure to select the project named `broken` from the dropdown at the top of the page:
 
-* _get_last_result_for_cluster:_ returns a dictionary with the cluster result.
-* _get_upgrade_risk_prediction_for_cluster:_ returns a dictionary with the upgrade risks prediction for the given cluster.
+image::broken-project-select.png[Broken project selection]
 
-[#deploy-the-insights-result-mcp-server]
-== Deploy the Insights Result MCP server
+Now, in the pod list, click on the `broken-pod` which you can see is in the _Pending_ state.
 
-OpenShift Lightspeed can connect to MCP servers running outside the cluster, but in this case, the Insights Result MCP server will be deployed directly within our OpenShift cluster.
+Open the OpenShift Lightspeed chat interface if minimized and make sure to press *Clear chat* (trash can). Then, click the *Plus (+)* button to attach information. 
 
-In order to deploy the MCP server, we will need to create several resources in our cluster. Some of them will be created via YAML in the OpenShift Dashboard, while others that require environment variables will be created from the Command Line.
+Because you are on the pod's details page, the attach menu shows the resource you are currently viewing along with options like _Full YAML file_, _Filtered YAML_, _Events_ and _Logs_. In this case, as this pod is currently _Pending_, there are no logs we can attach, and we don't really care about the events, either. 
 
-Let's prepare the Web console to easily apply all the resources. In the upper-right corner menu, click on the *OpenShift command line* option.
+Go ahead and attach the *Filtered YAML*, which will include the status information for this pod.
 
-image::command-line.png[OpenShift Command Line menu, 50%]
+image::attach-button.png[Attachment options in OpenShift Lightspeed]
 
-This will open a new tab at the bottom of your page. There, select *Start*. 
-
-In the same upper-right menu, you can spot the *Quick create* button, where we will be able to Import the _Project_, _Deployment_ and _Service_ YAML resources:
-
-image::import-yaml.png[OpenShift Import YAML menu, 50%]
-
-=== Deploy the Project:
-
-Start by creating the _Project_. Click on *Quick create* > *Import YAML* in the top-right corner. Then, paste the following YAML and click *Create*:
-
-[source,yaml,role="execute",subs=attributes+]
-----
-apiVersion: project.openshift.io/v1
-kind: Project
-metadata:
-  labels:
-    kubernetes.io/metadata.name: insights-results-mcp
-  name: insights-results-mcp
-----
-
-=== Create the secret:
-
-The _Secret_ needs to include our cluster's pull secret. To dynamically generate this resource and inject that value, run the following command in your Terminal at the bottom:
+Then, simply ask:
 
 [source,role="execute",subs=attributes+]
 ----
-oc create -n insights-results-mcp secret generic insights-results-secret \
-  --from-literal=CONSOLE_REDHAT_PULL_SECRET="$(oc get secrets pull-secret -n openshift-config -o json | jq -r '.data.".dockerconfigjson"' | base64 -d | jq -r '.auths."cloud.openshift.com".auth')"
+What's wrong with this pod?
 ----
 
-=== Create the ConfigMap:
+You should get some detailed information about nodes and node selectors.
 
-Similar to what we did with the Secret, run the following command to generate the _ConfigMap_ that includes our cluster's ID:
+Now go ahead and attach the *Full YAML file*, and then ask:
 
 [source,role="execute",subs=attributes+]
 ----
-oc create -n insights-results-mcp configmap cluster-info \
-  --from-literal=CLUSTER_ID="$(oc get clusterversion -o jsonpath='{.items[].spec.clusterID}')"
+How can I fix it?
 ----
 
-That's the last resource we will create using the command line, so you can close the Terminal window at the bottom.
+Fortunately, this is a pretty obvious typo: `worker` is spelled wrong. The model identifies the typo as the likely problem and suggests ways to fix it.
 
-=== Generate Deployment:
+Can you see how the simple act of attaching details to your request can dramatically improve troubleshooting outcomes?
 
-Now, let's go back to the YAML creation procedure. To create the _Deployment_, navigate to *Quick create* > *Import YAML* in the top-right corner and then paste the following YAML before clicking *Create*:
+Note that you can attach multiple resources to your request at the same time, like a service, a route, and a deployment. This can make more complicated troubleshooting scenarios easier. And if the context you need lives outside the cluster entirely, the attach menu's *Upload from computer* option lets you attach a local file, such as a log you exported earlier.
 
-[source,yaml,role="execute",subs=attributes+]
-----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    name: insights-results-mcp
-  name: insights-results-mcp-server
-  namespace: insights-results-mcp
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: insights-results-mcp-server
-  template:
-    metadata:
-      labels:
-        app: insights-results-mcp-server
-    spec:
-      containers:
-      - env:
-        - name: TRANSPORT
-          value: streamable-http
-        - name: CLUSTER_ID
-          valueFrom:
-            configMapKeyRef:
-              name: cluster-info
-              key: CLUSTER_ID
-        - name: CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: insights-results-secret
-              key: CONSOLE_REDHAT_PULL_SECRET
-        image: quay.io/joseluis/insights-results-mcp:latest
-        imagePullPolicy: Always
-        name: container
-        ports:
-        - containerPort: 5000
-          protocol: TCP
-          name: mcp
-        resources: {}
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
-      dnsPolicy: ClusterFirst
-      restartPolicy: Always
-      schedulerName: default-scheduler
-      securityContext: {}
-      terminationGracePeriodSeconds: 30
-----
+[#troubleshooting-mode]
+== Advanced Troubleshooting
 
-In the Web Console interface, you will see a Pod being created and Running after a few seconds.
+Rather than manually attaching resources, you can also switch to *Troubleshooting mode* and let OpenShift Lightspeed proactively investigate issues for you. In this mode, the model autonomously queries Kubernetes resource state, retrieves pod logs, and correlates Prometheus metrics — all in a single conversational turn, without you having to guide each step.
 
-=== Generate Service:
+Before starting, navigate to *Observe* -> *Alerting* in the OpenShift console. Make sure you select *All Projects* from the project dropdown. You should see one Critical alert: `PodDisruptionBudgetLimit` is firing, along with other Warning and Info alerts.
 
-Finally, create the _Service_ to expose the MCP url. Again, click on *Quick create* > *Import YAML*. There, copy the contents of the following YAML and press *Create*.
+image::alert.png[Critical alert firing in the cluster]
 
-[source,yaml,role="execute",subs=attributes+]
-----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app.kubernetes.io/name: insights-results-mcp
-  name: insights-results-mcp-server
-  namespace: insights-results-mcp
-spec:
-  internalTrafficPolicy: Cluster
-  ipFamilies:
-  - IPv4
-  ipFamilyPolicy: SingleStack
-  ports:
-  - name: mcp
-    port: 5000
-    protocol: TCP
-    targetPort: mcp
-  selector:
-    app: insights-results-mcp-server
-  sessionAffinity: None
-  type: ClusterIP
-----
+Now, open the OpenShift Lightspeed chat and click the *Clear chat* button if needed. Before asking, select the *Troubleshooting* mode from the mode selector: 
 
-The Insights Result MCP server is now configured and running in our cluster. It's time to connect it to our OpenShift Lightspeed instance. 
+image::troubleshooting-mode.png[Troubleshooting mode in OpenShift Lightspeed,600]
 
-[#configure-openshift-lightspeed]
-== Configure OpenShift Lightspeed
-
-As we have seen in previous sections, the configuration in our OpenShift Lightspeed operator needs to be done in the OLSConfig resource. 
-
-Navigate to *Ecosystem* and then *Installed Operators* in the left hand menu, and make sure you select *Project: All Projects* to list all the operators in the cluster. 
-
-Click the *OpenShift Lightspeed Operator* and navigate to the *OLSConfig* tab. Then click on the `cluster` instance. Finally, select the *YAML* tab.
-
-Once in the OLSConfig YAML resource, add the following lines and click *Save*:
-
-[source,yaml,role="execute",subs=attributes+]
-----
-...
-spec:
-...
-  llm:
-...
-  featureGates:
-    - MCPServer
-  mcpServers:
-    - name: insights-results-mcp
-      timeout: 5
-      url: 'http://insights-results-mcp-server.insights-results-mcp.svc.cluster.local:5000/api/insights-results-mcp/'
-----
-
-IMPORTANT: The trailing slash at the end of the `url` is required. Without it, the MCP server answers with an HTTP redirect that OpenShift Lightspeed does not follow, tool discovery fails, and the model will never see the Insights tools.
-
-This new configuration will re-deploy the OpenShift Lightspeed app server pod. Please wait a minute before starting to interact with OpenShift Lightspeed.
-
-NOTE: The Insights Result MCP server used in this lab does not require authentication from OpenShift Lightspeed, but the `mcpServers` configuration also supports sending custom HTTP headers to servers that do. Header values can come from a Secret, from the logged-in user's own Kubernetes token, or from the connecting client — so you can integrate MCP servers that enforce their own authentication and authorization.
-
-[#use-your-custom-mcp-server]
-== Use your custom MCP server
-
-Now try asking OpenShift Lightspeed the following question about your Insights inventory. The model should use one of the tools that the new MCP server provides: 
+Now you can directly ask: 
 
 [source,role="execute",subs=attributes+]
 ----
-Show me the systems in my Insights inventory
+Investigate the root cause of the firing PodDisruptionBudgetLimit alert
 ----
 
-It's likely that the LLM has decided to use the `get_last_result_for_cluster` tool provided by the Insights Result MCP server. Since the cluster should be healthy, the response will probably indicate that there are no issues listed. This doesn't mean the tool call failed—quite the opposite! The tool successfully retrieved that information from Insights.
+During investigation, OpenShift Lightspeed may prompt you to approve certain tools such as pod_exec. Click *Approve* to allow it to proceed.
 
-== Lightspeed Beyond Containers
+With Troubleshooting mode selected, OpenShift Lightspeed will use multiple cluster interaction tools in sequence: it queries the alert details via Alertmanager, examines the state of the affected pods in the _critical_ namespace, retrieves their logs, and correlates the findings with Prometheus metrics. It then identifies the root cause — in this case, the init container _dependency-check_ is configured to fail intentionally (exit 1) — and suggests a mitigation plan.
 
-So far, we've explored how OpenShift Lightspeed helps with traditional containerized workloads like pods, deployments, routes, and services. But OpenShift is more than just containers. What about virtual machines?
+Note that with Troubleshooting mode, OpenShift Lightspeed will make use of more tools to find the root cause of the issue:
 
-With OpenShift Virtualization, you can run virtual machines alongside your containers on the same OpenShift platform. And here's the interesting part: at the end of the day, virtual machines in OpenShift are just OpenShift custom resources. This means OpenShift Lightspeed can help you with your virtual machine workloads too. Whether you need to understand VM networking, troubleshoot a VM that won't start, or generate YAML for a new virtual machine configuration, OpenShift Lightspeed has the knowledge to assist you.
+image::troubleshooting-tools.png[Troubleshooting mode uses different tools]
+
+OpenShift Lightspeed correlates Kubernetes resource state, pod logs, and live metrics to surface a root cause and a concrete remediation step, all without you having to manually attach a single resource.
+
+== Expanding Capabilities
+
+Throughout this lab, you've seen how OpenShift Lightspeed uses cluster interaction, troubleshooting mode and resource attachments to help you diagnose and resolve issues. But OpenShift Lightspeed's connection to the monitoring stack goes beyond alerts — it can also run live PromQL queries against your cluster's metrics. In the next module, you'll use that capability to generate and populate a Perses observability dashboard directly from the chat interface.

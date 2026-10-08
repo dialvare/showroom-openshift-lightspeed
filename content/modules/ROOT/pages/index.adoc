@@ -1,52 +1,53 @@
 = {lab_name}
 
-OpenShift Lightspeed is a virtual assistant for the Red Hat OpenShift Container Platform. It helps users with general knowledge, troubleshooting, skill development, root cause analysis, and more. Powered by large language models (LLMs) and retrieval-augmented generation (RAG), OpenShift Lightspeed makes OpenShift more accessible to users and helps increase user productivity.
+OpenShift Lightspeed is a virtual assistant for the Red Hat OpenShift Container Platform. It helps users with general OpenShift and Red Hat products knowledge, troubleshooting, root cause analysis, and more. Powered by large language models (LLMs) and retrieval-augmented generation (RAG), OpenShift Lightspeed makes OpenShift more accessible to users and helps increase user productivity.
 
 == OpenShift Lightspeed Architecture
 
-OpenShift Lightspeed today is a relatively small and lightweight system that you deploy into each OpenShift Container Platform cluster. The operator deploys three components:
+OpenShift Lightspeed today is a relatively small and lightweight system that you deploy into each OpenShift Container Platform cluster. The operator deploys the following core components:
 
 * A web console plugin (the chat interface)
-* A back-end server (the chat interface calls the server)
+* A back-end application server (processes questions, calls the LLM, runs tool loops)
 * A PostgreSQL database (for temporary conversation caching)
+* A Red Hat Offline Knowledge Portal (RHOKP) component (serves Red Hat product documentation via Solr, used as built-in RAG context)
+* An OpenShift MCP server (enables cluster interaction, connecting OpenShift Lightspeed to the OpenShift API and monitoring stack)
 
 image::ols-arch.png[OpenShift Lightspeed architecture]
 
-You can also see that OpenShift Lightspeed talks to a model provider. In the case of this lab environment, that provider is *Azure OpenAI* using the *GPT-4 model*. There are four supported public model providers:
+You can also see that OpenShift Lightspeed talks to a model provider. In the case of this lab environment, that provider is *Azure OpenAI* using the *GPT-4 model*. There are five supported public model providers:
 
 * OpenAI
 * Microsoft Azure OpenAI
 * IBM watsonx
 * Google Vertex AI (Gemini models, as well as Anthropic Claude models running on Vertex)
+* AWS Bedrock
 
-Additionally, if you want to self-manage your LLM, we also support the Red Hat on-premise model provider solutions:
+Additionally, if you want to self-manage your LLM, we also support the Red Hat on-premises model provider solutions:
 
 * Red Hat OpenShift AI
 * Red Hat Enterprise Linux AI (RHEL AI)
 
-The little box that says RAG means retrieval-augmented generation.
-
 == RAG Basics
 
-RAG is a way of providing additional context to an LLM to help improve the quality of responses. When relying on only the LLM, two common problems can arise:
+RAG is a way of providing additional context to an LLM to help improve the quality of responses. OpenShift Lightspeed gets this context from the Red Hat Offline Knowledge Portal (RHOKP) component. When relying on only the LLM, two common problems can arise:
 
 1. Hallucination - the model invents an answer that is not grounded in fact, even when the model was trained with the answer
 2. Missing data - the model was never trained on the required information in the first place, so answers could be anything
 
 When providing contextual information to the LLM at the time of asking a question, the response quality can be dramatically improved, even if the model was never trained on the specific contextual information.
 
-OpenShift Lightspeed will grab the relevant OpenShift Container Platform documentation to match the cluster version when it deploys, and it uses that documentation as the additional context for answering user questions.
+RHOKP serves the relevant OpenShift Container Platform documentation matched to the cluster version, and OpenShift Lightspeed uses that content as additional context when answering user questions.
 
 The specific details of vector databases and embedding and encoding are outside the scope of this lab.
 
 == The Full Picture
 
-The architecture image above shows the core components, but this lab exercises quite a few more moving pieces: additional RAG databases, two kinds of MCP servers, a redaction layer, and even an image build pipeline. Here is the complete map of everything you will touch:
+The architecture image above shows the core components, but this lab exercises quite a few more moving pieces: additional RAG databases, custom MCP servers, integration with Perses Dashboards, and even an image build pipeline. Here is the complete map of everything you will touch:
 
 image::arch-full.svg[Full OpenShift Lightspeed architecture for this lab]
 
 Don't worry about absorbing it all now. Each hands-on module begins with this same diagram, with the components that module exercises highlighted in red and everything else dimmed — so you always know where you are.
 
-NOTE: This lab environment runs version 1.1 of the OpenShift Lightspeed operator. If you are running an older version of the operator in your own environment, some of the features covered in this lab may not be available yet.
+NOTE: This lab environment runs version 1.1 of the OpenShift Lightspeed operator in an OpenShift 4.22+ cluster. If you are running an older cluster version or an older operator release in your own environment, some of the features covered in this lab may not be available.
 
-Now, with your understanding of the fundamentals, let's try and use OpenShift Lightspeed.
+Now, with your understanding of the fundamentals, let's use OpenShift Lightspeed.

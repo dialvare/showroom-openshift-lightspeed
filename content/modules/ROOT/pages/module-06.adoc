@@ -1,79 +1,59 @@
-= Simplify VM management with OpenShift Lightspeed
+= Perses Dashboards
 
-As we mentioned in the previous module, OpenShift Virtualization allows you to run virtual machines alongside your containerized workloads. Virtual machines in OpenShift are managed as custom resources, which means OpenShift Lightspeed can help you understand, configure, and troubleshoot them just like any other OpenShift resource.
+The Cluster Observability Operator (COO) is already deployed in this lab environment with Perses. Perses is an open-source, Kubernetes-native dashboard framework designed for observability, and it is integrated directly into the OpenShift web console under the Observe menu.
 
-This lab environment comes with OpenShift Virtualization already deployed and configured. You can start working with virtual machines right away. In this module, we'll explore how OpenShift Lightspeed assists with virtualization workloads across different user scenarios—from newcomers learning the basics to experienced admins migrating from other platforms.
+In this module you will use OpenShift Lightspeed to explore cluster metrics, generate PromQL queries, and produce ready-to-import Perses charts — all from the chat interface.
 
-[#new-virtualization-users]
-== New Virtualization Users
+image::arch-module06.svg[Architecture with the monitoring stack and Perses highlighted]
 
-If you're new to OpenShift Virtualization, there's a lot to learn. OpenShift Lightspeed can help you understand the key concepts and resources you'll be working with.
+The highlighted pieces are: the _metrics_ toolset of the built-in MCP server (querying Thanos and Alertmanager), and the Perses dashboard engine deployed by COO.
 
-For example, two important concepts when it comes to creating your first virtual machine in OpenShift Virtualization are InstanceTypes and VM Templates. Click the *Clear chat* (trash can) button and then ask OpenShift Lightspeed to explain the difference between both resources:
+[#in-line-visualization]
+== In-line visualization in OLS
 
-[source,role="execute",subs=attributes+]
-----
-What's the difference between a VM InstanceType and a VM Template?
-----
+Querying cluster metrics directly requires familiarity with PromQL, the Prometheus query language, which can be complex and time-consuming to master. Instead of writing queries manually, you can simply ask OpenShift Lightspeed in plain language — it will generate the appropriate PromQL query, run it against the cluster, and even render the results as an inline visualization directly inside the chat interface.
 
-OpenShift Lightspeed will provide a clear explanation of both concepts, when it makes sense to use one or either and the difference between both resources. 
-
-This kind of conceptual guidance helps you quickly understand the building blocks of OpenShift Virtualization and provides direct links to the relevant documentation sections if you want to dive deeper.
-
-Now that the difference is clear, a new Virtualization user can decide which approach to take. For example, let's ask for the procedure to create a virtual machine from a template:
+Open the OLS chat interface, *clear* any previous conversation, and still in *Troubleshooting mode*, ask:
 
 [source,role="execute",subs=attributes+]
 ----
-How do I create a Fedora VM from a template?
+What are the top 5 namespaces by CPU usage in this cluster right now? Use PromQL and visualize it
 ----
 
-OpenShift Lightspeed provides the guidance needed to navigate the cluster in order to create the virtual machine. As you can see, in just a few minutes you were able to spin up your first virtual machine with minimal effort. The initial learning curve is much gentler thanks to the assistance that OpenShift Lightspeed provides.
+OpenShift Lightspeed will invoke the _metrics_ toolset among other tools to run a PromQL query against the in-cluster Thanos Querier and return a ranked list of the five busiest namespaces. Additionally, OpenShift Lightspeed will produce an inline chart from the same query results, giving you a quick visual overview without leaving the chat interface. If everything works as expected you should see a graph similar to this: 
 
-[#users-coming-from-different-platforms]
-== User Coming from a Different Platform
+image::ols-graph.png[OpenShift Lightspeed shows rendered graphs]
 
-If you're migrating to OpenShift Virtualization from another platform like VMware, you might be familiar with different terminology. The good news is that OpenShift Lightspeed understands this and can help you translate concepts between platforms.
-
-Let's try an example. If you come from a VMware background, you're probably familiar with vMotion—VMware's technology for live migrating VMs between hosts. Let's ask OpenShift Lightspeed about this:
+Let's ask a follow-up question (don't clear the current conversation): 
 
 [source,role="execute",subs=attributes+]
 ----
-How do I vMotion a VM in OpenShift Virtualization?
+Now visualize memory usage over time for those same namespaces as a chart
 ----
 
-OpenShift Lightspeed understands that you're asking about live migration using VMware terminology. It will explain that the OpenShift Virtualization equivalent is called **Live Migration**, and likely it will provide you with information on how to proceed in OpenShift Virtualization.
+OpenShift Lightspeed will generate another time series diagram to show the memory usage. 
 
-This capability is incredibly valuable because it allows users to keep using the terminology they're already familiar with and learn the OpenShift Virtualization equivalents naturally over time by getting answers that bridge their existing knowledge with new concepts.
+[#import-into-perses]
+== Import into Perses
 
-[#troubleshooting-virtual-machines]
-== Troubleshooting Virtual Machines
+Conversations in OpenShift Lightspeed are transient — once you clear the chat, everything disappears, including any inline charts you generated. For quick, one-off questions that work fine, but in longer troubleshooting sessions you often need to retain that information: revisit it later, track how metrics evolve over time, and complement it with new panels as the investigation deepens. This is where Perses Dashboards come into play, giving you a persistent, shareable view of the metrics you care about.
 
-Just like with containerized workloads, things can go wrong with virtual machines. Let's combine what we've learned about cluster interaction and resource attachments to troubleshoot a VM issue.
+First, open the Perses UI inside the OpenShift web console. In the left-hand navigation bar go to *Observe* -> *Dashboards (Perses)*. You will see a blue *Create* button in the upper-right corner. Give the dashboard a name such as `OLS Cluster Health`, and select a project, such as `default`. Then press *Create*.
 
-First, let's use cluster interaction to check if there are any VMs having problems. Clear your chat session and ask:
+NOTE: The project you select here is just a home for the dashboard object itself — it does not limit the metrics you can see. This lab environment pre-deploys a _GlobalDatasource_ custom resource that makes cluster metrics available to Perses across all namespaces.
 
-[source,role="execute",subs=attributes+]
-----
-Are there any VMs not working properly in the cluster?
-----
+You now have an empty dashboard ready to receive panels. Keep this tab open — you will need it alongside the OLS chat interface in the next step.
 
-OpenShift Lightspeed will use cluster interaction tools to query the VirtualMachine resources across your cluster. You should see that there's a RHEL 9 VM in an _ImagePullBackOff_ state that's failing to start.
+Now, if you minimized your OpenShift Lightspeed chat interface, open it again. Scroll through your current conversation and hover over one of the graphs. You will see an *Add to Dashboard* icon appear in the upper right corner of the chart:
 
-Now let's dig deeper into what's wrong with this VM. In the OpenShift console, navigate to *Virtualization* in the left menu, then click on *VirtualMachines*. Make sure the project selected is *All Projects*. Find the RHEL 9 VM that's failing and click on the VM name to open its details page.
+image::add-perses.png[OpenShift Lightspeed allows to import graphs into Perses]
 
-Now, return to the OpenShift Lightspeed chat interface. Then click the *+* button to attach information. Go ahead and attach the *Full YAML file* for this VM. 
+Click the *Add to Dashboard* icon to instantly import the chart to the Perses dashboard. Do the same with the other graph you created.
 
-image::broken-vm.png[Broken virtual machine]
+Your metrics are now persistently stored in a Perses dashboard that will survive across chat sessions and cluster restarts. From here, Perses gives you full control to tailor the dashboard to your needs: resize and reposition panels, switch between graph types such as time series, stat, or gauge, adjust the time range, customize labels and legends, and much more — all without writing a single line of PromQL or JSON by hand.
 
-Then you can ask:
+== What's Next?
 
-[source,role="execute",subs=attributes+]
-----
-Why is this VM not starting?
-----
+You have just used OpenShift Lightspeed to move from a natural-language question to a live observability dashboard — without manually writing a single PromQL query. This same pattern applies to any team that wants to quickly instrument new services, onboard to metrics, or share a curated view of cluster health with stakeholders.
 
-OpenShift Lightspeed will analyze the attached YAML and identify the problem: the container image _quay.io/containerdisks/rhel:9-latest_ cannot be pulled because access to the resource is unauthorized.
-
-The response will likely explain why the container image can't be pulled and some suggestions to be able to fix it.
-
-This demonstrates how OpenShift Lightspeed can troubleshoot virtual machine issues using the same attachment techniques you learned for containerized workloads. Whether you're dealing with pods or VMs, the troubleshooting workflow is consistent and intuitive.
+In the next module, you will extend OpenShift Lightspeed even further by integrating custom MCP servers — connecting it to external systems beyond the cluster itself and giving the model access to tools that no built-in toolset provides.

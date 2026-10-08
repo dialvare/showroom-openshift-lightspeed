@@ -1,17 +1,194 @@
-= Key Takeaways
+= Bring your custom MCP servers into OpenShift Lightspeed
 
-Congratulations! You've completed this comprehensive journey through OpenShift Lightspeed's capabilities. Throughout this lab, you've learned how to leverage OpenShift Lightspeed for much more than just answering basic questions. You started with simple queries and YAML generation, then progressed to integrating your organization's specific knowledge through BYOK (perhaps even building your own BYOK image right on the cluster), using real-time cluster interaction — including live alerts from the monitoring stack — for dynamic troubleshooting, keeping sensitive data away from the model with query filters, attaching resources to diagnose complex issues, connecting custom MCP servers, and finally extending all these capabilities to virtual machine workloads.
+You have already seen OpenShift Lightspeed's built-in MCP server query your cluster's resources and monitoring stack. OpenShift Lightspeed can be extended even further by integrating custom MCP servers that connect to external systems beyond the cluster itself. This feature allows you to add additional MCP servers that provide new tools to the OpenShift Lightspeed instance, enabling the LLM to use those external tools when generating answers to your questions.
 
-This lab has only scratched the surface of what's possible. OpenShift Lightspeed continues to evolve with new features and capabilities. We encourage you to keep exploring—try it with your own workloads, integrate your team's documentation, and discover new ways it can streamline your OpenShift operations. The more you use OpenShift Lightspeed, the more productive you'll become with OpenShift.
+image::arch-module07.svg[Architecture with custom MCP servers highlighted]
 
-If you want to continue learning more, take a look at the https://interact.redhat.com/share/gOHOHHzfqFlgtM5bMuBZ[interactive OpenShift Lightspeed demo^] for a hands-on experience with additional features and use cases:
-++++
-<iframe 
-  src="https://demo.arcade.software/gOHOHHzfqFlgtM5bMuBZ?embed&embed_mobile=tab&embed_desktop=inline&show_copy_link=true" 
-  width="100%" 
-  height="600px" 
-  frameborder="0" 
-  allowfullscreen>
-</iframe>
-++++
-Thank you for taking the time to master OpenShift Lightspeed. We hope this assistant becomes an invaluable part of your daily OpenShift workflow!
+In this module you work with the highlighted pieces: a custom MCP server you deploy and register with OpenShift Lightspeed. Note how it sits alongside the built-in one.
+
+NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
+
+[#deploy-the-insights-result-mcp-server]
+== Deploy the Insights Result MCP server
+
+You'll deploy the Insights Result MCP server that connects to Red Hat Insights and provides two tools: _get_last_result_for_cluster_ (returns a dictionary with the cluster result) and _get_upgrade_risk_prediction_for_cluster_ (returns a dictionary with the upgrade risks prediction for the given cluster)
+
+OpenShift Lightspeed can connect to MCP servers running outside the cluster, but in this case, the Insights Result MCP server will be deployed directly within your OpenShift cluster.
+
+In order to deploy the MCP server, you will need to create several resources. Some of them will be created via YAML in the OpenShift console, while others that require environment variables will be created from the command line.
+
+Let's prepare the Web console to easily apply all the resources. In the upper-right corner menu, click on the *OpenShift command line* (`>_`) button. This will open a new tab at the bottom of your page. If asked, select *Start*. 
+
+In the same upper-right menu, you can spot the *Quick create* button, which you will use to import the `Project`, `Deployment`, and `Service` YAML resources:
+
+image::import-yaml.png[OpenShift Import YAML menu, 50%]
+
+=== Deploy the Project
+
+Start by creating the `Project`. Click on *Quick create* -> *Import YAML* in the top-right corner. Then, paste the following YAML and click *Create*:
+
+[source,yaml,role="execute",subs=attributes+]
+----
+apiVersion: project.openshift.io/v1
+kind: Project
+metadata:
+  labels:
+    kubernetes.io/metadata.name: insights-results-mcp
+  name: insights-results-mcp
+----
+
+=== Create the Secret
+
+The `Secret` needs to include your cluster's pull secret. To dynamically generate this resource and inject that value, run the following command in your *OpenShift command line* at the bottom:
+
+[source,role="execute",subs=attributes+]
+----
+oc create -n insights-results-mcp secret generic insights-results-secret \
+  --from-literal=CONSOLE_REDHAT_PULL_SECRET="$(oc get secrets pull-secret -n openshift-config -o json | jq -r '.data.".dockerconfigjson"' | base64 -d | jq -r '.auths."cloud.openshift.com".auth')"
+----
+
+=== Create the ConfigMap
+
+Similar to the Secret, run the following command to generate the `ConfigMap` that includes your cluster's ID:
+
+[source,role="execute",subs=attributes+]
+----
+oc create -n insights-results-mcp configmap cluster-info \
+  --from-literal=CLUSTER_ID="$(oc get clusterversion -o jsonpath='{.items[].spec.clusterID}')"
+----
+
+That's the last resource we will create using the command line, so you can *close the OpenShift command line* window at the bottom.
+
+=== Generate the Deployment
+
+Now, let's go back to the YAML creation procedure. To create the `Deployment`, navigate to *Quick create* -> *Import YAML* in the top-right corner and then paste the following YAML before clicking *Create*:
+
+[source,yaml,role="execute",subs=attributes+]
+----
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: insights-results-mcp
+  name: insights-results-mcp-server
+  namespace: insights-results-mcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: insights-results-mcp-server
+  template:
+    metadata:
+      labels:
+        app: insights-results-mcp-server
+    spec:
+      containers:
+      - env:
+        - name: TRANSPORT
+          value: streamable-http
+        - name: CLUSTER_ID
+          valueFrom:
+            configMapKeyRef:
+              name: cluster-info
+              key: CLUSTER_ID
+        - name: CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: insights-results-secret
+              key: CONSOLE_REDHAT_PULL_SECRET
+        image: quay.io/joseluis/insights-results-mcp:latest
+        imagePullPolicy: Always
+        name: container
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+          name: mcp
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+----
+
+In the web console, you will see a Pod being created and reaching _Running_ state after a few seconds.
+
+=== Generate the Service
+
+Finally, create the `Service` to expose the MCP URL. Again, click on *Quick create* -> *Import YAML*. There, copy the contents of the following YAML and press *Create*.
+
+[source,yaml,role="execute",subs=attributes+]
+----
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/name: insights-results-mcp
+  name: insights-results-mcp-server
+  namespace: insights-results-mcp
+spec:
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: mcp
+    port: 5000
+    protocol: TCP
+    targetPort: mcp
+  selector:
+    app: insights-results-mcp-server
+  sessionAffinity: None
+  type: ClusterIP
+----
+
+The Insights Result MCP server is now configured and running in your cluster. It's time to connect it to your OpenShift Lightspeed instance.
+
+[#configure-openshift-lightspeed]
+== Configure OpenShift Lightspeed
+
+As you have seen in previous modules, the configuration for the OpenShift Lightspeed operator is done in the OLSConfig resource.
+
+Navigate to *Ecosystem* -> *Installed Operators* -> *OpenShift Lightspeed Operator* -> *OLSConfig* -> `cluster` -> *YAML*. Once in the YAML editor, add the following lines and click *Save*:
+
+[source,yaml,role="execute",subs=attributes+]
+----
+...
+spec:
+...
+  llm:
+...
+  featureGates:
+    - MCPServer
+  mcpServers:
+    - name: insights-results-mcp
+      timeout: 5
+      url: 'http://insights-results-mcp-server.insights-results-mcp.svc.cluster.local:5000/api/insights-results-mcp/'
+----
+
+This new configuration will re-deploy the OpenShift Lightspeed app server pod. Please wait a minute before starting to interact with OpenShift Lightspeed.
+
+NOTE: The Insights Result MCP server used in this lab does not require authentication from OpenShift Lightspeed, but the _mcpServers_ configuration also supports sending custom HTTP headers to servers that do. Header values can come from a _Secret_, from the logged-in user's own Kubernetes token, or from the connecting client. This means you can integrate MCP servers that enforce their own authentication and authorization.
+
+[#use-your-custom-mcp-server]
+== Use your custom MCP server
+
+Before asking, if you are not in *Ask mode*, select it from the mode selector. *Clear* the chat and now try asking OpenShift Lightspeed the following question. The model should use one of the tools that the new MCP server provides:
+
+[source,role="execute",subs=attributes+]
+----
+Does Red Hat Insights report any issues or recommendations for this cluster?
+----
+
+It's likely that the LLM has decided to use the _get_last_result_for_cluster_ tool provided by the Insights Result MCP server. Click *Approve*. Since the cluster should be healthy, the response will probably indicate that there are no issues listed. This doesn't mean the tool call failed — quite the opposite! The tool successfully retrieved that information from Insights.
+
+[#lightspeed-beyond-containers]
+== Lightspeed Beyond Containers
+
+So far, you've explored how OpenShift Lightspeed helps with traditional containerized workloads like pods, deployments, routes, and services. But OpenShift is more than just containers. What about virtual machines?
+
+With OpenShift Virtualization, you can run virtual machines alongside your containers on the same OpenShift platform. At the end of the day, virtual machines in OpenShift are just OpenShift custom resources — which means OpenShift Lightspeed can help you with virtual machine workloads too.
+
+Continue to the next module to see OpenShift Lightspeed in action with virtual machine workloads.
