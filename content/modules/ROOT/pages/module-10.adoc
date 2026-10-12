@@ -23,15 +23,11 @@ This lab has only scratched the surface of what's possible. OpenShift Lightspeed
 If you want to continue learning more, take a look at the https://interact.redhat.com/share/gOHOHHzfqFlgtM5bMuBZ[interactive OpenShift Lightspeed demo^] for a hands-on experience with additional features and use cases:
 ++++
 <iframe
-  src="https://demo.arcade.software/i8kVfbdXsaWMtiO8HuoI?embed&embed_mobile=tab&embed_desktop=inline&show_copy_link=true"
-  title="Red Hat OpenShift Lightspeed 2.0 walkthrough"
+  src="https://demo.arcade.software/gOHOHHzfqFlgtM5bMuBZ?embed&embed_mobile=tab&embed_desktop=inline&show_copy_link=true"
   width="100%"
   height="600px"
   style="border: 0;"
-  webkitallowfullscreen
-  mozallowfullscreen
-  allowfullscreen
-  allow="clipboard-write; autoplay"
-></iframe>
+  allowfullscreen>
+</iframe>
 ++++
 Thank you for taking the time to master OpenShift Lightspeed. We hope this assistant becomes an invaluable part of your daily OpenShift workflow!
