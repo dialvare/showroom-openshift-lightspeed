@@ -25,7 +25,7 @@ spec:
     introspectionEnabled: true
 ----
 
-When this flag is enabled, OpenShift Lightspeed deploys `openshift-mcp-server` as a dedicated standalone pod. This server loads four toolsets — `core`, `config`, `helm`, and `metrics` — covering both read and write operations.
+When this flag is enabled, OpenShift Lightspeed deploys `openshift-mcp-server` as a dedicated standalone pod. This server loads different toolsets — covering both read and write operations.
 
 When a user asks a question, the model may call one or more of those tools to retrieve or modify cluster state. All tool usage is performed using the logged-in user's own credentials and access rights, preventing any privilege escalation.
 
@@ -51,7 +51,7 @@ The model likely chose to use the _pods_list_in_namespace_ tool to retrieve pod 
 
 Let's take cluster interaction one step further by combining it with follow-up questions. OpenShift Lightspeed can not only gather information from your cluster but also analyze it when you ask follow-up questions within the same chat session.
 
-For example, let's ask OpenShift Lightspeed to retrieve and analyze the logs from the PostgreSQL server pod. In the same chat session, ask:
+For example, let's ask OpenShift Lightspeed to retrieve and analyze the logs from the last pod listed. In the same chat session, ask:
 
 [source,role="execute",subs=attributes+]
 ----

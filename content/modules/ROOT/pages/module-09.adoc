@@ -2,9 +2,7 @@
 
 IMPORTANT: *Red Hat Internal Only* — This section describes a pre-release feature under active development. The information here has not been approved for public sharing. Do not distribute or reference this content outside of Red Hat.
 
-IMPORTANT: Agentic OpenShift Lightspeed is deployed in this 4.22 cluster exclusively for Red Hat field enablement purposes. These capabilities are not yet part of any generally available OpenShift release and will only become available in future major versions of OpenShift.
-
-NOTE: This section is optional. It only applies if Agentic OLS was enabled when this catalog item was provisioned and a valid OpenAI API Key was provided. If that is not the case for your environment, skip ahead to xref:module-10.adoc[Key Takeaways].
+NOTE: This section is optional. It only applies if Agentic OLS was enabled. If that is not the case for your environment, skip ahead to xref:module-10.adoc[Key Takeaways].
 
 So far in this lab, OpenShift Lightspeed has always waited for you to start the conversation. You asked the questions, you decided when to approve tool calls, and you chose what to investigate next. Agentic OLS changes that dynamic. Given a plain-language description of a problem, it can autonomously investigate root causes, propose a remediation plan, apply the approved fix, and verify the outcome — all without you having to find the right YAML, attach the right resource, or compose the right follow-up question.
 
@@ -49,11 +47,12 @@ metadata:
 spec:
   openAI:
     credentialsSecret:
-      name: llm-creds-openai
+      name: llm-creds-maas
+    url: 'https://maas-rhdp.apps.maas.redhatworkshops.io/v1'
   type: OpenAI
 ----
 
-The provider points to the OpenAI endpoint and reads credentials from the `llm-creds-openai` secret. This secret was populated at provisioning time with the OpenAI API Key supplied when ordering this catalog item.
+The provider points to the Model-as-a-Service (MaaS) endpoint and reads credentials from the `llm-creds-maas` secret. This secret was populated at provisioning time.
 
 ==== *Agent*
 
@@ -68,14 +67,14 @@ metadata:
 spec:
   llmProvider:
     name: openai
-  model: gpt-5.4
+  model: claude-sonnet-4-6
   timeouts:
-    analysisSeconds: 120
-    executionSeconds: 120
-    verificationSeconds: 120
+    analysisSeconds: 500
+    executionSeconds: 500
+    verificationSeconds: 500
 ----
 
-Notice the _model (gpt-5.4)_ field and the per-step _timeouts_. These can be tuned per agent. For example you could define a _fast_ agent pointing to a smaller model for quick analysis and a _smart_ agent pointing to a more capable LLM for complex remediation, and reference them independently within the same run.
+Notice the _model (claude-sonnet-4-6)_ field and the per-step _timeouts_. These can be tuned per agent. For example you could define a _fast_ agent pointing to a smaller model for quick analysis and a _smart_ agent pointing to a more capable LLM for complex remediation, and reference them independently within the same run.
 
 ==== *ApprovalPolicy*
 
@@ -129,27 +128,25 @@ spec:
     2. Execution: Create a Deployment named "hello-test" running nginx:latest
        with 1 replica, and a ClusterIP Service named "hello-test" on port 80.
        Verify the pod reaches Running state.
-  targetNamespaces:
-    - lightspeed-demo
   analysis:
     agent: default
   execution:
     agent: default
 ----
 
-The _targetNamespaces_ field limits the sandbox pod's cluster access to the `lightspeed-demo` namespace, so the agent can only see and act on resources within that scope.
-
 In the left navigation menu, go to *Agentic Runs* -> *Agentic Runs*. You should see your run listed with the status *Analyzing*. Because Analysis is set to _Automatic_, the run moves straight from *Pending* to *Analyzing* without waiting for your input. Click on the `deploy-test-workload` run to open its detail view.
 
 While analyzing, a sandbox pod starts, queries the cluster for context, calls the LLM, and writes its findings. You can track the progress by clicking *View Analysis logs*.
 
-Once it finishes, the status transitions to *Proposed* — meaning the agent has a plan ready and is waiting for your decision before touching anything. The detail view shows the analysis results: confirmation that no conflicting _hello-test_ workload exists, and the plan of what will be created.
+Once it finishes, the status transitions to *Proposed* — meaning the agent has a plan ready and is waiting for your decision before touching anything. The *View plan details* section shows the analysis results: confirmation that no conflicting _hello-test_ workload exists, and the plan of what will be created.
 
 NOTE: Nothing has been deployed yet. The agent completed the analysis and is now waiting. It cannot proceed without your explicit approval.
 
 This is the Human-in-the-Loop gate. Review the deployment plan the agent proposed. Once you agree with it, click the *Execute remediation* button to approve and unlock the next phase.
 
-The *Executing* phase begins: a sandbox pod is deployed, the agent runs the required commands against the cluster, and reports the result. You can follow the process by clicking *View Execution logs*.
+image::agentic-execute-plan.png[Select and approve the Agentic Lightspeed proposal]
+
+The *Executing* phase begins: a new sandbox pod is deployed, the agent runs the required commands against the cluster, and reports the result. You can follow the process by clicking *View Execution logs*.
 
 Once execution completes, *Verification* starts automatically. No further approval needed, because the verification phase was set to _Automatic_ in the ApprovalPolicy. The verification sandbox confirms the workload is running and the status moves to *Completed*.
 
