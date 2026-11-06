@@ -1,16 +1,27 @@
 = {lab_name}
 
-OpenShift Lightspeed is a virtual assistant for the Red Hat OpenShift Container Platform. It helps users with general OpenShift and Red Hat products knowledge, troubleshooting, root cause analysis, and more. Powered by large language models (LLMs) and retrieval-augmented generation (RAG), OpenShift Lightspeed makes OpenShift more accessible to users and helps increase user productivity.
+OpenShift Lightspeed is an agent for the Red Hat OpenShift Container Platform. It helps users with general OpenShift and Red Hat products knowledge, cluster resources' lifecycle management, troubleshooting, root cause analysis, remediation, observability and more. Powered by large language models (LLMs) and retrieval-augmented generation (RAG), OpenShift Lightspeed makes OpenShift more accessible to users and helps increase user productivity. 
 
-== OpenShift Lightspeed Architecture
+OpenShift Lightspeed presents two complementary capabilities:
+
+* **OpenShift Lightspeed intelligent assistant** — a conversational AI chatbot that OpenShift users can use to understand concepts, get configuration guidance, generate YAML, create, monitor and manage workloads running in the cluster and troubleshoot issues through natural language chat.
+* **OpenShift Lightspeed autonomous agents** — an autonomous layer on your cluster that can investigate problems, propose remediation plans, apply approved fixes, and verify outcomes. All driven by plain-language descriptions, cluster update paths or firing alerts, without step-by-step guidance from the user.
+
+NOTE: OpenShift Lightspeed autonomous agents is a Technology Preview feature introduced in OpenShift Lightspeed 2.0 that requires OpenShift Container Platform 5.0, where autonomous troubleshooting is enabled by default. The intelligent assistant supports OpenShift Container Platform 4.16 and later.
 
 OpenShift Lightspeed today is a relatively small and lightweight system that you deploy into each OpenShift Container Platform cluster. The operator deploys the following core components:
 
-* A web console plugin (the chat interface)
+* Two web console plugins (the chat interface and the agentic runs dashboards)
 * A back-end application server (processes questions, calls the LLM, runs tool loops)
+* An agentic back-end (orchestrates the agentic workflows)
+* An OpenTelemetry collector (audit logging and tracing for AI-assisted and agentic workflows)
 * A PostgreSQL database (for temporary conversation caching)
 * A Red Hat Offline Knowledge Portal (RHOKP) component (serves Red Hat product documentation via Solr, used as built-in RAG context)
 * An OpenShift MCP server (enables cluster interaction, connecting OpenShift Lightspeed to the OpenShift API and monitoring stack)
+
+== OpenShift Lightspeed intelligent assistant architecture
+
+The AI chatbot capabilities follows the following architecture:
 
 image::ols-arch.png[OpenShift Lightspeed architecture]
 
