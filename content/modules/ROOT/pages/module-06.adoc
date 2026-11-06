@@ -17,7 +17,7 @@ Querying cluster metrics directly requires familiarity with PromQL, the Promethe
 
 Open the OLS chat interface, *clear* any previous conversation, and still in *Troubleshooting mode*, ask:
 
-[source,role="execute",subs=attributes+]
+[source,role="copypaste"]
 ----
 What are the top 5 namespaces by CPU usage in this cluster right now? Use PromQL and visualize it
 ----
@@ -28,7 +28,7 @@ image::ols-graph.png[OpenShift Lightspeed shows rendered graphs]
 
 Let's ask a follow-up question (don't clear the current conversation): 
 
-[source,role="execute",subs=attributes+]
+[source,role="copypaste"]
 ----
 Now visualize memory usage over time for those same namespaces as a chart
 ----

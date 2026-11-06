@@ -179,7 +179,7 @@ NOTE: The Insights Result MCP server used in this lab does not require authentic
 
 Before asking, if you are not in *Ask mode*, select it from the mode selector. *Clear* the chat and now try asking OpenShift Lightspeed the following question. The model should use one of the tools that the new MCP server provides:
 
-[source,role="execute",subs=attributes+]
+[source,role="copypaste"]
 ----
 Does Red Hat Insights report any issues or recommendations for this cluster?
 ----

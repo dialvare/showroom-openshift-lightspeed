@@ -135,7 +135,7 @@ Click *Save*. The OpenShift Lightspeed app server pod redeploys to load the new 
 
 Open the OpenShift Lightspeed chat, click the *Clear chat* (trash can) button if needed, and ask:
 
-[source,role="execute",subs=attributes+]
+[source,role="copypaste"]
 ----
 What is the ACME Corp procedure for disaster recovery drills on OpenShift?
 ----

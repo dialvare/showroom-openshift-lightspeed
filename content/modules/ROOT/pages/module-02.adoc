@@ -56,7 +56,7 @@ Now that you know the contents of the internal ACME Corp policies and that OpenS
 
 If you closed the OpenShift Lightspeed window, reopen it. Make sure to click the *Clear chat* button, which appears once a conversation is underway — and then ask the following question:
 
-[source,role="execute",subs=attributes+]
+[source,role="copypaste"]
 ----
 How can I use a pod autoscaler at ACME Corp?
 ----

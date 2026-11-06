@@ -27,7 +27,7 @@ image::attach-button.png[Attachment options in OpenShift Lightspeed]
 
 Then, simply ask:
 
-[source,role="execute",subs=attributes+]
+[source,role="copypaste"]
 ----
 What's wrong with this pod?
 ----
@@ -36,7 +36,7 @@ You should get some detailed information about nodes and node selectors.
 
 Now go ahead and attach the *Full YAML file*, and then ask:
 
-[source,role="execute",subs=attributes+]
+[source,role="copypaste"]
 ----
 How can I fix it?
 ----
@@ -62,7 +62,7 @@ image::troubleshooting-mode.png[Troubleshooting mode in OpenShift Lightspeed,600
 
 Now you can directly ask: 
 
-[source,role="execute",subs=attributes+]
+[source,role="copypaste"]
 ----
 Investigate the root cause of the firing PodDisruptionBudgetLimit alert
 ----

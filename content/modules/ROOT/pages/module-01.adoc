@@ -38,7 +38,7 @@ image::ols-interface.png[OpenShift Lightspeed chat interface]
 
 Why don't you start by asking an easy question like:
 
-[source,role="execute",subs=attributes+]
+[source,role="copypaste"]
 ----
 What are OpenShift Routes?
 ----
@@ -54,7 +54,7 @@ This is a great feature because it allows you to go beyond the answer itself and
 
 The chatbot maintains context from your previous questions within the same chat session, allowing you to ask follow-up questions naturally. This conversational approach makes it easy to dive deeper into topics or move from theory to practice. For example, now that you understand what OpenShift Routes are, you can ask a practical follow-up question like:
 
-[source,role="execute",subs=attributes+]
+[source,role="copypaste"]
 ----
 How do I expose a service using a Route?
 ----
@@ -66,7 +66,7 @@ The assistant remembers your conversation thanks to a PostgreSQL backing store, 
 
 Beyond providing explanations and guidance, the intelligent assistant can also generate YAML manifests for you. This is particularly useful when you need to create or modify Kubernetes/OpenShift resources quickly. Building on your previous conversation about Routes, you can ask it to generate actual YAML configuration. Try asking:
 
-[source,role="execute",subs=attributes+]
+[source,role="copypaste"]
 ----
 Show me the YAML configuration for a Route that exposes a service on port 8080 with TLS edge termination
 ----
@@ -97,7 +97,7 @@ spec:
 
 Let's see it in action. In the chatbot interface, make sure to click the *Clear chat* button — the trash can icon at the top of the chat window. Then ask:
 
-[source,role="execute",subs=attributes+]
+[source,role="copypaste"]
 ----
 My pod at 192.168.4.22 cannot reach the API server. Repeat the exact question I asked, then explain what could be wrong
 ----

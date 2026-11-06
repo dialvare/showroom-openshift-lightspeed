@@ -17,7 +17,7 @@ If you're new to OpenShift Virtualization, there's a lot to learn. OpenShift Lig
 
 For example, two important concepts when it comes to creating your first virtual machine in OpenShift Virtualization are InstanceTypes and VM Templates. Click the *Clear chat* (trash can) button and make sure *Ask mode* is selected in OpenShift Lightspeed then ask it to explain the difference between both resources:
 
-[source,role="execute",subs=attributes+]
+[source,role="copypaste"]
 ----
 What's the difference between a VM InstanceType and a VM Template?
 ----
@@ -28,7 +28,7 @@ This kind of conceptual guidance helps you quickly understand the building block
 
 Now that the difference is clear, a new Virtualization user can decide which approach to take. For example, let's ask for the procedure to create a virtual machine from a template:
 
-[source,role="execute",subs=attributes+]
+[source,role="copypaste"]
 ----
 How do I create a Fedora VM from a template?
 ----
@@ -42,7 +42,7 @@ If you're migrating to OpenShift Virtualization from another platform like VMwar
 
 Let's try an example. If you come from a VMware background, you're probably familiar with vMotion — VMware's technology for live migrating VMs between hosts. Let's ask OpenShift Lightspeed about this:
 
-[source,role="execute",subs=attributes+]
+[source,role="copypaste"]
 ----
 How do I vMotion a VM in OpenShift Virtualization?
 ----
@@ -58,7 +58,7 @@ Just like with containerized workloads, things can go wrong with virtual machine
 
 First, let's use cluster interaction to check if there are any VMs having problems. Clear your chat session and ask:
 
-[source,role="execute",subs=attributes+]
+[source,role="copypaste"]
 ----
 Which virtual machines in the cluster are not in a Running state?
 ----
@@ -73,7 +73,7 @@ image::broken-vm.png[Broken virtual machine]
 
 Then you can ask:
 
-[source,role="execute",subs=attributes+]
+[source,role="copypaste"]
 ----
 Why is this VM not starting?
 ----
