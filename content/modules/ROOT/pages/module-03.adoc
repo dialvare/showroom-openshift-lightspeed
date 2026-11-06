@@ -149,7 +149,7 @@ podman images
 [#push-the-image]
 == Push the Image to the Internal Registry
 
-Instead of an external registry such as `quay.io`, you will push the image to the cluster's internal image registry. First, expose the registry outside the cluster and store its address in a variable:
+Instead of an external registry such as quay.io, you will push the image to the cluster's internal image registry. First, expose the registry outside the cluster and store its address in a variable:
 
 [source,bash,role="execute"]
 ----
