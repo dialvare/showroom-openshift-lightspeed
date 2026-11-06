@@ -6,27 +6,37 @@ In the previous module you consumed a BYOK image that was already built for you.
 
 image::arch-module03.svg[Architecture with the BYOK build pipeline highlighted, align="center", link=self, window=blank]
 
-In this module you work with the highlighted pieces: the on-cluster image build that feeds a new vector database into OpenShift Lightspeed.
+In this module you work with the highlighted pieces: the build pipeline that turns your Markdown into a new vector database for OpenShift Lightspeed.
 
-NOTE: The official https://docs.redhat.com/en/documentation/red_hat_openshift_lightspeed/1.0/html/configure/ols-configuring-openshift-lightspeed#providing-custom-knowledge-to-llm_ols-configuring-openshift-lightspeed[BYO Knowledge procedure] uses podman on your workstation. Since this lab environment doesn't include a workstation with podman, we will do something arguably more elegant: build the image directly on the cluster with an OpenShift build, and serve it from the cluster's internal image registry. The same RAG tool image does the heavy lifting either way.
+NOTE: This module follows the official https://docs.redhat.com/en/documentation/red_hat_openshift_lightspeed/2.0/html/configure/ols-configuring-openshift-lightspeed#providing-custom-knowledge-to-the-llm_ols-configuring-openshift-lightspeed[BYO Knowledge procedure], with two adaptations for this lab: instead of your own workstation you use the cluster's bastion, and instead of pushing to `quay.io` you push to the cluster's internal image registry. The bastion's `oc` is already logged in as a cluster administrator.
+
+[#prepare-the-bastion]
+== Prepare the Bastion
+
+All the work in this module happens in the *Bastion* tab — the terminal connected to the cluster's bastion host. Start by installing podman:
+
+[source,bash,role="execute"]
+----
+sudo dnf install -y podman
+----
+
+Then create a working directory for the exercise:
+
+[source,bash,role="execute"]
+----
+mkdir -p ~/byok/markdown ~/byok/output && cd ~/byok
+----
 
 [#write-the-documentation]
 == Write the Documentation
 
-Let's give ACME Corp one more internal document: their disaster recovery drill procedure. Open the web terminal by clicking the *OpenShift command line* (`>_`) button in the upper-right corner of the console, and click *Start* if prompted. You can minimize the OpenShift Lightspeed interface to help you work here more easily. 
-
-First, create a project for the build and a working directory:
-
-[source,role="execute",subs=attributes+]
-----
-oc new-project byok-workshop && mkdir ~/byok && cd ~/byok
-----
+Let's give ACME Corp one more internal document: their disaster recovery drill procedure.
 
 Now create the Markdown document. Note the metadata block at the top: the BYOK tool uses the _title_ and _url_ attributes as the source reference that OpenShift Lightspeed displays alongside its answers. If you omit them, the first heading becomes the title and the file path becomes the URL.
 
-[source,role="execute",subs=attributes+]
+[source,bash,role="execute"]
 ----
-cat > dr-drills.md <<'EOF'
+cat > markdown/dr-drills.md <<'EOF'
 ---
 title: "ACME Corp disaster recovery drill procedure for OpenShift"
 url: "https://wiki.acme.example/openshift/dr-drills"
@@ -60,55 +70,106 @@ EOF
 
 Feel free to write your own document instead — anything the base model couldn't possibly know makes for a convincing test.
 
-[#build-the-image]
-== Build the Image
+[#get-the-rag-tool-image]
+== Get the RAG Tool Image
 
-The BYOK image recipe is a simple two-stage build. The first stage uses Red Hat's RAG tool image to chunk your Markdown, run it through the embedding model, and produce a vector database. The second stage copies just that database into a clean base image. 
+The BYOK Knowledge tool ships as a container image on `registry.redhat.io`, which requires authentication to pull. The official procedure assumes you have your own Red Hat registry account — in this lab you can borrow the cluster's pull secret instead, since it already contains registry credentials:
 
-Create the Dockerfile:
-
-[source,role="execute",subs=attributes+]
+[source,bash,role="execute"]
 ----
-cat > Dockerfile <<'EOF'
-FROM registry.redhat.io/openshift-lightspeed-tech-preview/lightspeed-rag-tool-rhel9:latest AS tool
-USER 0
-WORKDIR /workdir
-COPY *.md /Markdown/
-RUN python3.12 generate_embeddings_tool.py -i /Markdown -emd embeddings_model \
-    -emn sentence-transformers/all-mpnet-base-v2 -o vector_db -id workshop_index
-
-FROM registry.access.redhat.com/ubi9/ubi:latest
-COPY --from=tool /workdir/vector_db /rag/vector_db
-EOF
+oc extract secret/pull-secret -n openshift-config --confirm --to=~/byok
 ----
 
-Now create a binary build configuration and start the build, streaming your working directory to it:
-
-[source,role="execute",subs=attributes+]
+[source,bash,role="execute"]
 ----
-oc new-build --binary --strategy=docker --name=acme-dr-byok -n byok-workshop
+podman pull --authfile ~/byok/.dockerconfigjson registry.redhat.io/openshift-lightspeed-tech-preview/lightspeed-rag-tool-rhel9:latest
 ----
 
-[source,role="execute",subs=attributes+]
+NOTE: The RAG tool image is large — it bundles the embedding model — so the pull takes a few minutes.
+
+[#generate-the-image]
+== Generate the BYOK Image
+
+Run the RAG tool, pointing it at your Markdown directory and an output directory for the generated image tarball:
+
+[source,bash,role="execute"]
 ----
-oc start-build acme-dr-byok -n byok-workshop --from-dir=. --follow
+podman run -it --rm --device=/dev/fuse \
+  -v ~/byok/markdown:/markdown:Z \
+  -v ~/byok/output:/output:Z \
+  registry.redhat.io/openshift-lightspeed-tech-preview/lightspeed-rag-tool-rhel9:latest
 ----
 
-The first build pulls the RAG tool image (it's large — it bundles the embedding model), so expect a few minutes. When it finishes, you will see *Push successful* meaning that your BYOK image now lives in the cluster's internal registry at `image-registry.openshift-image-registry.svc:5000/byok-workshop/acme-dr-byok:latest`.
+When the tool finishes, you will find the generated image tarball in the output directory:
+
+[source,bash,role="execute"]
+----
+ls -lh ~/byok/output
+----
+
+Load it into podman, as in the official procedure:
+
+[source,bash,role="execute"]
+----
+podman load < ~/byok/output/*.tar
+----
+
+Check that the image is loaded, and note its name in the _REPOSITORY_ column:
+
+[source,bash,role="execute"]
+----
+podman images
+----
+
+[#push-the-image]
+== Push the Image to the Internal Registry
+
+Instead of an external registry such as `quay.io`, you will push the image to the cluster's internal image registry. First, expose the registry outside the cluster and store its address in a variable:
+
+[source,bash,role="execute"]
+----
+oc patch configs.imageregistry.operator.openshift.io cluster --type merge -p '{"spec":{"defaultRoute":true}}' > /dev/null
+REGISTRY=$(oc get route default-route -n openshift-image-registry -o jsonpath='{.spec.host}')
+echo $REGISTRY
+----
+
+Create a project to hold the image — the internal registry maps projects to repositories — and log podman into the registry with your cluster credentials:
+
+[source,bash,role="execute"]
+----
+oc new-project byok-workshop
+----
+
+[source,bash,role="execute",subs=attributes+]
+----
+podman login -u {openshift_cluster_admin_username} -p {openshift_cluster_admin_password} $REGISTRY
+----
+
+Tag the generated image with its destination and push it:
+
+[source,bash,role="execute"]
+----
+podman tag localhost/my-byok-image:latest $REGISTRY/byok-workshop/acme-dr-byok:latest
+----
+
+[source,bash,role="execute"]
+----
+podman push $REGISTRY/byok-workshop/acme-dr-byok:latest
+----
 
 [#connect-it-to-lightspeed]
 == Connect It to OpenShift Lightspeed
 
 OpenShift Lightspeed runs in the `openshift-lightspeed` namespace, so its service accounts need permission to pull images from your `byok-workshop` namespace. Grant it:
 
-[source,role="execute",subs=attributes+]
+[source,bash,role="execute"]
 ----
 oc policy add-role-to-group system:image-puller system:serviceaccounts:openshift-lightspeed -n byok-workshop
 ----
 
 NOTE: The command prints _Warning: Group 'system:serviceaccounts:openshift-lightspeed' not found_. That is expected — it is a _virtual_ group representing every service account in that namespace, so no Group object exists. The role binding is created regardless.
 
-You can *Close the terminal*. Now add your image as a second RAG database. 
+Now add your image as a second RAG database. From within the cluster, the image you pushed is known by its internal name, so that is what OpenShift Lightspeed will reference.
 
 As in module 2, navigate to *Ecosystem* -> *Installed Operators* -> *OpenShift Lightspeed Operator* -> *OLSConfig* -> `cluster` -> *YAML*, and extend the _rag_ list:
 
