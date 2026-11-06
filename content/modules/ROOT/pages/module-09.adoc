@@ -15,7 +15,7 @@ Every phase runs in a short-lived sandbox pod that calls the LLM and exits when 
 
 Apart from manually creating AgenticRuns, the *Alerts Adapter* is a companion service that polls Alertmanager and automatically creates AgenticRun CRs when firing alerts match a configured severity, closing the loop for fully autonomous remediation.
 
-image::arch-module09.svg[Agentic OLS Architecture, 100%]
+image::arch-module09.svg[Agentic OLS Architecture, 100%, align="center"]
 
 In this module you work with OpenShift Lightspeed autonomous agents: manually creating an AgenticRun, enabling the Alerts Adapter for automatic triggering, and following each run through its full lifecycle.
 
@@ -28,7 +28,7 @@ Let's get familiar with the building blocks that were pre-configured for you, di
 
 Navigate to *Home* -> *Search* in the left navigation menu. Make sure the *Project* dropdown at the top is set to `openshift-lightspeed`.
 
-image::search-menu.png[Search menu in OpenShift web console]
+image::search-menu.png[Search menu in OpenShift web console, align="center"]
 
 Now use the *Resources* box to search for the following custom resources:
 
@@ -108,7 +108,7 @@ In the previous module, you used OpenShift Lightspeed to diagnose a broken virtu
 
 In the OpenShift web console, click *Quick create* -> *Import YAML* in the top-right corner of the navigation bar.
 
-image::import-yaml.png[Import YAML, 50%]
+image::import-yaml.png[Import YAML, 50%, align="center"]
 
 Paste the following manifest and click *Create*:
 
@@ -144,7 +144,7 @@ NOTE: Nothing has been deployed yet. The agent completed the analysis and is now
 
 This is the Human-in-the-Loop gate. Review the deployment plan the agent proposed. Once you agree with it, click the *Execute remediation* button to approve and unlock the next phase.
 
-image::agentic-execute-plan.png[Select and approve the Agentic Lightspeed proposal]
+image::agentic-execute-plan.png[Select and approve the Agentic Lightspeed proposal, align="center"]
 
 The *Executing* phase begins: a new sandbox pod is deployed, the agent runs the required commands against the cluster, and reports the result. You can follow the process by clicking *View Execution logs*.
 
@@ -174,7 +174,7 @@ NOTE: In this demo environment, the OpenShift Lightspeed operator is not managin
 
 If you recall from the Troubleshooting module, there was a `PodDisruptionBudgetLimit` critical alert firing in the cluster. You can refresh your memory by navigating to *Observe* -> *Alerting* and switching to *All projects*.
 
-image::alert.png[Critical alert firing in the cluster]
+image::alert.png[Critical alert firing in the cluster, align="center"]
 
 Agentic OpenShift Lightspeed is now monitoring your critical alerts. Navigate to *Agentic Runs* -> *Agentic Runs* and you will see a new `AgenticRun` created automatically, called `poddisruptionbudgetlimit-critical`. Follow the same procedure as before to drive it to completion:
 

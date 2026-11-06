@@ -4,7 +4,7 @@ include::partial$console-access.adoc[]
 
 In the previous module you consumed a BYOK image that was already built for you. In this optional module, you will build one yourself — from writing the Markdown document to watching OpenShift Lightspeed answer questions from it. If you are short on time, you can skip ahead to the Cluster Interaction module; nothing later in the lab depends on this exercise.
 
-image::arch-module03.svg[Architecture with the BYOK build pipeline highlighted]
+image::arch-module03.svg[Architecture with the BYOK build pipeline highlighted, align="center"]
 
 In this module you work with the highlighted pieces: the on-cluster image build that feeds a new vector database into OpenShift Lightspeed.
 

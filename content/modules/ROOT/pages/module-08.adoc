@@ -6,7 +6,7 @@ As mentioned in the previous module, OpenShift Virtualization allows you to run 
 
 This lab environment comes with OpenShift Virtualization already deployed and configured. You can start working with virtual machines right away. In this module, you'll explore how OpenShift Lightspeed assists with virtualization workloads across different user scenarios — from newcomers learning the basics to experienced admins migrating from other platforms.
 
-image::arch-module08.svg[Architecture with the built-in MCP server highlighted]
+image::arch-module08.svg[Architecture with the built-in MCP server highlighted, align="center"]
 
 In this module you work with the highlighted pieces: the core OpenShift Lightspeed components plus the built-in MCP server to ask about Virtualization resources.
 
@@ -69,7 +69,7 @@ Now let's dig deeper into what's wrong with this VM. In the OpenShift console, n
 
 Now, return to the OpenShift Lightspeed chat interface. Then click the *+* button to attach information. Go ahead and attach the *Full YAML file* for this VM. 
 
-image::broken-vm.png[Broken virtual machine]
+image::broken-vm.png[Broken virtual machine, align="center"]
 
 Then you can ask:
 

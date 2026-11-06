@@ -4,7 +4,7 @@ include::partial$console-access.adoc[]
 
 You have already seen OpenShift Lightspeed's built-in MCP server query your cluster's resources and monitoring stack. OpenShift Lightspeed can be extended even further by integrating custom MCP servers that connect to external systems beyond the cluster itself. This feature allows you to add additional MCP servers that provide new tools to the OpenShift Lightspeed instance, enabling the LLM to use those external tools when generating answers to your questions.
 
-image::arch-module07.svg[Architecture with custom MCP servers highlighted]
+image::arch-module07.svg[Architecture with custom MCP servers highlighted, align="center"]
 
 In this module you work with the highlighted pieces: a custom MCP server you deploy and register with OpenShift Lightspeed. Note how it sits alongside the built-in one.
 
@@ -23,7 +23,7 @@ Let's prepare the Web console to easily apply all the resources. In the upper-ri
 
 In the same upper-right menu, you can spot the *Quick create* button, which you will use to import the `Project`, `Deployment`, and `Service` YAML resources:
 
-image::import-yaml.png[OpenShift Import YAML menu, 50%]
+image::import-yaml.png[OpenShift Import YAML menu, 50%, align="center"]
 
 === Deploy the Project
 

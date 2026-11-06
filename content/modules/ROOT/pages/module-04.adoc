@@ -4,7 +4,7 @@ include::partial$console-access.adoc[]
 
 The Cluster Interaction feature allows OpenShift Lightspeed to read and interact with your OpenShift cluster. This enables the LLM to generate highly customized responses for your environment and, when permitted, to take actions on your behalf.
 
-image::arch-module04.svg[Architecture with the built-in MCP server highlighted]
+image::arch-module04.svg[Architecture with the built-in MCP server highlighted, align="center"]
 
 In this module you work with the highlighted pieces: the core OpenShift Lightspeed components plus the built-in MCP server that reads and writes your cluster.
 
@@ -85,7 +85,7 @@ Create a Deployment named hello-ols in the lightspeed-demo namespace with 1 repl
 
 OpenShift Lightspeed will invoke the _resources_create_or_update_ tool to apply the Deployment manifest. As it is an operation that writes to your cluster, you will be asked to approve or reject the action. Go ahead and click *Approve*.
 
-image::approve-tool.png[Approve write execution MCP tool,600]
+image::approve-tool.png[Approve write execution MCP tool,600, align="center"]
 
 Once approved, you can verify it in the console under *Workloads* -> *Deployments* in the `lightspeed-demo` namespace.
 

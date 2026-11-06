@@ -23,7 +23,7 @@ OpenShift Lightspeed today is a relatively small and lightweight system that you
 
 The AI chatbot capabilities follows the following architecture:
 
-image::ols-arch.png[OpenShift Lightspeed architecture]
+image::ols-arch.png[OpenShift Lightspeed architecture, align="center"]
 
 You can also see that OpenShift Lightspeed talks to a model provider. In the case of this lab environment, the model used is **claude-sonnet**. 
 
@@ -55,7 +55,7 @@ RHOKP serves the relevant OpenShift Container Platform documentation matched to 
 
 The architecture image above shows the core components, but this lab exercises quite a few more moving pieces: additional RAG databases, custom MCP servers, and even integration with Perses Dashboards. Here is the complete map of everything you will touch:
 
-image::arch-full.svg[Full OpenShift Lightspeed architecture for this lab]
+image::arch-full.svg[Full OpenShift Lightspeed architecture for this lab, align="center"]
 
 Don't worry about absorbing it all now. Each hands-on module begins with this same diagram, with the components that module exercises highlighted in red and everything else dimmed, so you always know where you are.
 
