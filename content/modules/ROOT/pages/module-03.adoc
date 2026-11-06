@@ -8,12 +8,12 @@ image::arch-module03.svg[Architecture with the BYOK build pipeline highlighted, 
 
 In this module you work with the highlighted pieces: the build pipeline that turns your Markdown into a new vector database for OpenShift Lightspeed.
 
-NOTE: This module follows the official https://docs.redhat.com/en/documentation/red_hat_openshift_lightspeed/2.0/html/configure/ols-configuring-openshift-lightspeed#providing-custom-knowledge-to-the-llm_ols-configuring-openshift-lightspeed[BYO Knowledge procedure], with two adaptations for this lab: instead of your own workstation you use the cluster's bastion, and instead of pushing to `quay.io` you push to the cluster's internal image registry. The bastion's `oc` is already logged in as a cluster administrator.
+NOTE: This module follows the official https://docs.redhat.com/en/documentation/red_hat_openshift_lightspeed/2.0/html/configure/ols-configuring-openshift-lightspeed#providing-custom-knowledge-to-the-llm_ols-configuring-openshift-lightspeed[BYO Knowledge procedure], with one adaptations for this lab: instead of pushing the image to quay.io, you push to the cluster's internal image registry.
 
 [#prepare-the-bastion]
 == Prepare the Bastion
 
-All the work in this module happens in the *Bastion* tab — the terminal connected to the cluster's bastion host. Start by installing podman:
+Most of the work in this module happens in the *Bastion* tab — the terminal connected to the cluster's bastion host. Start by installing podman:
 
 [source,bash,role="execute"]
 ----
@@ -73,16 +73,24 @@ Feel free to write your own document instead — anything the base model couldn'
 [#get-the-rag-tool-image]
 == Get the RAG Tool Image
 
-The BYOK Knowledge tool ships as a container image on `registry.redhat.io`, which requires authentication to pull. The official procedure assumes you have your own Red Hat registry account — in this lab you can borrow the cluster's pull secret instead, since it already contains registry credentials:
+The BYOK Knowledge tool ships as a container image on registry.redhat.io, which requires authentication to pull. The official procedure assumes you have your own Red Hat registry account, but in this lab you can borrow the cluster's pull secret instead, since it already contains registry credentials:
 
 [source,bash,role="execute"]
 ----
-oc extract secret/pull-secret -n openshift-config --confirm --to=~/byok
+oc extract secret/pull-secret -n openshift-config --confirm --to=$HOME/byok
+----
+
+Install the pull secret as podman's credentials file, so every podman command — including the ones inside the RAG tool — can use it:
+
+[source,bash,role="execute"]
+----
+mkdir -p $XDG_RUNTIME_DIR/containers
+cp $HOME/byok/.dockerconfigjson $XDG_RUNTIME_DIR/containers/auth.json
 ----
 
 [source,bash,role="execute"]
 ----
-podman pull --authfile ~/byok/.dockerconfigjson registry.redhat.io/openshift-lightspeed-tech-preview/lightspeed-rag-tool-rhel9:latest
+podman pull registry.redhat.io/openshift-lightspeed-tech-preview/lightspeed-rag-tool-rhel9:latest
 ----
 
 NOTE: The RAG tool image is large — it bundles the embedding model — so the pull takes a few minutes.
@@ -90,15 +98,32 @@ NOTE: The RAG tool image is large — it bundles the embedding model — so the 
 [#generate-the-image]
 == Generate the BYOK Image
 
-Run the RAG tool, pointing it at your Markdown directory and an output directory for the generated image tarball:
+The tool also builds the output image internally, and for that it needs two small adjustments: a storage configuration that works inside a container, and a public base image. Prepare the storage configuration:
 
 [source,bash,role="execute"]
 ----
-podman run -it --rm --device=/dev/fuse \
+cat > ~/byok/tool-storage.conf <<'EOF'
+[storage]
+driver = "vfs"
+graphroot = "/var/lib/containers/storage"
+runroot = "/run/containers/storage"
+EOF
+----
+
+Now run the tool, passing the base image override and your Markdown and output directories:
+
+[source,bash,role="execute"]
+----
+podman run -it --rm \
+  -e UBI_BASE_IMAGE=registry.access.redhat.com/ubi9/ubi:latest \
+  -v $XDG_RUNTIME_DIR/containers/auth.json:/run/user/0/containers/auth.json:Z \
+  -v ~/byok/tool-storage.conf:/etc/containers/storage.conf:ro,Z \
   -v ~/byok/markdown:/markdown:Z \
   -v ~/byok/output:/output:Z \
   registry.redhat.io/openshift-lightspeed-tech-preview/lightspeed-rag-tool-rhel9:latest
 ----
+
+The tool chunks your Markdown, runs it through the embedding model — watch for your document's title in the logs — builds the image, and writes it as a tarball to the output directory.
 
 When the tool finishes, you will find the generated image tarball in the output directory:
 
@@ -114,7 +139,7 @@ Load it into podman, as in the official procedure:
 podman load < ~/byok/output/*.tar
 ----
 
-Check that the image is loaded, and note its name in the _REPOSITORY_ column:
+Check that the image is loaded — it is named `byok-image`:
 
 [source,bash,role="execute"]
 ----
@@ -149,7 +174,7 @@ Tag the generated image with its destination and push it:
 
 [source,bash,role="execute"]
 ----
-podman tag localhost/my-byok-image:latest $REGISTRY/byok-workshop/acme-dr-byok:latest
+podman tag localhost/byok-image:latest $REGISTRY/byok-workshop/acme-dr-byok:latest
 ----
 
 [source,bash,role="execute"]
