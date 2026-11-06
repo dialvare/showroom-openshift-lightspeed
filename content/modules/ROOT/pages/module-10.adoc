@@ -1,5 +1,7 @@
 = Key Takeaways
 
+include::partial$console-access.adoc[]
+
 Congratulations! You've completed this comprehensive journey through OpenShift Lightspeed's capabilities. Throughout this lab, you've learned how to leverage OpenShift Lightspeed for much more than just answering basic questions:
 
 * *Simple queries and YAML generation* — started with everyday questions and generating ready-to-use manifests

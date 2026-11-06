@@ -1,5 +1,7 @@
 = Cluster Interaction
 
+include::partial$console-access.adoc[]
+
 The Cluster Interaction feature allows OpenShift Lightspeed to read and interact with your OpenShift cluster. This enables the LLM to generate highly customized responses for your environment and, when permitted, to take actions on your behalf.
 
 image::arch-module04.svg[Architecture with the built-in MCP server highlighted]

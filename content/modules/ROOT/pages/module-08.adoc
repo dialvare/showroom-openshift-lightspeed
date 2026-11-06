@@ -1,5 +1,7 @@
 = Simplify VM management with OpenShift Lightspeed
 
+include::partial$console-access.adoc[]
+
 As mentioned in the previous module, OpenShift Virtualization allows you to run virtual machines alongside your containerized workloads. Virtual machines in OpenShift are managed as custom resources, which means OpenShift Lightspeed can help you understand, configure, and troubleshoot them just like any other OpenShift resource.
 
 This lab environment comes with OpenShift Virtualization already deployed and configured. You can start working with virtual machines right away. In this module, you'll explore how OpenShift Lightspeed assists with virtualization workloads across different user scenarios — from newcomers learning the basics to experienced admins migrating from other platforms.

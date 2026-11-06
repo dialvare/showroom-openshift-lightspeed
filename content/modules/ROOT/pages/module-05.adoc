@@ -1,5 +1,7 @@
 = Troubleshooting issues in the cluster
 
+include::partial$console-access.adoc[]
+
 Time to put OpenShift Lightspeed to the real test. The key to effective troubleshooting with OpenShift Lightspeed is using the resource attachment feature. By clicking the *Plus (+)* button next to the message box in the chat interface, you can attach YAML definitions and other components to your question, giving the AI assistant the precise context it needs to diagnose the problem.
 
 image::arch-module05.svg[Architecture with the built-in MCP server highlighted]

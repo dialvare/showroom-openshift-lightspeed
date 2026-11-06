@@ -1,5 +1,7 @@
 = Bring your custom MCP servers into OpenShift Lightspeed
 
+include::partial$console-access.adoc[]
+
 You have already seen OpenShift Lightspeed's built-in MCP server query your cluster's resources and monitoring stack. OpenShift Lightspeed can be extended even further by integrating custom MCP servers that connect to external systems beyond the cluster itself. This feature allows you to add additional MCP servers that provide new tools to the OpenShift Lightspeed instance, enabling the LLM to use those external tools when generating answers to your questions.
 
 image::arch-module07.svg[Architecture with custom MCP servers highlighted]

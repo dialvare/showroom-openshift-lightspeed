@@ -1,5 +1,7 @@
 = OpenShift Lightspeed Basics
 
+include::partial$console-access.adoc[]
+
 OpenShift Lightspeed uses a natural language interface to allow users to ask questions. You have used many chat interfaces before, so OpenShift Lightspeed should feel very comfortable to use.
 
 OpenShift Lightspeed is primarily focused on OpenShift and Red Hat product topics, and will generally decline questions it considers unrelated to those domains. However, BYOK knowledge bases and custom MCP servers can extend its scope to cover your own systems and documentation. If you try hard enough, you can probably get it to do something it wasn't explicitly designed to do, but this is a shortcoming of all non-deterministic language-model-based systems. It is a bit of a game of whack-a-mole trying to keep up with all of the possible negative outcomes, and trying to prevent them is a topic of active research. 

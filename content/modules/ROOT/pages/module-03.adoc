@@ -1,5 +1,7 @@
 = Build Your Own BYOK Image (Optional)
 
+include::partial$console-access.adoc[]
+
 In the previous module you consumed a BYOK image that was already built for you. In this optional module, you will build one yourself — from writing the Markdown document to watching OpenShift Lightspeed answer questions from it. If you are short on time, you can skip ahead to the Cluster Interaction module; nothing later in the lab depends on this exercise.
 
 image::arch-module03.svg[Architecture with the BYOK build pipeline highlighted]

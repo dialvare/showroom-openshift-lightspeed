@@ -1,5 +1,7 @@
 = Bring Your Own Knowledge
 
+include::partial$console-access.adoc[]
+
 Most organizations that have been using OpenShift Container Platform for any length of time have developed their own policies, procedures, templates, and other organization-specific information about OpenShift.
 
 As you learned earlier, OpenShift Lightspeed only uses Red Hat documentation to support answers by default. So, how can you get your important internal knowledge into the system? Well, there's a feature for that called Bring Your Own Knowledge (BYOK).

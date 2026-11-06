@@ -1,5 +1,7 @@
 = Perses Dashboards
 
+include::partial$console-access.adoc[]
+
 The Cluster Observability Operator (COO) is already deployed in this lab environment with Perses. Perses is an open-source, Kubernetes-native dashboard framework designed for observability, and it is integrated directly into the OpenShift web console under the Observe menu.
 
 In this module you will use OpenShift Lightspeed to explore cluster metrics, generate PromQL queries, and produce ready-to-import Perses charts — all from the chat interface.
