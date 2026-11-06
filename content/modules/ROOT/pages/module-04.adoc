@@ -8,14 +8,12 @@ image::arch-module04.svg[Architecture with the built-in MCP server highlighted, 
 
 In this module you work with the highlighted pieces: the core OpenShift Lightspeed components plus the built-in MCP server that reads and writes your cluster.
 
-NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
-
 [#check-the-cluster-interaction-configuration]
 == Check the Cluster Interaction Configuration
 
-Starting with OpenShift Lightspeed 1.1, the cluster interaction feature is enabled by default on new installations, and that is how this lab environment is running. Optionally, you can check how it is enabled in the _OLSConfig_ resource.
+The cluster interaction feature is enabled by default. Optionally, you can check how it is enabled in the _OLSConfig_ resource.
 
-Again, navigate to *Ecosystem* -> *Installed Operators* -> *OpenShift Lightspeed Operator* -> *OLSConfig* -> `cluster` -> *YAML*. Once in the YAML editor, scroll down until you spot the _introspectionEnabled_ flag. It should be set to _true_:
+Back in the OpenShift web console, navigate to *Ecosystem* -> *Installed Operators* -> *OpenShift Lightspeed Operator* -> *OLSConfig* -> `cluster` -> *YAML*. Once in the YAML editor, scroll down until you spot the _introspectionEnabled_ flag. It should be set to _true_:
 
 [source,yaml,role="execute",subs=attributes+]
 ----
@@ -49,7 +47,11 @@ Now that we have seen that cluster interaction is available, you can try asking 
 Show me the pods in the openshift-lightspeed namespace
 ----
 
-The model likely chose to use the _pods_list_in_namespace_ tool to retrieve pod information from the _openshift-lightspeed_ namespace. You can view the tool's output by clicking the `pods_list_in_namespace` button displayed after the response. This information was used by the model to generate the final answer containing the list of all pods in that namespace.
+The model likely chose to use the _pods_list_in_namespace_ tool to retrieve pod information from the _openshift-lightspeed_ namespace. You can view the tool's output by clicking the `pods_list_in_namespace` button displayed after the response
+
+image::tool-output.png[The pods_list_in_namespace tool output expanded, align="center", link=self, window=blank]
+
+This information was used by the model to generate the final answer containing the list of all pods in that namespace. Now, you can **Close** the tool output view.
 
 Let's take cluster interaction one step further by combining it with follow-up questions. OpenShift Lightspeed can not only gather information from your cluster but also analyze it when you ask follow-up questions within the same chat session.
 

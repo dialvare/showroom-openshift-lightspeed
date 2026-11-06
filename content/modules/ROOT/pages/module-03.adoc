@@ -8,7 +8,7 @@ image::arch-module03.svg[Architecture with the BYOK build pipeline highlighted, 
 
 In this module you work with the highlighted pieces: the build pipeline that turns your Markdown into a new vector database for OpenShift Lightspeed.
 
-NOTE: This module follows the official https://docs.redhat.com/en/documentation/red_hat_openshift_lightspeed/2.0/html/configure/ols-configuring-openshift-lightspeed#providing-custom-knowledge-to-the-llm_ols-configuring-openshift-lightspeed[BYO Knowledge procedure], with one adaptations for this lab: instead of pushing the image to quay.io, you push to the cluster's internal image registry.
+NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 
 [#prepare-the-bastion]
 == Prepare the Bastion
