@@ -7,7 +7,7 @@ OpenShift Lightspeed presents two complementary capabilities:
 * **OpenShift Lightspeed intelligent assistant** — a conversational AI chatbot that OpenShift users can use to understand concepts, get configuration guidance, generate YAML, create, monitor and manage workloads running in the cluster and troubleshoot issues through natural language chat.
 * **OpenShift Lightspeed autonomous agents** — an autonomous layer on your cluster that can investigate problems, propose remediation plans, apply approved fixes, and verify outcomes. All driven by plain-language descriptions, cluster update paths or firing alerts, without step-by-step guidance from the user.
 
-NOTE: OpenShift Lightspeed autonomous agents is a Technology Preview feature introduced in OpenShift Lightspeed 2.0 that requires OpenShift Container Platform 5.0. The intelligent assistant supports OpenShift Container Platform 4.16 and later.
+NOTE: OpenShift Lightspeed autonomous agents is a Technology Preview feature introduced in OpenShift Lightspeed 2.0 that requires OpenShift Container Platform 5.0 onwards. The intelligent assistant supports OpenShift Container Platform 4.16 and later.
 
 OpenShift Lightspeed today is a relatively small and lightweight system that you deploy into each OpenShift Container Platform cluster. The operator deploys the following core components:
 
@@ -59,6 +59,6 @@ image::arch-full.svg[Full OpenShift Lightspeed architecture for this lab]
 
 Don't worry about absorbing it all now. Each hands-on module begins with this same diagram, with the components that module exercises highlighted in red and everything else dimmed, so you always know where you are.
 
-NOTE: This lab environment runs version 2.0 of the OpenShift Lightspeed operator in an OpenShift 4.22+ cluster. If you are running an older cluster version or an older operator release in your own environment, some of the features covered in this lab may not be available.
+NOTE: This lab environment runs version 2.0 of the OpenShift Lightspeed operator in an OpenShift 5.0 cluster. If you are running an older cluster version or an older operator release in your own environment, some of the features covered in this lab may not be available.
 
 Now, with your understanding of the fundamentals, let's use OpenShift Lightspeed.
