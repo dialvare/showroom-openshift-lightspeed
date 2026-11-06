@@ -4,7 +4,7 @@ include::partial$console-access.adoc[]
 
 Time to put OpenShift Lightspeed to the real test. The key to effective troubleshooting with OpenShift Lightspeed is using the resource attachment feature. By clicking the *Plus (+)* button next to the message box in the chat interface, you can attach YAML definitions and other components to your question, giving the AI assistant the precise context it needs to diagnose the problem.
 
-image::arch-module05.svg[Architecture with the built-in MCP server highlighted, align="center"]
+image::arch-module05.svg[Architecture with the built-in MCP server highlighted, align="center", link=self, window=blank]
 
 In this module you work again with the highlighted pieces: the core OpenShift Lightspeed components plus the built-in MCP server that reads and writes your cluster.
 
@@ -13,7 +13,7 @@ In this module you work again with the highlighted pieces: the core OpenShift Li
 
 In your environment there is a pod that is failing to schedule for some reason. In the OpenShift console, navigate to *Workloads* -> *Pods*, and then make sure to select the project named `broken` from the dropdown at the top of the page:
 
-image::broken-project-select.png[Broken project selection, align="center"]
+image::broken-project-select.png[Broken project selection, align="center", link=self, window=blank]
 
 Now, in the pod list, click on the `broken-pod` which you can see is in the _Pending_ state.
 
@@ -23,7 +23,7 @@ Because you are on the pod's details page, the attach menu shows the resource yo
 
 Go ahead and attach the *Filtered YAML*, which will include the status information for this pod.
 
-image::attach-button.png[Attachment options in OpenShift Lightspeed, align="center"]
+image::attach-button.png[Attachment options in OpenShift Lightspeed, align="center", link=self, window=blank]
 
 Then, simply ask:
 
@@ -54,11 +54,11 @@ Rather than manually attaching resources, you can also switch to *Troubleshootin
 
 Before starting, navigate to *Observe* -> *Alerting* in the OpenShift console. Make sure you select *All Projects* from the project dropdown. You should see one Critical alert: `PodDisruptionBudgetLimit` is firing, along with other Warning and Info alerts.
 
-image::alert.png[Critical alert firing in the cluster, align="center"]
+image::alert.png[Critical alert firing in the cluster, align="center", link=self, window=blank]
 
 Now, open the OpenShift Lightspeed chat and click the *Clear chat* button if needed. Before asking, select the *Troubleshooting* mode from the mode selector: 
 
-image::troubleshooting-mode.png[Troubleshooting mode in OpenShift Lightspeed,600, align="center"]
+image::troubleshooting-mode.png[Troubleshooting mode in OpenShift Lightspeed,600, align="center", link=self, window=blank]
 
 Now you can directly ask: 
 
@@ -73,7 +73,7 @@ With Troubleshooting mode selected, OpenShift Lightspeed will use multiple clust
 
 Note that with Troubleshooting mode, OpenShift Lightspeed will make use of more tools to find the root cause of the issue:
 
-image::troubleshooting-tools.png[Troubleshooting mode uses different tools, align="center"]
+image::troubleshooting-tools.png[Troubleshooting mode uses different tools, align="center", link=self, window=blank]
 
 OpenShift Lightspeed correlates Kubernetes resource state, pod logs, and live metrics to surface a root cause and a concrete remediation step, all without you having to manually attach a single resource.
 

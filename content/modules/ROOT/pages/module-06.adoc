@@ -6,7 +6,7 @@ The Cluster Observability Operator (COO) is already deployed in this lab environ
 
 In this module you will use OpenShift Lightspeed to explore cluster metrics, generate PromQL queries, and produce ready-to-import Perses charts — all from the chat interface.
 
-image::arch-module06.svg[Architecture with the monitoring stack and Perses highlighted, align="center"]
+image::arch-module06.svg[Architecture with the monitoring stack and Perses highlighted, align="center", link=self, window=blank]
 
 The highlighted pieces are: the _metrics_ toolset of the built-in MCP server (querying Thanos and Alertmanager), and the Perses dashboard engine deployed by COO.
 
@@ -24,7 +24,7 @@ What are the top 5 namespaces by CPU usage in this cluster right now? Use PromQL
 
 OpenShift Lightspeed will invoke the _metrics_ toolset among other tools to run a PromQL query against the in-cluster Thanos Querier and return a ranked list of the five busiest namespaces. Additionally, OpenShift Lightspeed will produce an inline chart from the same query results, giving you a quick visual overview without leaving the chat interface. If everything works as expected you should see a graph similar to this: 
 
-image::ols-graph.png[OpenShift Lightspeed shows rendered graphs, align="center"]
+image::ols-graph.png[OpenShift Lightspeed shows rendered graphs, align="center", link=self, window=blank]
 
 Let's ask a follow-up question (don't clear the current conversation): 
 
@@ -48,7 +48,7 @@ You now have an empty dashboard ready to receive panels. Keep this tab open — 
 
 Now, if you minimized your OpenShift Lightspeed chat interface, open it again. Scroll through your current conversation and hover over one of the graphs. You will see an *Add to Dashboard* icon appear in the upper right corner of the chart:
 
-image::add-perses.png[OpenShift Lightspeed allows to import graphs into Perses, align="center"]
+image::add-perses.png[OpenShift Lightspeed allows to import graphs into Perses, align="center", link=self, window=blank]
 
 Click the *Add to Dashboard* icon to instantly import the chart to the Perses dashboard. Do the same with the other graph you created.
 

@@ -8,7 +8,7 @@ The assistant is primarily focused on OpenShift and Red Hat product topics, and 
 
 NOTE: If you see something bad, be sure to report it using the built-in feedback feature — the thumbs-up/thumbs-down buttons underneath each response, where you can also leave written comments. We will always do our best to improve the quality and safety of the system.
 
-image::arch-module01.svg[Architecture for module 1: core chat flow highlighted, align="center"]
+image::arch-module01.svg[Architecture for module 1: core chat flow highlighted, align="center", link=self, window=blank]
 
 In this module you work with the highlighted pieces: the core OpenShift Lightspeed components, including the PostgreSQL database and the Red Hat Offline Knowledge Portal (RHOKP) elements.
 
@@ -30,11 +30,11 @@ Switch to the *Console* tab and log in using the following credentials:
 
 Once you have logged in, you should see the OpenShift Lightspeed icon in the bottom-right corner of the OpenShift console:
 
-image::ols-icon.png[OpenShift Lightspeed icon, 50%, align="center"]
+image::ols-icon.png[OpenShift Lightspeed icon, 50%, align="center", link=self, window=blank]
 
 Click the icon, and it will open the chat interface:
 
-image::ols-interface.png[OpenShift Lightspeed chat interface, 60%, align="center"]
+image::ols-interface.png[OpenShift Lightspeed chat interface, 60%, align="center", link=self, window=blank]
 
 Why don't you start by asking an easy question like:
 
@@ -45,7 +45,7 @@ What are OpenShift Routes?
 
 The intelligent assistant should provide a detailed answer about what OpenShift Routes are and their key features. And, if you scroll to the bottom of the response, you will see that it has also provided a link to the documentation that was used to generate its response:
 
-image::related-docs.png[Related documentation, align="center"]
+image::related-docs.png[Related documentation, align="center", link=self, window=blank]
 
 This is a great feature because it allows you to go beyond the answer itself and explore the official Red Hat documentation at your own pace. Whether you want to validate the information, dig into advanced configuration options, or simply learn more about the topic, the referenced links give you a direct path to the authoritative source.
 
@@ -82,7 +82,6 @@ Everything you type into the chat is ultimately sent to the configured model pro
 
 This lab environment is configured to redact IPv4 addresses. In the OpenShift web console, navigate to *Ecosystem* -> *Installed Operators* in the left-hand menu. Locate the *OpenShift Lightspeed Operator*. Next, click the *OLSConfig* tab, and then click the single OLSConfig instance called `cluster`. Finally, select the *YAML* tab. Find the filter definition under _queryFilters_:
 
-[source,yaml,role="execute"]
 ----
 ...
 spec:
