@@ -82,7 +82,7 @@ Let's see this in action. *Clear* the chat and ask OpenShift Lightspeed to creat
 
 [source,role="copypaste"]
 ----
-Create a Deployment named hello-ols in the lightspeed-demo namespace with 1 replica of registry.access.redhat.com/ubi9/ubi, command sleep and argument infinity. Do not set fsGroup in the pod security context.
+Create a Deployment named hello-ols in the lightspeed-demo namespace with 1 replica of registry.access.redhat.com/ubi9/ubi, command sleep and argument infinity
 ----
 
 OpenShift Lightspeed will invoke the _resources_create_or_update_ tool to apply the Deployment manifest. As it is an operation that writes to your cluster, you will be asked to approve or reject the action. Go ahead and click *Approve*.
