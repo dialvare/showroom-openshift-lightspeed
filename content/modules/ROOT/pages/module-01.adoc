@@ -68,7 +68,7 @@ Beyond providing explanations and guidance, the intelligent assistant can also g
 
 [source,role="execute",subs=attributes+]
 ----
-Generate a Route YAML that exposes a service on port 8080 with TLS edge termination
+Show me the YAML configuration for a Route that exposes a service on port 8080 with TLS edge termination
 ----
 
 The chatbot will provide you with a complete YAML manifest that you can copy and apply to your cluster. The generated YAML follows OpenShift best practices and includes the relevant fields based on your specific requirements. You can then customize this YAML further if needed.
