@@ -1,12 +1,10 @@
-= Agentic OpenShift Lightspeed (Optional)
+= OpenShift Lightspeed autonomous agents
 
-IMPORTANT: *Red Hat Internal Only* — This section describes a pre-release feature under active development. The information here has not been approved for public sharing. Do not distribute or reference this content outside of Red Hat.
+include::partial$console-access.adoc[]
 
-NOTE: This section is optional. It only applies if Agentic OLS was enabled. If that is not the case for your environment, skip ahead to xref:module-10.adoc[Key Takeaways].
+So far in this lab, OpenShift Lightspeed intelligent assistant has always waited for you to start the conversation. You asked the questions, you decided when to approve tool calls, and you chose what to investigate next. OpenShift Lightspeed autonomous agents changes that dynamic. Given a plain-language description of a problem, it can autonomously investigate root causes, propose a remediation plan, apply the approved fix, and verify the outcome — all without you having to find the right YAML, attach the right resource, or compose the right follow-up question.
 
-So far in this lab, OpenShift Lightspeed has always waited for you to start the conversation. You asked the questions, you decided when to approve tool calls, and you chose what to investigate next. Agentic OLS changes that dynamic. Given a plain-language description of a problem, it can autonomously investigate root causes, propose a remediation plan, apply the approved fix, and verify the outcome — all without you having to find the right YAML, attach the right resource, or compose the right follow-up question.
-
-The core building block of Agentic OLS is the `AgenticRun` custom resource. Each run goes through the following lifecycle:
+The core building block of OpenShift Lightspeed autonomous agents is the `AgenticRun` custom resource. Each run goes through the following lifecycle:
 
 * *Analysis*: the agent investigates the issue and proposes remediation options.
 * *Execution*: the approved option is applied to the cluster.
@@ -19,9 +17,9 @@ Apart from manually creating AgenticRuns, the *Alerts Adapter* is a companion se
 
 image::arch-module09.svg[Agentic OLS Architecture, 100%]
 
-In this module you work with Agentic Lightspeed: manually creating an AgenticRun, enabling the Alerts Adapter for automatic triggering, and following each run through its full lifecycle.
+In this module you work with OpenShift Lightspeed autonomous agents: manually creating an AgenticRun, enabling the Alerts Adapter for automatic triggering, and following each run through its full lifecycle.
 
-NOTE: The Alerts Adapter is deployed but its severity filter is commented out, so it is not creating any runs yet. You will enable that in the last exercise.
+NOTE: The Alerts Adapter is deployed but its severity filter is commented out, so it is not creating any runs yet. You will enable it in the last exercise.
 
 [#pre-deployed-resources]
 == Exploring Pre-deployed Resources
@@ -36,14 +34,14 @@ Now use the *Resources* box to search for the following custom resources:
 
 ==== *LLMProvider*
 
-In the *Resources* box, type `LLMProvider` and select it from the drop-down. You will see the `openai` provider listed. Click on it and open the *YAML* tab, where you should see something similar to the following:
+In the *Resources* box, type `LLMProvider` and select it from the drop-down. You will see the `maas` provider listed. Click on it and open the *YAML* tab, where you should see something similar to the following:
 
 [source,yaml,role="execute"]
 ----
 apiVersion: agentic.openshift.io/v1alpha1
 kind: LLMProvider
 metadata:
-  name: openai
+  name: maas
 spec:
   openAI:
     credentialsSecret:
@@ -53,6 +51,8 @@ spec:
 ----
 
 The provider points to the Model-as-a-Service (MaaS) endpoint and reads credentials from the `llm-creds-maas` secret. This secret was populated at provisioning time.
+
+NOTE: While connecting OpenShift Lightspeed to MaaS works, it is not an officialy supported configuration, as it adds aditional layer between Lightspeed and the provider. OpenShift Lightspeed supports direct connectivity with the model provider choosen. 
 
 ==== *Agent*
 
@@ -66,7 +66,7 @@ metadata:
   name: default
 spec:
   llmProvider:
-    name: openai
+    name: maas
   model: claude-sonnet-4-6
   timeouts:
     analysisSeconds: 500
