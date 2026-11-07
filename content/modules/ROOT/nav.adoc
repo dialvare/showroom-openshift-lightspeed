@@ -41,9 +41,13 @@
 ** xref:module-08.adoc#users-coming-from-different-platforms[New terminology learning]
 ** xref:module-08.adoc#troubleshooting-virtual-machines[Troubleshooting VMs]
 
-* xref:module-09.adoc[9. Autonomous Agents (Optional)]
+* xref:module-09.adoc[9. Autonomous Agents]
 ** xref:module-09.adoc#pre-deployed-resources[Pre-deployed Resources]
 ** xref:module-09.adoc#first-agentic-run[Your First AgenticRun]
 ** xref:module-09.adoc#enabling-alerts-adapter[Resolving a Critical Alert]
 
-* xref:module-10.adoc[10. Key Takeaways]
+* xref:module-10.adoc[10. AI-assisted Cluster Updates]
+** xref:module-10.adoc#precheck-your-cluster-with-ai[Precheck Your Cluster with AI]
+** xref:module-10.adoc#agentic-runs-from-the-cluster-version-operator[Agentic Runs from the CVO]
+
+* xref:module-11.adoc[11. Key Takeaways]

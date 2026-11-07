@@ -88,4 +88,4 @@ This demonstrates how the assistant can troubleshoot virtual machine issues usin
 
 == What's Next?
 
-You've now seen the assistant assist across both containerized and virtual machine workloads. If your environment has OpenShift Lightspeed autonomous agents enabled, the optional xref:module-09.adoc[OpenShift Lightspeed autonomous agents] module shows how the system can autonomously investigate and remediate problems end-to-end. Otherwise, head to xref:module-10.adoc[Key Takeaways] to wrap up.
+You've now seen the assistant assist across both containerized and virtual machine workloads. If your environment has OpenShift Lightspeed autonomous agents enabled, the optional xref:module-09.adoc[OpenShift Lightspeed autonomous agents] module shows how the system can autonomously investigate and remediate problems end-to-end. Otherwise, head to xref:module-11.adoc[Key Takeaways] to wrap up.

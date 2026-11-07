@@ -204,10 +204,11 @@ image::ols-execute-remediation.png[Remediation plans proposed by the autonomous 
 . Click *Execute remediation* twice. A sandbox pod applies the fix to the cluster. Click *View Execution logs* to follow along.
 +
 image::ols-execution-logs.png[Execution logs of an AgenticRun, align="center", link=self, window=blank]
-. Once execution completes, _Verification_ starts automatically. A new sandbox pod confirms the alert condition is resolved and the run reaches *Completed*.
+. Once execution completes, *Verification* starts automatically. A new sandbox pod confirms the alert condition is resolved and the run reaches *Completed*.
 
-NOTE: If verification fails, the run transitions to _Escalating_ instead, creating a record of what the agent could not complete for human review.
 
 To confirm the alert has been resolved, navigate to *Observe* -> *Alerting* and switch to *All projects*. The critical alert that triggered this run should no longer appear in the firing alerts list.
 
-Continue to xref:module-10.adoc[Key Takeaways] to wrap up the lab.
+== What's Next?
+
+You have seen autonomous agents resolve a problem you described in plain language and a critical alert fired by the cluster itself. There is one more source of AgenticRuns: the cluster's own update machinery. Continue to the next module to see how the intelligent assistant and the autonomous agents work together to make cluster updates more predictable.

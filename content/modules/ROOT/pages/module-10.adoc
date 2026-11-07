@@ -1,35 +1,27 @@
-= Key Takeaways
+= AI-assisted Cluster Updates
 
 include::partial$console-access.adoc[]
 
-Congratulations! You've completed this comprehensive journey through OpenShift Lightspeed's capabilities. Throughout this lab, you've learned how to leverage OpenShift Lightspeed for much more than just answering basic questions:
+Cluster updates are one of the most critical — and nerve-wracking — tasks for an operations team. A single overlooked condition can turn a routine upgrade into an incident. This module brings together the two capabilities you have been using throughout the lab: the intelligent assistant, which can assess your cluster's readiness for an update from the web console, and OpenShift Lightspeed autonomous agents, which power the deeper analysis behind those assessments.
 
-* *Simple queries and YAML generation* — started with everyday questions and generating ready-to-use manifests
-* *Bring Your Own Knowledge (BYOK)* — integrated your organization's specific knowledge, including building a custom BYOK image directly on the cluster
-* *Observability dashboards* — generated Perses dashboards to visualize cluster metrics
-* *Troubleshooting mode* — autonomously investigated alerts and correlated live cluster data
-* *Write tools* — directly modified cluster state without leaving the chat
-* *Query filters* — kept sensitive data away from the model
-* *Resource attachment* — attached resources to provide context when diagnosing complex issues
-* *Custom MCP servers* — connected external tools to extend Lightspeed's capabilities
-* *Virtual machine workloads* — applied all of the above to VM-based applications
+[#precheck-your-cluster-with-ai]
+== Precheck Your Cluster with AI
 
-Finally, you explored *Agentic OpenShift Lightspeed* — a more autonomous layer on top of classic OLS that can plan and execute multi-step tasks independently:
+Before triggering an update, you can ask the intelligent assistant to analyze your cluster's health and flag potential blockers, making the update process more predictable and secure.
 
-* *Understood* the agentic operator and its supporting components
-* *Defined* an `Agent` custom resource to configure its behavior and toolset
-* *Triggered* an `AgenticRun` and observed OpenShift Lightspeed autonomously reasoning through a problem, selecting tools, and acting on the cluster without step-by-step guidance
+Navigate to *Administration* -> *Cluster Settings* in the OpenShift web console. In the *Details* page you should see an AI assessment section indicating that updates are available.
 
-This lab has only scratched the surface of what's possible. OpenShift Lightspeed continues to evolve with new features and capabilities. We encourage you to keep exploring — try it with your own workloads, integrate your team's documentation, and discover new ways it can streamline and automate your OpenShift operations. The more you use OpenShift Lightspeed, the more productive you'll become with OpenShift.
+image::ols-cluster-update.png[AI-assisted cluster updates, align="center", link=self, window=blank]
 
-If you want to continue learning more, take a look at the https://interact.redhat.com/share/gOHOHHzfqFlgtM5bMuBZ[interactive OpenShift Lightspeed demo^] for a hands-on experience with additional features and use cases:
-++++
-<iframe
-  src="https://demo.arcade.software/gOHOHHzfqFlgtM5bMuBZ?embed&embed_mobile=tab&embed_desktop=inline&show_copy_link=true"
-  width="100%"
-  height="600px"
-  style="border: 0;"
-  allowfullscreen>
-</iframe>
-++++
-Thank you for taking the time to master OpenShift Lightspeed. We hope this assistant becomes an invaluable part of your daily OpenShift workflow!
+Select *Precheck your cluster with AI*. The chatbot interface opens automatically and starts investigating your cluster's status, assessing whether it is ready for the upgrade — the same autonomous investigation you used in the Troubleshooting module, now applied to update readiness.
+
+[#agentic-runs-from-the-cluster-version-operator]
+== Agentic Runs from the Cluster Version Operator
+
+The precheck you just ran was conversational: you asked, and the assistant investigated. Behind the scenes, cluster updates are also the third way `AgenticRun` resources get created — the one you already glimpsed in the previous module, where runs created by the Cluster Version Operator sat alongside your own in a *Pending* state.
+
+When an upgrade path is available in your cluster, the Cluster Version Operator automatically creates `AgenticRun` resources to analyze the recommended and conditional update targets. Instead of you describing the problem, the cluster itself describes it: each run investigates whether the cluster can safely move to a specific version, so potential blockers surface before you commit to the update. The same human-in-the-loop approvals you used in the previous module apply here too — Analysis and Execution wait for your sign-off before anything touches the cluster.
+
+== What's Next?
+
+Continue to xref:module-11.adoc[Key Takeaways] to wrap up the lab.
