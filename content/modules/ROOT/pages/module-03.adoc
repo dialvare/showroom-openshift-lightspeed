@@ -2,11 +2,11 @@
 
 include::partial$console-access.adoc[]
 
-In the previous module you consumed a BYOK image that was already built for you. In this optional module, you will build one yourself — from writing the Markdown document to watching OpenShift Lightspeed answer questions from it. If you are short on time, you can skip ahead to the Cluster Interaction module; nothing later in the lab depends on this exercise.
+In the previous module you consumed a BYOK image that was already built for you. In this optional module, you will build one yourself — from writing the Markdown document to watching the intelligent assistant answer questions from it. If you are short on time, you can skip ahead to the Cluster Interaction module; nothing later in the lab depends on this exercise.
 
 image::arch-module03.svg[Architecture with the BYOK build pipeline highlighted, align="center", link=self, window=blank]
 
-In this module you work with the highlighted pieces: the build pipeline that turns your Markdown into a new vector database for OpenShift Lightspeed.
+In this module you work with the highlighted pieces: the build pipeline that turns your Markdown into a new vector database for the intelligent assistant.
 
 NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 
@@ -32,7 +32,7 @@ mkdir -p ~/byok/markdown ~/byok/output && cd ~/byok
 
 Let's give ACME Corp one more internal document: their disaster recovery drill procedure.
 
-Now create the Markdown document. Note the metadata block at the top: the BYOK tool uses the _title_ and _url_ attributes as the source reference that OpenShift Lightspeed displays alongside its answers. If you omit them, the first heading becomes the title and the file path becomes the URL.
+Now create the Markdown document. Note the metadata block at the top: the BYOK tool uses the _title_ and _url_ attributes as the source reference that the assistant displays alongside its answers. If you omit them, the first heading becomes the title and the file path becomes the URL.
 
 [source,bash,role="execute"]
 ----
@@ -219,7 +219,7 @@ Click *Save*. The OpenShift Lightspeed app server pod redeploys to load the new 
 [#test-your-knowledge]
 == Test Your Knowledge
 
-Open the OpenShift Lightspeed chat, click the *Clear chat* (trash can) button if needed, and ask:
+Open the chatbot interface, click the *Clear chat* (trash can) button if needed, and ask:
 
 [source,role="copypaste"]
 ----
@@ -232,6 +232,6 @@ TIP: Because your image uses the floating _latest_ tag, OpenShift Lightspeed kee
 
 == What's Next?
 
-So far, you've learned how OpenShift Lightspeed uses the OpenShift documentation and your own organizational knowledge (BYOK) to provide accurate answers. But what if OpenShift Lightspeed could go beyond static documentation and actually query your live cluster to provide real-time, environment-specific answers?
+So far, you've learned how the intelligent assistant uses the OpenShift documentation and your own organizational knowledge (BYOK) to provide accurate answers. But what if it could go beyond static documentation and actually query your live cluster to provide real-time, environment-specific answers?
 
-That's exactly what the Cluster Interaction feature enables. Continue to the next section to learn how OpenShift Lightspeed can directly interact with your OpenShift cluster to retrieve current information about your pods, deployments, and other resources.
+That's exactly what the Cluster Interaction feature enables. Continue to the next section to learn how the assistant can directly interact with your OpenShift cluster to retrieve current information about your pods, deployments, and other resources.

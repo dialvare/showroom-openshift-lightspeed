@@ -2,7 +2,7 @@
 
 include::partial$console-access.adoc[]
 
-The Cluster Interaction feature allows OpenShift Lightspeed to read and interact with your OpenShift cluster. This enables the LLM to generate highly customized responses for your environment and, when permitted, to take actions on your behalf.
+The Cluster Interaction feature allows the intelligent assistant to read and interact with your OpenShift cluster. This enables the LLM to generate highly customized responses for your environment and, when permitted, to take actions on your behalf.
 
 image::arch-module04.svg[Architecture with the built-in MCP server highlighted, align="center", link=self, window=blank]
 
@@ -40,7 +40,7 @@ TIP: Tool calling consumes extra tokens from the model's context window. If you 
 [#gathering-information-from-the-cluster]
 == Gathering Information from the Cluster
 
-Now that we have seen that cluster interaction is available, you can try asking some questions about cluster resources and see how OpenShift Lightspeed responds. Open the chat interface, click the *Clear chat* (trash can) button if you have an ongoing conversation, and ask:
+Now that we have seen that cluster interaction is available, you can try asking some questions about cluster resources and see how the assistant responds. Open the chat interface, click the *Clear chat* (trash can) button if you have an ongoing conversation, and ask:
 
 [source,role="copypaste"]
 ----
@@ -53,18 +53,18 @@ image::tool-output.png[The pods_list_in_namespace tool output expanded, align="c
 
 This information was used by the model to generate the final answer containing the list of all pods in that namespace. Now, you can **Close** the tool output view.
 
-Let's take cluster interaction one step further by combining it with follow-up questions. OpenShift Lightspeed can not only gather information from your cluster but also analyze it when you ask follow-up questions within the same chat session.
+Let's take cluster interaction one step further by combining it with follow-up questions. The assistant can not only gather information from your cluster but also analyze it when you ask follow-up questions within the same chat session.
 
-For example, let's ask OpenShift Lightspeed to retrieve and analyze the logs from the last pod listed. In the same chat session, ask:
+For example, let's ask the chatbot to retrieve and analyze the logs from the last pod listed. In the same chat session, ask:
 
 [source,role="copypaste"]
 ----
 Can you get and analyze the logs of the last pod?
 ----
 
-OpenShift Lightspeed will use the _pods_log_ tool to retrieve the recent logs from the last pod mentioned in the previous response and then provide you with an analysis of what's happening in those logs. This demonstrates the power of combining cluster interaction with the conversational context maintained from your previous questions to navigate across different components and resources within the cluster.
+The assistant will use the _pods_log_ tool to retrieve the recent logs from the last pod mentioned in the previous response and then provide you with an analysis of what's happening in those logs. This demonstrates the power of combining cluster interaction with the conversational context maintained from your previous questions to navigate across different components and resources within the cluster.
 
-Cluster interaction is not limited to Kubernetes resources. The built-in MCP server is also connected to the OpenShift monitoring stack (Prometheus and Alertmanager), which means OpenShift Lightspeed can reason about the live health of your cluster. Click the *Clear chat* (trash can) button and ask:
+Cluster interaction is not limited to Kubernetes resources. The built-in MCP server is also connected to the OpenShift monitoring stack (Prometheus and Alertmanager), which means the assistant can reason about the live health of your cluster. Click the *Clear chat* (trash can) button and ask:
 
 [source,role="copypaste"]
 ----
@@ -76,16 +76,16 @@ This time the model calls the _get_alerts_ tool, retrieves the alerts currently 
 [#write-tools]
 == Letting Lightspeed Take Action
 
-So far we have used cluster interaction only to read information from the cluster. But the built-in MCP server also exposes write tools — meaning OpenShift Lightspeed can make changes on your behalf, subject to your RBAC permissions.
+So far we have used cluster interaction only to read information from the cluster. But the built-in MCP server also exposes write tools — meaning the assistant can make changes on your behalf, subject to your RBAC permissions.
 
-Let's see this in action. *Clear* the chat and ask OpenShift Lightspeed to create a simple test workload in the existing _lightspeed-demo_ namespace:
+Let's see this in action. *Clear* the chat and ask the chatbot to create a simple test workload in the existing _lightspeed-demo_ namespace:
 
 [source,role="copypaste"]
 ----
 Create a Deployment named hello-ols in the lightspeed-demo namespace with 1 replica of registry.access.redhat.com/ubi9/ubi, command sleep and argument infinity
 ----
 
-OpenShift Lightspeed will invoke the _resources_create_or_update_ tool to apply the Deployment manifest. As it is an operation that writes to your cluster, you will be asked to approve or reject the action. Go ahead and click *Approve*.
+The assistant will invoke the _resources_create_or_update_ tool to apply the Deployment manifest. As it is an operation that writes to your cluster, you will be asked to approve or reject the action. Go ahead and click *Approve*.
 
 image::approve-tool.png[Approve write execution MCP tool,600, align="center", link=self, window=blank]
 
@@ -98,7 +98,7 @@ Now scale it up to see another write tool in action:
 Scale the hello-ols Deployment to 3 replicas
 ----
 
-OpenShift Lightspeed calls _resources_scale_. *Approve* the execution again. Then check the Deployments view to confirm the replica count changes to 3.
+The assistant calls _resources_scale_. *Approve* the execution again. Then check the Deployments view to confirm the replica count changes to 3.
 
 Finally, clean up the demo resource:
 
@@ -113,4 +113,4 @@ Delete the hello-ols Deployment
 
 In the examples above, we saw that the pods were running healthy and their logs showed no issues. But what happens when you're actually facing a real problem that needs troubleshooting?
 
-One powerful feature of OpenShift Lightspeed is the ability to attach resource information directly to your questions. By attaching YAML manifests, logs, or events from problematic resources, you provide OpenShift Lightspeed with the specific context it needs to diagnose issues effectively. Let's put this into practice in the next module by diagnosing and resolving a real issue in your cluster.
+One powerful feature of the intelligent assistant is the ability to attach resource information directly to your questions. By attaching YAML manifests, logs, or events from problematic resources, you provide the chatbot with the specific context it needs to diagnose issues effectively. Let's put this into practice in the next module by diagnosing and resolving a real issue in your cluster.

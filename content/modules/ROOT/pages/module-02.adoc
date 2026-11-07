@@ -4,11 +4,11 @@ include::partial$console-access.adoc[]
 
 Most organizations that have been using OpenShift Container Platform for any length of time have developed their own policies, procedures, templates, and other organization-specific information about OpenShift.
 
-As you learned earlier, OpenShift Lightspeed only uses Red Hat documentation to support answers by default. So, how can you get your important internal knowledge into the system? Well, there's a feature for that called Bring Your Own Knowledge (BYOK).
+As you learned earlier, the intelligent assistant only uses Red Hat documentation to support answers by default. So, how can you get your important internal knowledge into the system? Well, there's a feature for that called Bring Your Own Knowledge (BYOK).
 
 image::arch-module02.svg[Architecture with the RAG databases highlighted, align="center", link=self, window=blank]
 
-In this module you work with the highlighted piece: the vector databases that ground OpenShift Lightspeed's answers.
+In this module you work with the highlighted piece: the vector databases that ground the assistant's answers.
 
 NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 
@@ -34,12 +34,12 @@ spec:
         indexPath: /rag/vector_db
 ----
 
-NOTE: You can define multiple RAG databases if you want to add multiple sources. The _rag_ stanza just takes an array of image references. Images hosted in private registries are supported too, via the _imagePullSecrets_ field. If you want OpenShift Lightspeed to answer *exclusively* from your own content, you can additionally set _byokRAGOnly: true_, which tells OpenShift Lightspeed to ignore the built-in RHOKP documentation entirely. 
+NOTE: You can define multiple RAG databases if you want to add multiple sources. The _rag_ stanza just takes an array of image references. Images hosted in private registries are supported too, via the _imagePullSecrets_ field. If you want the assistant to answer *exclusively* from your own content, you can additionally set _byokRAGOnly: true_, which tells it to ignore the built-in RHOKP documentation entirely. 
 
 [#check-the-internal-documentation]
 == Check the Internal Documentation
 
-As you just saw, OpenShift Lightspeed is configured to use a container image from Quay (`quay.io/dialvare/acme-byok:latest`) that contains ACME Corp's internal procedures and policies. But where does this content come from? 
+As you just saw, the assistant is configured to use a container image from Quay (`quay.io/dialvare/acme-byok:latest`) that contains ACME Corp's internal procedures and policies. But where does this content come from? 
 
 This BYOK image was built from Markdown docs. The documentation used is located in this https://github.com/dialvare/showroom-openshift-lightspeed/tree/main/byok[GitOps repository] and consists of three documents:
 
@@ -52,21 +52,21 @@ Take a look at those to get an understanding of what they are discussing. Notice
 [#byok-enters-the-chat]
 == BYOK Enters the Chat
 
-Now that you know the contents of the internal ACME Corp policies and that OpenShift Lightspeed is pointing to the additional RAG database, you should be able to get answers based on that custom knowledge and content.
+Now that you know the contents of the internal ACME Corp policies and that the assistant is pointing to the additional RAG database, you should be able to get answers based on that custom knowledge and content.
 
-If you closed the OpenShift Lightspeed window, reopen it. Make sure to click the *Clear chat* button, which appears once a conversation is underway — and then ask the following question:
+If you closed the chat window, reopen it. Make sure to click the *Clear chat* button, which appears once a conversation is underway — and then ask the following question:
 
 [source,role="copypaste"]
 ----
 How can I use a pod autoscaler at ACME Corp?
 ----
 
-You should see an answer that refers to the prohibition on autoscalers and the specific processes required to get one. Additionally, at the end of the response OpenShift Lightspeed also shows the most relevant custom documents provided in the BYOK image.
+You should see an answer that refers to the prohibition on autoscalers and the specific processes required to get one. Additionally, at the end of the response the chatbot also shows the most relevant custom documents provided in the BYOK image.
 
-OpenShift Lightspeed assigns greater weight to BYOK content, allowing it to prioritize your internal procedures over the default RHOKP documentation. This ensures that organization-specific knowledge takes precedence when generating responses, providing more relevant and tailored answers for your environment.
+The assistant assigns greater weight to BYOK content, allowing it to prioritize your internal procedures over the default RHOKP documentation. This ensures that organization-specific knowledge takes precedence when generating responses, providing more relevant and tailored answers for your environment.
 
 Try asking questions about adding GPU nodes or about the APEX Cloud Platform API gateway certificate and see if you can get responses based on the embedded documentation.
 
 == What's Next?
 
-You've seen how BYOK can enrich OpenShift Lightspeed with organization-specific knowledge. If you want to go deeper and build your own BYOK image on this cluster, the optional xref:module-03.adoc[Build Your Own BYOK Image] module walks through the full process. Otherwise, skip ahead to xref:module-04.adoc[Cluster Interaction] to see how OpenShift Lightspeed can read and act on your live cluster.
+You've seen how BYOK can enrich the intelligent assistant with organization-specific knowledge. If you want to go deeper and build your own BYOK image on this cluster, the optional xref:module-03.adoc[Build Your Own BYOK Image] module walks through the full process. Otherwise, skip ahead to xref:module-04.adoc[Cluster Interaction] to see how the chatbot can read and act on your live cluster.

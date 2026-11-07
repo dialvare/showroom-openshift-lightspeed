@@ -2,7 +2,7 @@
 
 include::partial$console-access.adoc[]
 
-Time to put OpenShift Lightspeed to the real test. The key to effective troubleshooting with OpenShift Lightspeed is using the resource attachment feature. By clicking the *Plus (+)* button next to the message box in the chat interface, you can attach YAML definitions and other components to your question, giving the AI assistant the precise context it needs to diagnose the problem.
+Time to put the intelligent assistant to the real test. The key to effective troubleshooting with it is using the resource attachment feature. By clicking the *Plus (+)* button next to the message box in the chat interface, you can attach YAML definitions and other components to your question, giving the assistant the precise context it needs to diagnose the problem.
 
 image::arch-module05.svg[Architecture with the built-in MCP server highlighted, align="center", link=self, window=blank]
 
@@ -50,7 +50,7 @@ Note that you can attach multiple resources to your request at the same time, li
 [#troubleshooting-mode]
 == Advanced Troubleshooting
 
-Rather than manually attaching resources, you can also switch to *Troubleshooting mode* and let OpenShift Lightspeed proactively investigate issues for you. In this mode, the model autonomously queries Kubernetes resource state, retrieves pod logs, and correlates Prometheus metrics — all in a single conversational turn, without you having to guide each step.
+Rather than manually attaching resources, you can also switch to *Troubleshooting mode* and let the assistant proactively investigate issues for you. In this mode, the model autonomously queries Kubernetes resource state, retrieves pod logs, and correlates Prometheus metrics — all in a single conversational turn, without you having to guide each step.
 
 Before starting, navigate to *Observe* -> *Alerting* in the OpenShift console. Make sure you select *All Projects* from the project dropdown. You should see one Critical alert: `PodDisruptionBudgetLimit` is firing, along with other Warning and Info alerts.
 
@@ -67,16 +67,16 @@ Now you can directly ask:
 Investigate the root cause of the firing PodDisruptionBudgetLimit alert
 ----
 
-During investigation, OpenShift Lightspeed may prompt you to approve certain tools such as pod_exec. Click *Approve* to allow it to proceed.
+During investigation, the assistant may prompt you to approve certain tools such as pod_exec. Click *Approve* to allow it to proceed.
 
-With Troubleshooting mode selected, OpenShift Lightspeed will use multiple cluster interaction tools in sequence: it queries the alert details via Alertmanager, examines the state of the affected pods in the _critical_ namespace, retrieves their logs, and correlates the findings with Prometheus metrics. It then identifies the root cause — in this case, the init container _dependency-check_ is configured to fail intentionally (exit 1) — and suggests a mitigation plan.
+With Troubleshooting mode selected, the chatbot will use multiple cluster interaction tools in sequence: it queries the alert details via Alertmanager, examines the state of the affected pods in the _critical_ namespace, retrieves their logs, and correlates the findings with Prometheus metrics. It then identifies the root cause — in this case, the init container _dependency-check_ is configured to fail intentionally (exit 1) — and suggests a mitigation plan.
 
-Note that with Troubleshooting mode, OpenShift Lightspeed will make use of more tools to find the root cause of the issue:
+Note that with Troubleshooting mode, the assistant will make use of more tools to find the root cause of the issue:
 
 image::troubleshooting-tools.png[Troubleshooting mode uses different tools, align="center", link=self, window=blank]
 
-OpenShift Lightspeed correlates Kubernetes resource state, pod logs, and live metrics to surface a root cause and a concrete remediation step, all without you having to manually attach a single resource.
+The assistant correlates Kubernetes resource state, pod logs, and live metrics to surface a root cause and a concrete remediation step, all without you having to manually attach a single resource.
 
 == Expanding Capabilities
 
-Throughout this lab, you've seen how OpenShift Lightspeed uses cluster interaction, troubleshooting mode and resource attachments to help you diagnose and resolve issues. But OpenShift Lightspeed's connection to the monitoring stack goes beyond alerts — it can also run live PromQL queries against your cluster's metrics. In the next module, you'll use that capability to generate and populate a Perses observability dashboard directly from the chat interface.
+Throughout this lab, you've seen how the assistant uses cluster interaction, troubleshooting mode and resource attachments to help you diagnose and resolve issues. But its connection to the monitoring stack goes beyond alerts — it can also run live PromQL queries against your cluster's metrics. In the next module, you'll use that capability to generate and populate a Perses observability dashboard directly from the chat interface.
