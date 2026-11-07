@@ -2,7 +2,7 @@
 
 include::partial$console-access.adoc[]
 
-In the previous module you consumed a BYOK image that was already built for you. In this optional module, you will build one yourself — from writing the Markdown document to watching the intelligent assistant answer questions from it. If you are short on time, you can skip ahead to the xref:module-04.adoc[Cluster Interaction] module; nothing later in the lab depends on this exercise.
+In the previous module you consumed a BYOK image that was already built for you. In this optional module, you will build one yourself, from writing the Markdown document to watching the intelligent assistant answer questions from it. If you are short on time, you can skip ahead to the xref:module-04.adoc[Cluster Interaction] module; nothing later in the lab depends on this exercise.
 
 image::arch-module03.svg[Architecture with the BYOK build pipeline highlighted, align="center", link=self, window=blank]
 
@@ -13,7 +13,7 @@ NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 [#prepare-the-bastion]
 == Prepare the bastion
 
-Most of the work in this module happens in the *Bastion* tab — the terminal connected to the cluster's bastion host. Start by installing podman:
+Most of the work in this module happens in the *Bastion* tab (the terminal connected to the cluster's bastion host). Start by installing podman:
 
 [source,bash,role="execute"]
 ----
@@ -68,7 +68,7 @@ next production change window opens.
 EOF
 ----
 
-Feel free to write your own document instead — anything the base model couldn't possibly know makes for a convincing test.
+Feel free to write your own document instead: anything the base model couldn't possibly know makes for a convincing test.
 
 [#get-the-rag-tool-image]
 == Get the BYOK Knowledge tool image
@@ -80,7 +80,7 @@ The BYOK Knowledge tool ships as a container image on registry.redhat.io, which 
 oc extract secret/pull-secret -n openshift-config --confirm --to=$HOME/byok
 ----
 
-Install the pull secret as podman's credentials file, so every podman command — including the ones inside the BYOK Knowledge tool — can use it:
+Install the pull secret as podman's credentials file, so every podman command (including the ones inside the BYOK Knowledge tool) can use it:
 
 [source,bash,role="execute"]
 ----
@@ -93,7 +93,7 @@ cp $HOME/byok/.dockerconfigjson $XDG_RUNTIME_DIR/containers/auth.json
 podman pull registry.redhat.io/openshift-lightspeed-tech-preview/lightspeed-rag-tool-rhel9:latest
 ----
 
-NOTE: The BYOK Knowledge tool image is large — it bundles the embedding model — so the pull takes a few minutes.
+NOTE: The BYOK Knowledge tool image is large (it bundles the embedding model), so the pull takes a few minutes.
 
 [#generate-the-image]
 == Generate the BYOK image
@@ -123,7 +123,7 @@ podman run -it --rm \
   registry.redhat.io/openshift-lightspeed-tech-preview/lightspeed-rag-tool-rhel9:latest
 ----
 
-The BYOK Knowledge tool chunks your Markdown, runs it through the embedding model — watch for your document's title in the logs — builds the image, and writes it as a tarball to the output directory.
+The BYOK Knowledge tool chunks your Markdown, runs it through the embedding model (watch for your document's title in the logs), builds the image, and writes it as a tarball to the output directory.
 
 When the tool finishes, you will find the generated image tarball in the output directory:
 
@@ -139,7 +139,7 @@ Load it into podman, as in the official procedure:
 podman load < ~/byok/output/*.tar
 ----
 
-Check that the image is loaded — it is named `byok-image`:
+Check that the image is loaded. It is named `byok-image`:
 
 [source,bash,role="execute"]
 ----
@@ -149,7 +149,7 @@ podman images
 [#push-the-image]
 == Push the image to the internal registry
 
-Instead of an external registry such as quay.io, you will push the image to the cluster's internal image registry. First, create a project to hold the image — the internal registry maps projects to repositories:
+Instead of an external registry such as quay.io, you will push the image to the cluster's internal image registry. First, create a project to hold the image (the internal registry maps projects to repositories):
 
 [source,bash,role="execute"]
 ----
@@ -170,7 +170,7 @@ echo $REGISTRY
 oc wait --for=condition=Available deployment/image-registry -n openshift-image-registry --timeout=180s
 ----
 
-NOTE: Exposing the registry makes the image registry operator roll the registry pods, and on this single-node cluster the API can briefly return errors while that happens. The wait command above retries until the registry is back — if an `oc` command fails around this point, give it a minute and try again.
+NOTE: Exposing the registry makes the image registry operator roll the registry pods, and on this single-node cluster the API can briefly return errors while that happens. The wait command above retries until the registry is back. If an `oc` command fails around this point, give it a minute and try again.
 
 Finally, log in to the registry with podman. The bastion's `oc` session is certificate-based and cannot produce a login token, so create one for the `builder` service account, which has push permissions in its project:
 
@@ -202,7 +202,7 @@ OpenShift Lightspeed runs in the `openshift-lightspeed` namespace, so its servic
 oc policy add-role-to-group system:image-puller system:serviceaccounts:openshift-lightspeed -n byok-workshop
 ----
 
-NOTE: The command prints _Warning: Group 'system:serviceaccounts:openshift-lightspeed' not found_. That is expected — it is a _virtual_ group representing every service account in that namespace, so no Group object exists. The role binding is created regardless.
+NOTE: The command prints _Warning: Group 'system:serviceaccounts:openshift-lightspeed' not found_. That is expected: it is a _virtual_ group representing every service account in that namespace, so no Group object exists. The role binding is created regardless.
 
 Now add your image as a second RAG database. From within the cluster, the image you pushed is known by its internal name, so that is what OpenShift Lightspeed will reference.
 
@@ -223,7 +223,7 @@ spec:
         indexPath: /rag/vector_db
 ----
 
-Click *Save*. The OpenShift Lightspeed app server pod redeploys to load the new database — give it a minute or two.
+Click *Save*. The OpenShift Lightspeed app server pod redeploys to load the new database. Give it a minute or two.
 
 [#test-your-knowledge]
 == Test your knowledge
@@ -235,9 +235,9 @@ Open the chatbot interface, click the *Clear chat* (trash can) button if needed,
 What is the ACME Corp procedure for disaster recovery drills on OpenShift?
 ----
 
-The answer should walk through exactly what you wrote: the two-week scheduling requirement in the ACME-DR Jira project, the 45-minute RTO, and the compliance sign-off via the #acme-compliance Slack channel. Scroll to the bottom of the response and you will also find your document's title — _ACME Corp disaster recovery drill procedure for OpenShift_ — listed among the referenced sources, exactly as the title metadata promised.
+The answer should walk through exactly what you wrote: the two-week scheduling requirement in the ACME-DR Jira project, the 45-minute RTO, and the compliance sign-off via the #acme-compliance Slack channel. Scroll to the bottom of the response and you will also find your document's title (_ACME Corp disaster recovery drill procedure for OpenShift_) listed among the referenced sources, exactly as the title metadata promised.
 
-TIP: Because your image uses the floating _latest_ tag, OpenShift Lightspeed keeps it fresh automatically: image changes are detected through ImageStream objects, which the cluster rechecks every 15 minutes. Rebuild the image with updated docs and the assistant's knowledge follows — no OLSConfig edits required.
+TIP: Because your image uses the floating _latest_ tag, OpenShift Lightspeed keeps it fresh automatically: image changes are detected through ImageStream objects, which the cluster rechecks every 15 minutes. Rebuild the image with updated docs and the assistant's knowledge follows, with no OLSConfig edits required.
 
 [#whats-next]
 == What's Next?

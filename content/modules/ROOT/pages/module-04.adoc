@@ -24,15 +24,15 @@ spec:
     introspectionEnabled: true
 ----
 
-When this flag is enabled, OpenShift Lightspeed deploys `openshift-mcp-server` as a dedicated standalone pod. This server loads different toolsets — covering both read and write operations.
+When this flag is enabled, OpenShift Lightspeed deploys `openshift-mcp-server` as a dedicated standalone pod. This server loads different toolsets covering both read and write operations.
 
 When a user asks a question, the model may call one or more of those tools to retrieve or modify cluster state. All tool usage is performed using the logged-in user's own credentials and access rights, preventing any privilege escalation.
 
-NOTE: The built-in MCP server has security guardrails baked in: it is explicitly blocked from reading Secrets and RBAC resources, so sensitive data such as credentials can never reach the LLM through it — regardless of how a question is phrased or how many permissions the logged-in user has.
+NOTE: The built-in MCP server has security guardrails baked in: it is explicitly blocked from reading Secrets and RBAC resources, so sensitive data such as credentials can never reach the LLM through it, regardless of how a question is phrased or how many permissions the logged-in user has.
 
-IMPORTANT: By default, read-only tools execute automatically while write tools require explicit human approval before running — the chat interface will display the proposed tool call and ask you to confirm or reject it before anything is applied to the cluster.
+IMPORTANT: By default, read-only tools execute automatically while write tools require explicit human approval before running: the chat interface will display the proposed tool call and ask you to confirm or reject it before anything is applied to the cluster.
 
-NOTE: You can change this behavior via _approvalType_ in the OLSConfig: set it to _always_ to require approval for every tool call regardless of whether it reads or writes, or to _never_ to let all tools run without any confirmation step — though the latter is not recommended for production environments where an unreviewed write operation could have unintended consequences.
+NOTE: You can change this behavior via _approvalType_ in the OLSConfig: set it to _always_ to require approval for every tool call regardless of whether it reads or writes, or to _never_ to let all tools run without any confirmation step, though the latter is not recommended for production environments where an unreviewed write operation could have unintended consequences.
 
 TIP: Tool calling consumes extra tokens from the model's context window. If you are tuning your own installation, _maxIterations_ limits how many tool-calling rounds the model may take per question, and the per-model _toolBudgetRatio_ setting controls how much of the context window may be spent on tool output.
 
@@ -70,12 +70,12 @@ Cluster interaction is not limited to Kubernetes resources. The built-in MCP ser
 Are there any alerts firing in the cluster right now?
 ----
 
-This time the model calls the _get_alerts_ tool, retrieves the alerts currently firing from the monitoring stack, and summarizes them for you — including each alert's severity and description. As before, you can ask follow-up questions about any alert that catches your attention, and the model will combine the alert data with other cluster interaction tools to dig deeper.
+This time the model calls the _get_alerts_ tool, retrieves the alerts currently firing from the monitoring stack, and summarizes them for you, including each alert's severity and description. As before, you can ask follow-up questions about any alert that catches your attention, and the model will combine the alert data with other cluster interaction tools to dig deeper.
 
 [#write-tools]
 == Letting the assistant take action
 
-So far we have used cluster interaction only to read information from the cluster. But the built-in MCP server also exposes write tools — meaning the assistant can make changes on your behalf, subject to your RBAC permissions.
+So far we have used cluster interaction only to read information from the cluster. But the built-in MCP server also exposes write tools, meaning the assistant can make changes on your behalf, subject to your RBAC permissions.
 
 Let's see this in action. *Clear chat* and ask the chatbot to create a simple test workload in the pre-created `lightspeed-demo` namespace:
 

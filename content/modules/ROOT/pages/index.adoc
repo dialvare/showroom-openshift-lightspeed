@@ -4,8 +4,8 @@ OpenShift Lightspeed is an agent for the Red Hat OpenShift Container Platform. I
 
 OpenShift Lightspeed presents two complementary capabilities:
 
-* *OpenShift Lightspeed intelligent assistant* — a conversational AI chatbot that OpenShift users can use to understand concepts, get configuration guidance, generate YAML, create, monitor and manage workloads running in the cluster and troubleshoot issues through natural language chat.
-* *OpenShift Lightspeed autonomous agents* — an autonomous layer on your cluster that can investigate problems, propose remediation plans, apply approved fixes, and verify outcomes. All driven by plain-language descriptions, cluster update paths or firing alerts, without step-by-step guidance from the user.
+* *OpenShift Lightspeed intelligent assistant*: a conversational AI chatbot that OpenShift users can use to understand concepts, get configuration guidance, generate YAML, create, monitor and manage workloads running in the cluster and troubleshoot issues through natural language chat.
+* *OpenShift Lightspeed autonomous agents*: an autonomous layer on your cluster that can investigate problems, propose remediation plans, apply approved fixes, and verify outcomes. All driven by plain-language descriptions, cluster update paths or firing alerts, without step-by-step guidance from the user.
 
 NOTE: OpenShift Lightspeed autonomous agents is a Technology Preview feature introduced in OpenShift Lightspeed 2.0 that requires OpenShift Container Platform 5.0 and later. The intelligent assistant supports OpenShift Container Platform 4.16 and later.
 
@@ -44,8 +44,8 @@ Additionally, if you want to self-manage your LLM, we also support the Red Hat o
 
 RAG is a way of providing additional context to an LLM to help improve the quality of responses. OpenShift Lightspeed gets this context from the Red Hat Offline Knowledge Portal (RHOKP) component. When relying on only the LLM, two common problems can arise:
 
-1. Hallucination — the model invents an answer that is not grounded in fact, even when the model was trained with the answer
-2. Missing data — the model was never trained on the required information in the first place, so answers could be anything
+1. Hallucination: the model invents an answer that is not grounded in fact, even when the model was trained with the answer
+2. Missing data: the model was never trained on the required information in the first place, so answers could be anything
 
 When you provide contextual information to the LLM along with your question, response quality can improve dramatically, even if the model was never trained on the specific contextual information.
 

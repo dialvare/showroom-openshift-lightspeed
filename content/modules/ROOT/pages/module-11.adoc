@@ -4,25 +4,25 @@ include::partial$console-access.adoc[]
 
 Congratulations! You've completed this comprehensive journey through OpenShift Lightspeed's capabilities. Throughout this lab, you've learned how to use OpenShift Lightspeed for much more than just answering basic questions:
 
-* *Simple queries and YAML generation* — started with everyday questions and generating ready-to-use manifests
-* *Bring Your Own Knowledge (BYOK)* — integrated your organization's specific knowledge, including (optionally) building a custom BYOK image and pushing it to the cluster's internal registry
-* *Observability dashboards* — generated Perses dashboards to visualize cluster metrics
-* *Troubleshooting mode* — autonomously investigated alerts and correlated live cluster data
-* *Write tools* — directly modified cluster state without leaving the chat
-* *Query filters* — kept sensitive data away from the model
-* *Resource attachment* — attached resources to provide context when diagnosing complex issues
-* *Custom MCP servers* — connected external tools to extend the assistant's capabilities
-* *Virtual machine workloads* — applied all of the above to VM-based applications
-* *AI-assisted cluster updates* — prechecked update readiness with the assistant and explored the AgenticRuns created by the Cluster Version Operator
+* *Simple queries and YAML generation*: started with everyday questions and generating ready-to-use manifests
+* *Bring Your Own Knowledge (BYOK)*: integrated your organization's specific knowledge, including (optionally) building a custom BYOK image and pushing it to the cluster's internal registry
+* *Observability dashboards*: generated Perses dashboards to visualize cluster metrics
+* *Troubleshooting mode*: autonomously investigated alerts and correlated live cluster data
+* *Write tools*: directly modified cluster state without leaving the chat
+* *Query filters*: kept sensitive data away from the model
+* *Resource attachment*: attached resources to provide context when diagnosing complex issues
+* *Custom MCP servers*: connected external tools to extend the assistant's capabilities
+* *Virtual machine workloads*: applied all of the above to VM-based applications
+* *AI-assisted cluster updates*: prechecked update readiness with the assistant and explored the AgenticRuns created by the Cluster Version Operator
 
-Finally, you explored *OpenShift Lightspeed autonomous agents* — an autonomous layer on top of the intelligent assistant that can plan and execute multi-step tasks independently:
+Finally, you explored *OpenShift Lightspeed autonomous agents*, an autonomous layer on top of the intelligent assistant that can plan and execute multi-step tasks independently:
 
 * *Understood* the agentic operator and its supporting components
 * *Explored* the `Agent` and `ApprovalPolicy` custom resources that configure its behavior
 * *Triggered* an `AgenticRun` and observed the agent autonomously reasoning through a problem, selecting tools, and acting on the cluster without step-by-step guidance
 * *Resolved* a critical alert end-to-end by enabling the Alerts Adapter
 
-This lab has only scratched the surface of what's possible. OpenShift Lightspeed continues to evolve with new features and capabilities. We encourage you to keep exploring — try it with your own workloads, integrate your team's documentation, and discover new ways it can streamline and automate your OpenShift operations. The more you use OpenShift Lightspeed, the more productive you'll become with OpenShift.
+This lab has only scratched the surface of what's possible. OpenShift Lightspeed continues to evolve with new features and capabilities. We encourage you to keep exploring: try it with your own workloads, integrate your team's documentation, and discover new ways it can streamline and automate your OpenShift operations. The more you use OpenShift Lightspeed, the more productive you'll become with OpenShift.
 
 To keep learning, take a look at the https://interact.redhat.com/share/i8kVfbdXsaWMtiO8HuoI[interactive OpenShift Lightspeed 2.0 walkthrough^] for a hands-on experience with additional features and use cases:
 ++++

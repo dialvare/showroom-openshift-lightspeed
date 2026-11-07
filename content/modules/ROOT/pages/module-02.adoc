@@ -53,7 +53,7 @@ Take a look at those to get an understanding of what they are discussing. Notice
 
 Now that you know the contents of the internal ACME Corp policies and that the assistant is pointing to the additional RAG database, you should be able to get answers based on that custom knowledge and content.
 
-If you closed the chat window, reopen it. Make sure to click the *Clear chat* button, which appears once a conversation is underway — and then ask the following question:
+If you closed the chat window, reopen it. Make sure to click the *Clear chat* button, which appears once a conversation is underway, and then ask the following question:
 
 [source,role="copypaste"]
 ----

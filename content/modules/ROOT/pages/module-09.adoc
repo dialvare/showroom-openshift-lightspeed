@@ -2,7 +2,7 @@
 
 include::partial$console-access.adoc[]
 
-So far in this lab, the OpenShift Lightspeed intelligent assistant has always waited for you to start the conversation. You asked the questions, you decided when to approve tool calls, and you chose what to investigate next. OpenShift Lightspeed autonomous agents change that dynamic. Given a plain-language description of a problem, they can autonomously investigate root causes, propose a remediation plan, apply the approved fix, and verify the outcome — all without you having to find the right YAML, attach the right resource, or compose the right follow-up question.
+So far in this lab, the OpenShift Lightspeed intelligent assistant has always waited for you to start the conversation. You asked the questions, you decided when to approve tool calls, and you chose what to investigate next. OpenShift Lightspeed autonomous agents change that dynamic. Given a plain-language description of a problem, they can autonomously investigate root causes, propose a remediation plan, apply the approved fix, and verify the outcome, all without you having to find the right YAML, attach the right resource, or compose the right follow-up question.
 
 The core building block of OpenShift Lightspeed autonomous agents is the `AgenticRun` custom resource. Each run goes through the following lifecycle:
 
@@ -140,7 +140,7 @@ spec:
 EOF
 ----
 
-In the OpenShift web console, go to *Agentic Runs* -> *Agentic Runs* in the left navigation menu. You should see your run listed — along with the runs created automatically by the Cluster Version Operator — all in a *Pending* state, because Analysis is set to _Manual_ in the ApprovalPolicy.
+In the OpenShift web console, go to *Agentic Runs* -> *Agentic Runs* in the left navigation menu. You should see your run listed, along with the runs created automatically by the Cluster Version Operator, all in a *Pending* state, because Analysis is set to _Manual_ in the ApprovalPolicy.
 
 Before driving it, review the approval configuration by clicking the *engine icon* in the upper-right corner. The page shows the actual approval policy and allows you to change it:
 

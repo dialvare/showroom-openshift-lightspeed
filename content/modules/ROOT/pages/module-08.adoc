@@ -4,7 +4,7 @@ include::partial$console-access.adoc[]
 
 Virtual machines in OpenShift are managed as custom resources, which means the intelligent assistant can help you understand, configure, and troubleshoot them just like any other OpenShift resource.
 
-This lab environment comes with OpenShift Virtualization already deployed and configured. You can start working with virtual machines right away. In this module, you'll explore how the assistant assists with virtualization workloads across different user scenarios — from newcomers learning the basics to experienced admins migrating from other platforms.
+This lab environment comes with OpenShift Virtualization already deployed and configured. You can start working with virtual machines right away. In this module, you'll explore how the assistant assists with virtualization workloads across different user scenarios, from newcomers learning the basics to experienced admins migrating from other platforms.
 
 image::arch-module08.svg[Architecture with the built-in MCP server highlighted, align="center", link=self, window=blank]
 
@@ -42,7 +42,7 @@ The assistant provides the guidance needed to navigate the cluster in order to c
 
 If you're migrating to OpenShift Virtualization from another platform like VMware, you might be familiar with different terminology. The good news is that the assistant understands this and can help you translate concepts between platforms.
 
-Let's try an example. If you come from a VMware background, you're probably familiar with vMotion — VMware's technology for live migrating VMs between hosts. Let's ask the chatbot about this:
+Let's try an example. If you come from a VMware background, you're probably familiar with vMotion, VMware's technology for live migrating VMs between hosts. Let's ask the chatbot about this:
 
 [source,role="copypaste"]
 ----

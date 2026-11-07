@@ -4,7 +4,7 @@ include::partial$console-access.adoc[]
 
 The Cluster Observability Operator (COO) is already deployed in this lab environment with Perses. Perses is an open-source, Kubernetes-native dashboard framework designed for observability, and it is integrated directly into the OpenShift web console under the Observe menu.
 
-In this module you will use the intelligent assistant to explore cluster metrics, generate PromQL queries, and produce ready-to-import Perses charts — all from the chat interface.
+In this module you will use the intelligent assistant to explore cluster metrics, generate PromQL queries, and produce ready-to-import Perses charts, all from the chat interface.
 
 image::arch-module06.svg[Architecture with the monitoring stack and Perses highlighted, align="center", link=self, window=blank]
 
@@ -13,7 +13,7 @@ In this module you work with the highlighted pieces: the _metrics_ toolset of th
 [#in-line-visualization]
 == In-line visualization in the chat interface
 
-Querying cluster metrics directly requires familiarity with PromQL, the Prometheus query language, which can be complex and time-consuming to master. Instead of writing queries manually, you can simply ask the assistant in plain language — it will generate the appropriate PromQL query, run it against the cluster, and even render the results as an inline visualization directly inside the chat interface.
+Querying cluster metrics directly requires familiarity with PromQL, the Prometheus query language, which can be complex and time-consuming to master. Instead of writing queries manually, you can simply ask the assistant in plain language: it will generate the appropriate PromQL query, run it against the cluster, and even render the results as an inline visualization directly inside the chat interface.
 
 Open the OpenShift Lightspeed chat interface, click *Clear chat*, and still in *Troubleshooting mode*, ask:
 
@@ -38,13 +38,13 @@ The chatbot will generate another time series diagram to show the memory usage.
 [#import-into-perses]
 == Import into Perses
 
-Conversations with the assistant are transient — once you clear the chat, everything disappears, including any inline charts you generated. For quick, one-off questions, that works fine, but in longer troubleshooting sessions you often need to retain that information: revisit it later, track how metrics evolve over time, and complement it with new panels as the investigation deepens. This is where Perses Dashboards come into play, giving you a persistent, shareable view of the metrics you care about.
+Conversations with the assistant are transient: once you clear the chat, everything disappears, including any inline charts you generated. For quick, one-off questions, that works fine, but in longer troubleshooting sessions you often need to retain that information: revisit it later, track how metrics evolve over time, and complement it with new panels as the investigation deepens. This is where Perses Dashboards come into play, giving you a persistent, shareable view of the metrics you care about.
 
 First, open the Perses UI inside the OpenShift web console. In the left-hand navigation bar go to *Observe* -> *Dashboards (Perses)*. You will see a blue *Create* button in the upper-right corner. Give the dashboard a name such as `Cluster Health` and select a project such as `default`. Then press *Create*.
 
-NOTE: The project you select here is just a home for the dashboard object itself — it does not limit the metrics you can see. This lab environment pre-deploys a _GlobalDatasource_ custom resource that makes cluster metrics available to Perses across all namespaces.
+NOTE: The project you select here is just a home for the dashboard object itself; it does not limit the metrics you can see. This lab environment pre-deploys a _GlobalDatasource_ custom resource that makes cluster metrics available to Perses across all namespaces.
 
-You now have an empty dashboard ready to receive panels. Keep this tab open — you will need it alongside the chat interface in the next step.
+You now have an empty dashboard ready to receive panels. Keep this tab open, as you will need it alongside the chat interface in the next step.
 
 Now, if you minimized your OpenShift Lightspeed chat interface, open it again. Scroll through your current conversation and hover over one of the graphs. You will see an *Add to Dashboard* icon appear in the upper right corner of the chart:
 
@@ -52,11 +52,11 @@ image::add-perses.png[OpenShift Lightspeed lets you import graphs into Perses, a
 
 Click the *Add to Dashboard* icon to instantly import the chart to the Perses dashboard. Do the same with the other graph you created.
 
-Finally, once both charts are imported, click the blue *Save* button in the upper-right corner of your Perses Dashboard. Your metrics are now persistently stored in a Perses dashboard that will survive across chat sessions and cluster restarts. From here, Perses gives you full control to tailor the dashboard to your needs: resize and reposition panels, switch between graph types such as time series, stat, or gauge, adjust the time range, customize labels and legends, and much more — all without writing a single line of PromQL or JSON by hand.
+Finally, once both charts are imported, click the blue *Save* button in the upper-right corner of your Perses Dashboard. Your metrics are now persistently stored in a Perses dashboard that will survive across chat sessions and cluster restarts. From here, Perses gives you full control to tailor the dashboard to your needs: resize and reposition panels, switch between graph types such as time series, stat, or gauge, adjust the time range, customize labels and legends, and much more, all without writing a single line of PromQL or JSON by hand.
 
 [#whats-next]
 == What's Next?
 
-You have just used the intelligent assistant to move from a natural-language question to a live observability dashboard — without manually writing a single PromQL query. This same pattern applies to any team that wants to quickly instrument new services, onboard to metrics, or share a curated view of cluster health with stakeholders.
+You have just used the intelligent assistant to move from a natural-language question to a live observability dashboard without manually writing a single PromQL query. This same pattern applies to any team that wants to quickly instrument new services, onboard to metrics, or share a curated view of cluster health with stakeholders.
 
-In the next module, xref:module-07.adoc[Bring your custom MCP servers into OpenShift Lightspeed], you will extend OpenShift Lightspeed even further by integrating custom MCP servers — connecting it to external systems beyond the cluster itself and giving the model access to tools that no built-in toolset provides.
+In the next module, xref:module-07.adoc[Bring your custom MCP servers into OpenShift Lightspeed], you will extend OpenShift Lightspeed even further by integrating custom MCP servers, connecting it to external systems beyond the cluster itself and giving the model access to tools that no built-in toolset provides.

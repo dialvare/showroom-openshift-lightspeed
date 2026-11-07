@@ -2,7 +2,7 @@
 
 include::partial$console-access.adoc[]
 
-Cluster updates are one of the most critical — and nerve-wracking — tasks for an operations team. A single overlooked condition can turn a routine upgrade into an incident. This module brings together the two capabilities you have been using throughout the lab: the intelligent assistant, which can assess your cluster's readiness for an update from the web console, and OpenShift Lightspeed autonomous agents, which power the deeper pre-update analysis.
+Cluster updates are one of the most critical (and nerve-wracking) tasks for an operations team. A single overlooked condition can turn a routine upgrade into an incident. This module brings together the two capabilities you have been using throughout the lab: the intelligent assistant, which can assess your cluster's readiness for an update from the web console, and OpenShift Lightspeed autonomous agents, which power the deeper pre-update analysis.
 
 [#precheck-your-cluster-with-ai]
 == Precheck your cluster with AI
@@ -13,14 +13,14 @@ Navigate to *Administration* -> *Cluster Settings* in the OpenShift web console.
 
 image::ols-cluster-update.png[AI-assisted cluster updates, align="center", link=self, window=blank]
 
-Select *Precheck your cluster with AI*. The chatbot interface opens automatically and starts investigating your cluster's status, assessing whether it is ready for the upgrade — the same autonomous investigation you used in the Troubleshooting module, now applied to update readiness.
+Select *Precheck your cluster with AI*. The chatbot interface opens automatically and starts investigating your cluster's status, assessing whether it is ready for the upgrade. This is the same autonomous investigation you used in the Troubleshooting module, now applied to update readiness.
 
 Review the response when it completes: it summarizes the cluster's overall readiness and highlights any conditions that could block the update.
 
 [#agentic-runs-from-the-cluster-version-operator]
 == Agentic runs from the Cluster Version Operator
 
-The precheck you just ran was conversational, but the Cluster Version Operator also creates `AgenticRun` resources when updates are available — the third way they come into existence, and the one you already glimpsed in the previous module, where runs created by the operator sat alongside your own in a *Pending* state.
+The precheck you just ran was conversational, but the Cluster Version Operator also creates `AgenticRun` resources when updates are available. This is the third way they come into existence, and the one you already glimpsed in the previous module, where runs created by the operator sat alongside your own in a *Pending* state.
 
 When an upgrade path is available in your cluster, the Cluster Version Operator automatically creates `AgenticRun` resources to analyze the recommended and conditional update targets. Instead of you describing the problem, the cluster itself describes it: each run investigates whether the cluster can safely move to a specific version, so potential blockers surface before you commit to the update.
 
@@ -32,7 +32,7 @@ image::agentic-cluster-update.png[Agentic cluster updates, align="center", link=
 
 Select the one you prefer and click *Analyse*.
 
-This triggers the corresponding AgenticRun in the background — the kind you saw pending in the previous module. In this case, the AgenticRun only analyzes your environment: no execution plans are generated, just a detailed summary of the status of the cluster and its operators, the feasibility of updating it, and any possible conflicts.
+This triggers the corresponding AgenticRun in the background, the kind you saw pending in the previous module. In this case, the AgenticRun only analyzes your environment: no execution plans are generated, just a detailed summary of the status of the cluster and its operators, the feasibility of updating it, and any possible conflicts.
 
 == What's Next?
 

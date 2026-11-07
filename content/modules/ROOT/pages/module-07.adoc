@@ -178,13 +178,13 @@ Before asking, if you are not in *Ask mode*, select it from the mode selector. *
 Does Red Hat Insights report any issues or recommendations for this cluster?
 ----
 
-It's likely that the LLM has decided to use the _get_last_result_for_cluster_ tool provided by the Insights Result MCP server. Click *Approve*. Since the cluster should be healthy, the response will probably indicate that there are no issues listed. This doesn't mean the tool call failed — quite the opposite! The tool successfully retrieved that information from Insights.
+It's likely that the LLM has decided to use the _get_last_result_for_cluster_ tool provided by the Insights Result MCP server. Click *Approve*. Since the cluster should be healthy, the response will probably indicate that there are no issues listed. This doesn't mean the tool call failed; quite the opposite! The tool successfully retrieved that information from Insights.
 
 [#beyond-containers]
 == Beyond containers
 
 So far, you've explored how the intelligent assistant helps with traditional containerized workloads like pods, deployments, routes, and services. But OpenShift is more than just containers. What about virtual machines?
 
-With OpenShift Virtualization, you can run virtual machines alongside your containers on the same OpenShift platform. At the end of the day, virtual machines in OpenShift are just OpenShift custom resources — which means the chatbot can help you with virtual machine workloads too.
+With OpenShift Virtualization, you can run virtual machines alongside your containers on the same OpenShift platform. At the end of the day, virtual machines in OpenShift are just OpenShift custom resources, which means the chatbot can help you with virtual machine workloads too.
 
 Continue to the next module, xref:module-08.adoc[Simplify VM management with OpenShift Lightspeed], to see the assistant in action with virtual machine workloads.
