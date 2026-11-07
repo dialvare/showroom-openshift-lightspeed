@@ -2,9 +2,9 @@
 
 include::partial$console-access.adoc[]
 
-As mentioned in the previous module, OpenShift Virtualization allows you to run virtual machines alongside your containerized workloads. Virtual machines in OpenShift are managed as custom resources, which means OpenShift Lightspeed can help you understand, configure, and troubleshoot them just like any other OpenShift resource.
+Virtual machines in OpenShift are managed as custom resources, which means the intelligent assistant can help you understand, configure, and troubleshoot them just like any other OpenShift resource.
 
-This lab environment comes with OpenShift Virtualization already deployed and configured. You can start working with virtual machines right away. In this module, you'll explore how OpenShift Lightspeed assists with virtualization workloads across different user scenarios — from newcomers learning the basics to experienced admins migrating from other platforms.
+This lab environment comes with OpenShift Virtualization already deployed and configured. You can start working with virtual machines right away. In this module, you'll explore how the assistant assists with virtualization workloads across different user scenarios — from newcomers learning the basics to experienced admins migrating from other platforms.
 
 image::arch-module08.svg[Architecture with the built-in MCP server highlighted, align="center", link=self, window=blank]
 
@@ -13,16 +13,18 @@ In this module you work with the highlighted pieces: the core OpenShift Lightspe
 [#new-virtualization-users]
 == New Virtualization Users
 
-If you're new to OpenShift Virtualization, there's a lot to learn. OpenShift Lightspeed can help you understand the key concepts and resources you'll be working with.
+If you're new to OpenShift Virtualization, there's a lot to learn. The chatbot can help you understand the key concepts and resources you'll be working with.
 
-For example, two important concepts when it comes to creating your first virtual machine in OpenShift Virtualization are InstanceTypes and VM Templates. Click the *Clear chat* (trash can) button and make sure *Ask mode* is selected in OpenShift Lightspeed then ask it to explain the difference between both resources:
+For example, two important concepts when it comes to creating your first virtual machine in OpenShift Virtualization are InstanceTypes and VM Templates. 
+
+Open the chat interface, click the *Clear chat* (trash can) button, and make sure *Ask mode* is selected. Then ask it to explain the difference between both resources:
 
 [source,role="copypaste"]
 ----
 What's the difference between a VM InstanceType and a VM Template?
 ----
 
-OpenShift Lightspeed will provide a clear explanation of both concepts, when it makes sense to use one or either and the difference between both resources. 
+The assistant will provide a clear explanation of both concepts, when it makes sense to use one or the other, and the difference between them.
 
 This kind of conceptual guidance helps you quickly understand the building blocks of OpenShift Virtualization and provides direct links to the relevant documentation sections if you want to dive deeper.
 
@@ -33,21 +35,21 @@ Now that the difference is clear, a new Virtualization user can decide which app
 How do I create a Fedora VM from a template?
 ----
 
-OpenShift Lightspeed provides the guidance needed to navigate the cluster in order to create the virtual machine. The initial learning curve is much gentler thanks to the assistance that OpenShift Lightspeed provides.
+The assistant provides the guidance needed to navigate the cluster in order to create the virtual machine. The initial learning curve is much gentler thanks to the assistance it provides.
 
 [#users-coming-from-different-platforms]
 == Users Coming from a Different Platform
 
-If you're migrating to OpenShift Virtualization from another platform like VMware, you might be familiar with different terminology. The good news is that OpenShift Lightspeed understands this and can help you translate concepts between platforms.
+If you're migrating to OpenShift Virtualization from another platform like VMware, you might be familiar with different terminology. The good news is that the assistant understands this and can help you translate concepts between platforms.
 
-Let's try an example. If you come from a VMware background, you're probably familiar with vMotion — VMware's technology for live migrating VMs between hosts. Let's ask OpenShift Lightspeed about this:
+Let's try an example. If you come from a VMware background, you're probably familiar with vMotion — VMware's technology for live migrating VMs between hosts. Let's ask the chatbot about this:
 
 [source,role="copypaste"]
 ----
 How do I vMotion a VM in OpenShift Virtualization?
 ----
 
-OpenShift Lightspeed understands that you're asking about live migration using VMware terminology. It will explain that the OpenShift Virtualization equivalent is called *Live Migration*, and likely it will provide you with information on how to proceed in OpenShift Virtualization.
+The assistant understands that you're asking about live migration using VMware terminology. It will explain that the OpenShift Virtualization equivalent is called *Live Migration*, and likely it will provide you with information on how to proceed in OpenShift Virtualization.
 
 This capability is incredibly valuable because it allows you to keep using the terminology you're already familiar with and learn the OpenShift Virtualization equivalents naturally over time by getting answers that bridge their existing knowledge with new concepts.
 
@@ -56,18 +58,18 @@ This capability is incredibly valuable because it allows you to keep using the t
 
 Just like with containerized workloads, things can go wrong with virtual machines. Let's combine what we've learned about cluster interaction and resource attachments to troubleshoot a VM issue.
 
-First, let's use cluster interaction to check if there are any VMs having problems. Clear your chat session and ask:
+First, let's use cluster interaction to check if there are any VMs having problems. *Clear* your chat session and ask:
 
 [source,role="copypaste"]
 ----
 Which virtual machines in the cluster are not in a Running state?
 ----
 
-OpenShift Lightspeed will use cluster interaction tools to query the VirtualMachine resources across your cluster. You should see that there's a RHEL 9 VM in an _ImagePullBackOff_ state that's failing to start.
+The assistant will use cluster interaction tools to query the VirtualMachine resources across your cluster. You should see that there's a RHEL 9 VM in an _ImagePullBackOff_ state that's failing to start.
 
 Now let's dig deeper into what's wrong with this VM. In the OpenShift console, navigate to *Virtualization* -> *VirtualMachines*. Select the `lightspeed-demo` project and you will find the *RHEL 9 VM* called `rhel9-demo` that's failing and click on the VM name to open its details page.
 
-Now, return to the OpenShift Lightspeed chat interface. Then click the *+* button to attach information. Go ahead and attach the *Full YAML file* for this VM. 
+Now, return to the OpenShift Lightspeed chat interface. Then click the *Plus (+)* button to attach information. Go ahead and attach the *Full YAML file* for this VM.
 
 image::broken-vm.png[Broken virtual machine, align="center", link=self, window=blank]
 
@@ -78,12 +80,12 @@ Then you can ask:
 Why is this VM not starting?
 ----
 
-OpenShift Lightspeed will analyze the attached YAML and identify the problem: the container image _quay.io/containerdisks/rhel:9-latest_ cannot be pulled because access to the resource is unauthorized.
+The chatbot will analyze the attached YAML and identify the problem: the container image _quay.io/containerdisks/rhel:9-latest_ cannot be pulled because access to the resource is unauthorized.
 
 The response will likely explain why the container image can't be pulled and some suggestions to be able to fix it.
 
-This demonstrates how OpenShift Lightspeed can troubleshoot virtual machine issues using the same attachment techniques you learned for containerized workloads. Whether you're dealing with pods or VMs, the troubleshooting workflow is consistent and intuitive.
+This demonstrates how the assistant can troubleshoot virtual machine issues using the same attachment techniques you learned for containerized workloads. Whether you're dealing with pods or VMs, the troubleshooting workflow is consistent and intuitive.
 
 == What's Next?
 
-You've now seen OpenShift Lightspeed assist across both containerized and virtual machine workloads. If your environment has Agentic OLS enabled, the optional xref:module-09.adoc[Agentic OpenShift Lightspeed] module shows how the system can autonomously investigate and remediate problems end-to-end. Otherwise, head to xref:module-10.adoc[Key Takeaways] to wrap up.
+You've now seen the assistant assist across both containerized and virtual machine workloads. If your environment has OpenShift Lightspeed autonomous agents enabled, the optional xref:module-09.adoc[OpenShift Lightspeed autonomous agents] module shows how the system can autonomously investigate and remediate problems end-to-end. Otherwise, head to xref:module-10.adoc[Key Takeaways] to wrap up.

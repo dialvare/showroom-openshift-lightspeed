@@ -61,12 +61,12 @@
 
   <rect class="high" x="430" y="115" width="130" height="65" rx="6"/>
   <text class="bt" x="495" y="143" text-anchor="middle">AgenticRun CR</text>
-  <text class="ts" x="495" y="160" text-anchor="middle">targetNamespaces</text>
+  <text class="ts" x="495" y="160" text-anchor="middle">natural language</text>
   <path class="ln" d="M560,147 L598,147"/>
 
   <rect class="pre" x="600" y="115" width="130" height="65" rx="6"/>
   <text class="gt" x="665" y="143" text-anchor="middle">Agent</text>
-  <text class="ts" x="665" y="160" text-anchor="middle">gpt-5.4</text>
+  <text class="ts" x="665" y="160" text-anchor="middle">claude-sonnet</text>
   <path class="ln" d="M730,147 L768,147"/>
 
   <rect class="pre" x="770" y="115" width="130" height="65" rx="6"/>
@@ -76,7 +76,7 @@
 
   <rect class="box" x="940" y="115" width="130" height="65" rx="6"/>
   <text class="tt" x="1005" y="143" text-anchor="middle">API Key</text>
-  <text class="ts" x="1005" y="160" text-anchor="middle">llm-creds-openai</text>
+  <text class="ts" x="1005" y="160" text-anchor="middle">llm-creds-maas</text>
 
   <!-- ═══════════════════════ AgenticRun → Analysis ═══════════════════════ -->
 
@@ -95,10 +95,10 @@
   <!-- Horizontal bus bar -->
   <line x1="430" y1="260" x2="905" y2="260" stroke="#0066cc" stroke-width="1.5" fill="none"/>
 
-  <!-- Drop 1 — Automatic (before Analysis, x=430) -->
+  <!-- Drop 1 — Manual (before Analysis, x=430) -->
   <path d="M430,260 L430,328" style="stroke:#0066cc;stroke-width:1.5;fill:none;marker-end:url(#arr);"/>
-  <rect class="albl" x="390" y="280" width="80" height="14" rx="3"/>
-  <text x="430" y="291" text-anchor="middle" font-size="10" font-weight="700" fill="#151515">Automatic</text>
+  <rect class="plbl" x="390" y="280" width="80" height="14" rx="3"/>
+  <text x="430" y="291" text-anchor="middle" font-size="10" font-weight="700" fill="#151515">Manual</text>
 
   <!-- Drop 2 — Manual (Analysis → Execution gap, x=525) -->
   <path d="M525,260 L525,357" style="stroke:#0066cc;stroke-width:1.5;fill:none;marker-end:url(#arr);"/>

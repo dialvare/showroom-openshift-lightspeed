@@ -15,7 +15,7 @@ Every phase runs in a short-lived sandbox pod that calls the LLM and exits when 
 
 Apart from manually creating AgenticRuns, the *Alerts Adapter* is a companion service that polls Alertmanager and automatically creates AgenticRun CRs when firing alerts match a configured severity, closing the loop for fully autonomous remediation.
 
-image::arch-module09.svg[Agentic OLS Architecture, 100%, align="center", link=self, window=blank]
+image::arch-module09.svg[OpenShift Lightspeed autonomous agents architecture, 100%, align="center", link=self, window=blank]
 
 In this module you work with OpenShift Lightspeed autonomous agents: manually creating an AgenticRun, enabling the Alerts Adapter for automatic triggering, and following each run through its full lifecycle.
 
@@ -78,7 +78,7 @@ Notice the _model (claude-sonnet-4-6)_ field and the per-step _timeouts_. These 
 
 ==== *ApprovalPolicy*
 
-Lastly, go back to *Home* -> *Search*, and search for `ApprovalPolicy`. Open the `cluster` resource that appears. In the *YAML* tab you can see that all phases run automatically except for Execution, which requires manual approval:
+Lastly, go back to *Home* -> *Search*, and search for `ApprovalPolicy`. Open the `cluster` resource that appears. In the *YAML* tab you can see that all phases run automatically except for Analysis and Execution, which require manual approval:
 
 [source,yaml,role="execute"]
 ----
@@ -89,7 +89,7 @@ metadata:
 spec:
   maxConcurrentRuns: 5
   stages:
-    - approval: Automatic
+    - approval: Manual
       name: Analysis
     - approval: Manual
       name: Execution
@@ -99,21 +99,26 @@ spec:
       name: Escalation
 ----
 
-So here's the full picture: the `LLMProvider` supplies the LLM provider type and credentials (pointing to the API Key secret), the `Agent` defines the model to use and timeouts for each phase, and the `ApprovalPolicy` ensures that only Execution requires your sign-off while Analysis, Verification and Escalation run automatically. Let's put it to work.
+So here's the full picture: the `LLMProvider` supplies the LLM provider type and credentials (pointing to the API Key secret), the `Agent` defines the model to use and timeouts for each phase, and the `ApprovalPolicy` ensures that Analysis and Execution require your sign-off while Verification and Escalation run automatically. Let's put it to work.
+
+NOTE: Analysis never writes to the cluster, so it could safely run automatically. It is set to _Manual_ here so you can trigger and observe each phase deliberately as you learn the workflow.
 
 [#first-agentic-run]
 == Your First AgenticRun
 
-In the previous module, you used OpenShift Lightspeed to diagnose a broken virtual machine by attaching its YAML and asking follow-up questions. Now let's see the agent tackle a different kind of task: provisioning a workload. Instead of issuing commands step by step or composing YAML by hand, just describe what you want in plain language and submit it as an `AgenticRun`.
+In the previous module, you used the intelligent assistant to diagnose a broken virtual machine by attaching its YAML and asking follow-up questions. Now let's see the agent tackle a different kind of task: provisioning a workload. Instead of issuing commands step by step or composing YAML by hand, just describe what you want in plain language and submit it as an `AgenticRun`.
 
-In the OpenShift web console, click *Quick create* -> *Import YAML* in the top-right corner of the navigation bar.
+There are three ways to start an `AgenticRun`:
 
-image::import-yaml.png[Import YAML, 50%, align="center", link=self, window=blank]
+* Describe what you want in plain language and submit it directly as a manifest. The agent handles the rest: analysis, execution, and verification. This is useful for on-demand tasks like deploying a workload, checking a namespace, or scaling a resource.
+* Let the Alerts Adapter do it for you. The adapter polls Alertmanager and automatically creates runs whenever firing alerts match a configured severity.
+* Let the Cluster Version Operator create them when an upgrade path is available in the cluster, powering the AI-assisted analysis of update readiness.
 
-Paste the following manifest and click *Create*:
+You will start with the first one. From the *Bastion* tab, submit the following run:
 
-[source,yaml,role="execute"]
+[source,bash,role="execute"]
 ----
+oc apply -f - <<'EOF'
 apiVersion: agentic.openshift.io/v1alpha1
 kind: AgenticRun
 metadata:
@@ -132,17 +137,18 @@ spec:
     agent: default
   execution:
     agent: default
+EOF
 ----
 
-In the left navigation menu, go to *Agentic Runs* -> *Agentic Runs*. You should see your run listed with the status *Analyzing*. Because Analysis is set to _Automatic_, the run moves straight from *Pending* to *Analyzing* without waiting for your input. Click on the `deploy-test-workload` run to open its detail view.
+In the OpenShift web console, go to *Agentic Runs* -> *Agentic Runs* in the left navigation menu. You should see your run listed — along with the runs created automatically by the Cluster Version Operator — all in a *Pending* state, because Analysis is set to _Manual_ in the ApprovalPolicy. Click on the `deploy-test-workload` run to open its detail view.
 
-While analyzing, a sandbox pod starts, queries the cluster for context, calls the LLM, and writes its findings. You can track the progress by clicking *View Analysis logs*.
+Click *Approve Analysis* twice. A sandbox pod starts, queries the cluster for context, calls the LLM, and writes its findings. You can track the progress by clicking *View Analysis logs*.
 
 Once it finishes, the status transitions to *Proposed* — meaning the agent has a plan ready and is waiting for your decision before touching anything. The *View plan details* section shows the analysis results: confirmation that no conflicting _hello-test_ workload exists, and the plan of what will be created.
 
 NOTE: Nothing has been deployed yet. The agent completed the analysis and is now waiting. It cannot proceed without your explicit approval.
 
-This is the Human-in-the-Loop gate. Review the deployment plan the agent proposed. Once you agree with it, click the *Execute remediation* button to approve and unlock the next phase.
+This is the Human-in-the-Loop gate. Review the deployment plan the agent proposed. Once you agree with it, click the *Execute remediation* button twice to approve and unlock the next phase.
 
 image::agentic-execute-plan.png[Select and approve the Agentic Lightspeed proposal, align="center", link=self, window=blank]
 
@@ -155,36 +161,53 @@ NOTE: If verification determines the workload did not reach the expected state, 
 To confirm the workload was deployed, navigate to *Workloads* -> *Deployments* in the `lightspeed-demo` namespace. You should see the `hello-test` Deployment with its pod in *Running* state.
 
 [#enabling-alerts-adapter]
-== Enabling the Alerts Adapter
+== Resolving a Critical Alert
 
 So far you triggered remediation manually by describing the problem and submitting the AgenticRun. The Alerts Adapter closes the remaining gap: it polls Alertmanager on a 30-second cadence and automatically creates `AgenticRun` CRs whenever firing alerts match a configured severity, so an alert can go from firing to investigated to remediated without any manual trigger.
 
-Let's enable it. Go to *Workloads* -> *ConfigMaps*, make sure the project is set to `openshift-lightspeed`, and open `alerts-adapter-config`. Switch to the *YAML* tab and find the _filtering_ section where the _allowedReceivers_ block is commented out. Uncomment those lines to enable `critical` severity alerts as shown below, and click *Save*:
+If you recall from the Troubleshooting module, there is a `PodDisruptionBudgetLimit` critical alert firing in the cluster. Let's let the autonomous agents resolve it automatically.
 
-[source,yaml,role="execute"]
+The Alerts Adapter is already deployed, but its severity filter is disabled. Enable it by patching the `alerts-adapter-config` ConfigMap from the *Bastion* tab:
+
+[source,bash,role="execute"]
 ----
-    filtering:
-      allowedReceivers:
-        - critical
+oc patch configmap alerts-adapter-config -n openshift-lightspeed \
+  --type merge -p '{"data":{"config.yaml":"pollInterval: 30s\npostRunDelay: 1h\nfiltering:\n  allowedReceivers:\n    - critical\ndeduplication:\n  ignoredLabels:\n    - pod\n    - instance\n    - endpoint\n    - uid\ntools:\n  skills:\n    - image: quay.io/openshiftanalytics/agentic-skills:latest\n      paths:\n        - /skills/cluster-troubleshoot/investigate-alert\n"}}'
 ----
 
-Now, we need to apply this configuration. Navigate to *Workloads* -> *Pods*. Make sure you select the `openshift-lightspeed` project and locate the `lightspeed-agentic-alerts-adapter` pod. On its right, you will find *three vertical dots*. Click on them and select *Delete Pod*. Don't worry, the pod will be regenerated automatically, but now with your new configuration.
+Then restart the adapter so it picks up the new configuration:
 
-NOTE: In this demo environment, the OpenShift Lightspeed operator is not managing the alerts adapter, so it cannot automatically detect the ConfigMap change and roll out the new configuration. In a standard deployment, OpenShift Lightspeed handles this automatically.
+[source,bash,role="execute"]
+----
+oc rollout restart deployment/lightspeed-agentic-alerts-adapter -n openshift-lightspeed
+----
 
-If you recall from the Troubleshooting module, there was a `PodDisruptionBudgetLimit` critical alert firing in the cluster. You can refresh your memory by navigating to *Observe* -> *Alerting* and switching to *All projects*.
+NOTE: In a standard deployment the OpenShift Lightspeed operator detects ConfigMap changes and rolls out the updated configuration automatically. This demo environment requires a manual restart.
 
-image::alert.png[Critical alert firing in the cluster, align="center", link=self, window=blank]
+Back in the OpenShift web console, under *Agentic Runs* -> *Agentic Runs*, you should see a new run created automatically by the adapter, called `poddisruptionbudgetlimit-critical`, in a *Pending* state.
 
-Agentic OpenShift Lightspeed is now monitoring your critical alerts. Navigate to *Agentic Runs* -> *Agentic Runs* and you will see a new `AgenticRun` created automatically, called `poddisruptionbudgetlimit-critical`. Follow the same procedure as before to drive it to completion:
+Before driving it, review the approval configuration by clicking the *engine icon* in the upper-right corner. The page shows the actual approval policy and allows you to change it:
 
-* The run starts in *Analyzing* automatically. A sandbox pod investigates the firing alert and writes its findings.
-* Once analysis finishes, the status moves to *Proposed*. Open the run detail view and review the remediation plan.
-* Click *Execute remediation* to approve execution. The phase changes to *Executing* until the agent applies the fix to the affected namespace.
-* *Verification* starts automatically once execution completes. The sandbox confirms the fix worked and the run reaches *Completed*.
+image::ols-approval-settings.png[Agentic Runs approval settings, align="center", link=self, window=blank]
 
-To confirm the alert has been resolved, navigate to *Observe* -> *Alerting* and switch to `All projects`. The critical alert that triggered this run should no longer appear in the firing alerts list.
+As mentioned before, _Analysis_ and _Execution_ are set to _Manual_, meaning you need to trigger the analysis yourself and review the execution plan before accepting it. Do not change this configuration. Navigate back to *Agentic Runs* -> *Agentic Runs* and click on the `poddisruptionbudgetlimit-critical` run to open its detail view:
 
-IMPORTANT: Remember that Agentic OpenShift Lightspeed is *Red Hat Internal Only*. Please do not distribute or reference this content outside of Red Hat.
+image::ols-agentic-run.png[PodDisruptionBudgetLimit AgenticRun details, align="center", link=self, window=blank]
+
+Work through each phase of the run:
+
+. Click *Approve Analysis* twice. A sandbox pod queries Alertmanager, inspects the affected resources, calls the LLM, and writes its findings. Track progress in *View Analysis logs*.
+. Once analysis completes, review the proposed fix under the _Remediation plans_ section. If multiple execution plans appear, *Select* the one that recommends *Remove the init container*.
++
+image::ols-execute-remediation.png[Remediation plans proposed by the autonomous agents, align="center", link=self, window=blank]
+. Review the remediation plan in *View plan details*. Each plan provides a root cause analysis, the proposed commands, and the required permissions.
+. Click *Execute remediation* twice. A sandbox pod applies the fix to the cluster. Click *View Execution logs* to follow along.
++
+image::ols-execution-logs.png[Execution logs of an AgenticRun, align="center", link=self, window=blank]
+. Once execution completes, _Verification_ starts automatically. A new sandbox pod confirms the alert condition is resolved and the run reaches *Completed*.
+
+NOTE: If verification fails, the run transitions to _Escalating_ instead, creating a record of what the agent could not complete for human review.
+
+To confirm the alert has been resolved, navigate to *Observe* -> *Alerting* and switch to *All projects*. The critical alert that triggered this run should no longer appear in the firing alerts list.
 
 Continue to xref:module-10.adoc[Key Takeaways] to wrap up the lab.
