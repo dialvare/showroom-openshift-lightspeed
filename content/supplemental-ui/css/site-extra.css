@@ -1,8 +1,3 @@
-/* left align items inside imageblock */
-.doc .imageblock {
-    align-items: flex-start;
-  }
-
 /* add a shadow to the image container */
 .doc .bordershadow .content{
     border: solid 1px black;
