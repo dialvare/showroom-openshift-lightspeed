@@ -52,7 +52,7 @@ image::add-perses.png[OpenShift Lightspeed allows to import graphs into Perses, 
 
 Click the *Add to Dashboard* icon to instantly import the chart to the Perses dashboard. Do the same with the other graph you created.
 
-Your metrics are now persistently stored in a Perses dashboard that will survive across chat sessions and cluster restarts. From here, Perses gives you full control to tailor the dashboard to your needs: resize and reposition panels, switch between graph types such as time series, stat, or gauge, adjust the time range, customize labels and legends, and much more — all without writing a single line of PromQL or JSON by hand.
+Finally, once both charts are imported, click the blue **Save** button in the upper-right corner of your Perses Dashboard. Your metrics are now persistently stored in a Perses dashboard that will survive across chat sessions and cluster restarts. From here, Perses gives you full control to tailor the dashboard to your needs: resize and reposition panels, switch between graph types such as time series, stat, or gauge, adjust the time range, customize labels and legends, and much more — all without writing a single line of PromQL or JSON by hand.
 
 == What's Next?
 
