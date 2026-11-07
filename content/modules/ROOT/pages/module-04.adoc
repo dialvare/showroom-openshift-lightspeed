@@ -30,7 +30,7 @@ When a user asks a question, the model may call one or more of those tools to re
 
 NOTE: The built-in MCP server has security guardrails baked in: it is explicitly blocked from reading Secrets and RBAC resources, so sensitive data such as credentials can never reach the LLM through it, regardless of how a question is phrased or how many permissions the logged-in user has.
 
-IMPORTANT: By default, read-only tools execute automatically while write tools require explicit human approval before running: the chat interface will display the proposed tool call and ask you to confirm or reject it before anything is applied to the cluster.
+Important! By default, read-only tools execute automatically while write tools require explicit human approval before running: the chat interface will display the proposed tool call and ask you to confirm or reject it before anything is applied to the cluster.
 
 NOTE: You can change this behavior via _approvalType_ in the OLSConfig: set it to _always_ to require approval for every tool call regardless of whether it reads or writes, or to _never_ to let all tools run without any confirmation step, though the latter is not recommended for production environments where an unreviewed write operation could have unintended consequences.
 
