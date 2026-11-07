@@ -2,7 +2,7 @@
 
 include::partial$console-access.adoc[]
 
-You have already seen OpenShift Lightspeed's built-in MCP server query your cluster's resources and monitoring stack. OpenShift Lightspeed can be extended even further by integrating custom MCP servers that connect to external systems beyond the cluster itself. This feature allows you to add additional MCP servers that provide new tools to the OpenShift Lightspeed instance, enabling the LLM to use those external tools when generating answers to your questions.
+You have already seen OpenShift Lightspeed's built-in MCP server query your cluster's resources and monitoring stack. OpenShift Lightspeed can be extended even further by integrating custom MCP servers that connect to external systems beyond the cluster itself. This feature allows you to register additional MCP servers that provide new tools to the OpenShift Lightspeed instance, enabling the LLM to use those external tools when generating answers to your questions.
 
 image::arch-module07.svg[Architecture with custom MCP servers highlighted, align="center", link=self, window=blank]
 
@@ -11,11 +11,11 @@ In this module you work with the highlighted pieces: a custom MCP server you dep
 [#deploy-the-insights-result-mcp-server]
 == Deploy the Insights Result MCP server
 
-You'll deploy the Insights Result MCP server that connects to Red Hat Insights and provides two tools: _get_last_result_for_cluster_ (returns a dictionary with the cluster result) and _get_upgrade_risk_prediction_for_cluster_ (returns a dictionary with the upgrade risks prediction for the given cluster)
+You'll deploy the Insights Result MCP server that connects to Red Hat Insights and provides two tools: _get_last_result_for_cluster_ (returns a dictionary with the cluster result) and _get_upgrade_risk_prediction_for_cluster_ (returns a dictionary with the upgrade risks prediction for the given cluster).
 
 OpenShift Lightspeed can connect to MCP servers running outside the cluster, but in this case, the Insights Result MCP server will be deployed directly within your OpenShift cluster.
 
-All the deployment happens in the *Bastion* tab, applying the resources with `oc`. Start by creating the `Project`:
+The whole deployment happens in the *Bastion* tab, applying resources with `oc`. Start by creating the `Project`:
 
 [source,bash,role="execute"]
 ----
@@ -29,7 +29,7 @@ metadata:
 EOF
 ----
 
-=== Create the Secret
+=== Create the secret
 
 The MCP server authenticates against console.redhat.com with a token from your cluster's pull secret. Create the `Secret` with it:
 
@@ -146,7 +146,7 @@ The Insights Result MCP server is now configured and running in your cluster. It
 [#configure-openshift-lightspeed]
 == Configure OpenShift Lightspeed
 
-As you have seen in previous modules, the configuration for the OpenShift Lightspeed operator is done in the OLSConfig resource.
+As you have seen in previous modules, the configuration for the OpenShift Lightspeed Operator is done in the `OLSConfig` resource.
 
 Navigate to *Ecosystem* -> *Installed Operators* -> *OpenShift Lightspeed Operator* -> *OLSConfig* -> `cluster` -> *YAML*. Once in the YAML editor, add the following lines and click *Save*:
 
@@ -164,14 +164,14 @@ spec:
       url: 'http://insights-results-mcp-server.insights-results-mcp.svc.cluster.local:5000/api/insights-results-mcp/'
 ----
 
-This new configuration will re-deploy the OpenShift Lightspeed app server pod. Please wait a minute before starting to interact with the assistant.
+This new configuration will re-deploy the OpenShift Lightspeed app server pod. Please wait a minute before starting to interact with the intelligent assistant.
 
 NOTE: The Insights Result MCP server used in this lab does not require authentication from OpenShift Lightspeed, but the _mcpServers_ configuration also supports sending custom HTTP headers to servers that do. Header values can come from a _Secret_, from the logged-in user's own Kubernetes token, or from the connecting client. This means you can integrate MCP servers that enforce their own authentication and authorization.
 
 [#use-your-custom-mcp-server]
 == Use your custom MCP server
 
-Before asking, if you are not in *Ask mode*, select it from the mode selector. *Clear* the chat and now try asking the assistant the following question. The model should use one of the tools that the new MCP server provides:
+Before asking, if you are not in *Ask mode*, select it from the mode selector. *Clear chat* and now try asking the assistant the following question. The model should use one of the tools that the new MCP server provides:
 
 [source,role="copypaste"]
 ----
@@ -180,11 +180,11 @@ Does Red Hat Insights report any issues or recommendations for this cluster?
 
 It's likely that the LLM has decided to use the _get_last_result_for_cluster_ tool provided by the Insights Result MCP server. Click *Approve*. Since the cluster should be healthy, the response will probably indicate that there are no issues listed. This doesn't mean the tool call failed — quite the opposite! The tool successfully retrieved that information from Insights.
 
-[#lightspeed-beyond-containers]
-== Lightspeed Beyond Containers
+[#beyond-containers]
+== Beyond containers
 
 So far, you've explored how the intelligent assistant helps with traditional containerized workloads like pods, deployments, routes, and services. But OpenShift is more than just containers. What about virtual machines?
 
 With OpenShift Virtualization, you can run virtual machines alongside your containers on the same OpenShift platform. At the end of the day, virtual machines in OpenShift are just OpenShift custom resources — which means the chatbot can help you with virtual machine workloads too.
 
-Continue to the next module to see the assistant in action with virtual machine workloads.
+Continue to the next module, xref:module-08.adoc[Simplify VM management with OpenShift Lightspeed], to see the assistant in action with virtual machine workloads.

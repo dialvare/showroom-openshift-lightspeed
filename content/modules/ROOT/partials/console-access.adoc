@@ -5,5 +5,5 @@
 * *Password:* `{openshift_cluster_admin_password}`
 * *Console:* {openshift_cluster_console_url}[window=blank]
 
-TIP: We recommend using the **Console** tab within this Showroom interface as it is easier to follow along.
+TIP: We recommend using the *Console* tab within this Showroom interface as it is easier to follow along.
 ====

@@ -1,8 +1,8 @@
-= Build Your Own BYOK Image (Optional)
+= Build your own BYOK image (Optional)
 
 include::partial$console-access.adoc[]
 
-In the previous module you consumed a BYOK image that was already built for you. In this optional module, you will build one yourself — from writing the Markdown document to watching the intelligent assistant answer questions from it. If you are short on time, you can skip ahead to the Cluster Interaction module; nothing later in the lab depends on this exercise.
+In the previous module you consumed a BYOK image that was already built for you. In this optional module, you will build one yourself — from writing the Markdown document to watching the intelligent assistant answer questions from it. If you are short on time, you can skip ahead to the xref:module-04.adoc[Cluster Interaction] module; nothing later in the lab depends on this exercise.
 
 image::arch-module03.svg[Architecture with the BYOK build pipeline highlighted, align="center", link=self, window=blank]
 
@@ -11,7 +11,7 @@ In this module you work with the highlighted pieces: the build pipeline that tur
 NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 
 [#prepare-the-bastion]
-== Prepare the Bastion
+== Prepare the bastion
 
 Most of the work in this module happens in the *Bastion* tab — the terminal connected to the cluster's bastion host. Start by installing podman:
 
@@ -28,11 +28,11 @@ mkdir -p ~/byok/markdown ~/byok/output && cd ~/byok
 ----
 
 [#write-the-documentation]
-== Write the Documentation
+== Write the documentation
 
 Let's give ACME Corp one more internal document: their disaster recovery drill procedure.
 
-Now create the Markdown document. Note the metadata block at the top: the BYOK tool uses the _title_ and _url_ attributes as the source reference that the assistant displays alongside its answers. If you omit them, the first heading becomes the title and the file path becomes the URL.
+Now create the Markdown document. Note the metadata block at the top: the BYOK Knowledge tool uses the _title_ and _url_ attributes as the source reference that the assistant displays alongside its answers. If you omit them, the first heading becomes the title and the file path becomes the URL.
 
 [source,bash,role="execute"]
 ----
@@ -71,7 +71,7 @@ EOF
 Feel free to write your own document instead — anything the base model couldn't possibly know makes for a convincing test.
 
 [#get-the-rag-tool-image]
-== Get the RAG Tool Image
+== Get the BYOK Knowledge tool image
 
 The BYOK Knowledge tool ships as a container image on registry.redhat.io, which requires authentication to pull. The official procedure assumes you have your own Red Hat registry account, but in this lab you can borrow the cluster's pull secret instead, since it already contains registry credentials:
 
@@ -80,7 +80,7 @@ The BYOK Knowledge tool ships as a container image on registry.redhat.io, which 
 oc extract secret/pull-secret -n openshift-config --confirm --to=$HOME/byok
 ----
 
-Install the pull secret as podman's credentials file, so every podman command — including the ones inside the RAG tool — can use it:
+Install the pull secret as podman's credentials file, so every podman command — including the ones inside the BYOK Knowledge tool — can use it:
 
 [source,bash,role="execute"]
 ----
@@ -93,10 +93,10 @@ cp $HOME/byok/.dockerconfigjson $XDG_RUNTIME_DIR/containers/auth.json
 podman pull registry.redhat.io/openshift-lightspeed-tech-preview/lightspeed-rag-tool-rhel9:latest
 ----
 
-NOTE: The RAG tool image is large — it bundles the embedding model — so the pull takes a few minutes.
+NOTE: The BYOK Knowledge tool image is large — it bundles the embedding model — so the pull takes a few minutes.
 
 [#generate-the-image]
-== Generate the BYOK Image
+== Generate the BYOK image
 
 The tool also builds the output image internally, and for that it needs two small adjustments: a storage configuration that works inside a container, and a public base image. Prepare the storage configuration:
 
@@ -123,7 +123,7 @@ podman run -it --rm \
   registry.redhat.io/openshift-lightspeed-tech-preview/lightspeed-rag-tool-rhel9:latest
 ----
 
-The tool chunks your Markdown, runs it through the embedding model — watch for your document's title in the logs — builds the image, and writes it as a tarball to the output directory.
+The BYOK Knowledge tool chunks your Markdown, runs it through the embedding model — watch for your document's title in the logs — builds the image, and writes it as a tarball to the output directory.
 
 When the tool finishes, you will find the generated image tarball in the output directory:
 
@@ -147,7 +147,7 @@ podman images
 ----
 
 [#push-the-image]
-== Push the Image to the Internal Registry
+== Push the image to the internal registry
 
 Instead of an external registry such as quay.io, you will push the image to the cluster's internal image registry. First, create a project to hold the image — the internal registry maps projects to repositories:
 
@@ -172,7 +172,7 @@ oc wait --for=condition=Available deployment/image-registry -n openshift-image-r
 
 NOTE: Exposing the registry makes the image registry operator roll the registry pods, and on this single-node cluster the API can briefly return errors while that happens. The wait command above retries until the registry is back — if an `oc` command fails around this point, give it a minute and try again.
 
-Finally, log podman into the registry. The bastion's `oc` session is certificate-based and cannot produce a login token, so create one for the `builder` service account, which has push permissions in its project:
+Finally, log in to the registry with podman. The bastion's `oc` session is certificate-based and cannot produce a login token, so create one for the `builder` service account, which has push permissions in its project:
 
 [source,bash,role="execute"]
 ----
@@ -193,7 +193,7 @@ podman push $REGISTRY/byok-workshop/acme-dr-byok:latest
 ----
 
 [#connect-it-to-lightspeed]
-== Connect It to OpenShift Lightspeed
+== Connect it to OpenShift Lightspeed
 
 OpenShift Lightspeed runs in the `openshift-lightspeed` namespace, so its service accounts need permission to pull images from your `byok-workshop` namespace. Grant it:
 
@@ -206,7 +206,7 @@ NOTE: The command prints _Warning: Group 'system:serviceaccounts:openshift-light
 
 Now add your image as a second RAG database. From within the cluster, the image you pushed is known by its internal name, so that is what OpenShift Lightspeed will reference.
 
-As in module 2, navigate to *Ecosystem* -> *Installed Operators* -> *OpenShift Lightspeed Operator* -> *OLSConfig* -> `cluster` -> *YAML*, and extend the _rag_ list:
+As in the previous module, navigate to *Ecosystem* -> *Installed Operators* -> *OpenShift Lightspeed Operator* -> *OLSConfig* -> `cluster` -> *YAML*, and extend the _rag_ list:
 
 ----
 ...
@@ -226,7 +226,7 @@ spec:
 Click *Save*. The OpenShift Lightspeed app server pod redeploys to load the new database — give it a minute or two.
 
 [#test-your-knowledge]
-== Test Your Knowledge
+== Test your knowledge
 
 Open the chatbot interface, click the *Clear chat* (trash can) button if needed, and ask:
 
@@ -237,10 +237,11 @@ What is the ACME Corp procedure for disaster recovery drills on OpenShift?
 
 The answer should walk through exactly what you wrote: the two-week scheduling requirement in the ACME-DR Jira project, the 45-minute RTO, and the compliance sign-off via the #acme-compliance Slack channel. Scroll to the bottom of the response and you will also find your document's title — _ACME Corp disaster recovery drill procedure for OpenShift_ — listed among the referenced sources, exactly as the title metadata promised.
 
-TIP: Because your image uses the floating _latest_ tag, OpenShift Lightspeed keeps it fresh automatically: image changes are detected through ImageStream objects, which the cluster re-checks every 15 minutes. Rebuild the image with updated docs and the assistant's knowledge follows — no OLSConfig edits required.
+TIP: Because your image uses the floating _latest_ tag, OpenShift Lightspeed keeps it fresh automatically: image changes are detected through ImageStream objects, which the cluster rechecks every 15 minutes. Rebuild the image with updated docs and the assistant's knowledge follows — no OLSConfig edits required.
 
+[#whats-next]
 == What's Next?
 
 So far, you've learned how the intelligent assistant uses the OpenShift documentation and your own organizational knowledge (BYOK) to provide accurate answers. But what if it could go beyond static documentation and actually query your live cluster to provide real-time, environment-specific answers?
 
-That's exactly what the Cluster Interaction feature enables. Continue to the next section to learn how the assistant can directly interact with your OpenShift cluster to retrieve current information about your pods, deployments, and other resources.
+That's exactly what the Cluster Interaction feature enables. Continue to the next module, xref:module-04.adoc[Cluster Interaction], to learn how the assistant can directly interact with your OpenShift cluster to retrieve current information about your pods, deployments, and other resources.

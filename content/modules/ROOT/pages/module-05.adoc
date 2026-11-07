@@ -9,17 +9,17 @@ image::arch-module05.svg[Architecture with the built-in MCP server highlighted, 
 In this module you work again with the highlighted pieces: the core OpenShift Lightspeed components plus the built-in MCP server that reads and writes your cluster.
 
 [#attaching-resources-to-the-query]
-== Attaching Resources to the Query
+== Attaching resources to the query
 
 In your environment there is a pod that is failing to schedule for some reason. In the OpenShift console, navigate to *Workloads* -> *Pods*, and then make sure to select the project named `broken` from the dropdown at the top of the page:
 
 image::broken-project-select.png[Broken project selection, align="center", link=self, window=blank]
 
-Now, in the pod list, click on the `broken-pod` which you can see is in the _Pending_ state.
+Now, in the pod list, click the `broken-pod` which you can see is in the _Pending_ state.
 
-Open the OpenShift Lightspeed chat interface if minimized and make sure to press *Clear chat* (trash can). Then, click the *Plus (+)* button to attach information. 
+Open the OpenShift Lightspeed chat interface if you minimized it, and make sure to press *Clear chat* (trash can). Then, click the *Plus (+)* button to attach information.
 
-Because you are on the pod's details page, the attach menu shows the resource you are currently viewing along with options like _Full YAML file_, _Filtered YAML_, _Events_ and _Logs_. In this case, as this pod is currently _Pending_, there are no logs we can attach, and we don't really care about the events, either. 
+Because you are on the pod's details page, the attach menu shows the resource you are currently viewing along with options like *Full YAML file*, *Filtered YAML*, *Events* and *Logs*. In this case, as this pod is currently _Pending_, there are no logs we can attach, and we don't really care about the events, either.
 
 Go ahead and attach the *Filtered YAML*, which will include the status information for this pod.
 
@@ -41,7 +41,7 @@ Can you see how the simple act of attaching details to your request can dramatic
 Note that you can attach multiple resources to your request at the same time, like a service, a route, and a deployment. This can make more complicated troubleshooting scenarios easier. And if the context you need lives outside the cluster entirely, the attach menu's *Upload from computer* option lets you attach a local file, such as a log you exported earlier.
 
 [#troubleshooting-mode]
-== Advanced Troubleshooting
+== Advanced troubleshooting
 
 Rather than manually attaching resources, you can also switch to *Troubleshooting mode* and let the assistant proactively investigate issues for you. In this mode, the model autonomously queries Kubernetes resource state, retrieves pod logs, and correlates Prometheus metrics — all in a single conversational turn, without you having to guide each step.
 
@@ -49,18 +49,18 @@ Before starting, navigate to *Observe* -> *Alerting* in the OpenShift console. M
 
 image::alert.png[Critical alert firing in the cluster, align="center", link=self, window=blank]
 
-Now, open the OpenShift Lightspeed chat and click the *Clear chat* button if needed. Before asking, select the *Troubleshooting* mode from the mode selector: 
+Now, open the OpenShift Lightspeed chat and click the *Clear chat* button if needed. Before asking, select *Troubleshooting mode* from the mode selector:
 
-image::troubleshooting-mode.png[Troubleshooting mode in OpenShift Lightspeed,600, align="center", link=self, window=blank]
+image::troubleshooting-mode.png[Troubleshooting mode in OpenShift Lightspeed, 60%, align="center", link=self, window=blank]
 
-Now you can directly ask: 
+Now you can directly ask:
 
 [source,role="copypaste"]
 ----
 Investigate the root cause of the firing PodDisruptionBudgetLimit alert
 ----
 
-During investigation, the assistant may prompt you to approve certain tools such as pod_exec. Click *Approve* to allow it to proceed.
+During investigation, the assistant may prompt you to approve certain tools such as _pod_exec_. Click *Approve* to allow it to proceed.
 
 With Troubleshooting mode selected, the chatbot will use multiple cluster interaction tools in sequence: it queries the alert details via Alertmanager, examines the state of the affected pods in the _critical_ namespace, retrieves their logs, and correlates the findings with Prometheus metrics. It then identifies the root cause — in this case, the init container _dependency-check_ is configured to fail intentionally (exit 1) — and suggests a mitigation plan.
 
@@ -68,8 +68,7 @@ Note that with Troubleshooting mode, the assistant will make use of more tools t
 
 image::troubleshooting-tools.png[Troubleshooting mode uses different tools, align="center", link=self, window=blank]
 
-The assistant correlates Kubernetes resource state, pod logs, and live metrics to surface a root cause and a concrete remediation step, all without you having to manually attach a single resource.
+[#expanding-capabilities]
+== Expanding capabilities
 
-== Expanding Capabilities
-
-Throughout this lab, you've seen how the assistant uses cluster interaction, troubleshooting mode and resource attachments to help you diagnose and resolve issues. But its connection to the monitoring stack goes beyond alerts — it can also run live PromQL queries against your cluster's metrics. In the next module, you'll use that capability to generate and populate a Perses observability dashboard directly from the chat interface.
+Throughout this lab, you've seen how the assistant uses cluster interaction, troubleshooting mode and resource attachments to help you diagnose and resolve issues. But its connection to the monitoring stack goes beyond alerts — it can also run live PromQL queries against your cluster's metrics. In the next module, xref:module-06.adoc[Perses dashboards], you'll use that capability to generate and populate a Perses observability dashboard directly from the chat interface.

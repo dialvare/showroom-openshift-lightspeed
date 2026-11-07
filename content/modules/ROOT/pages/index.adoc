@@ -1,17 +1,17 @@
 = {lab_name}
 
-OpenShift Lightspeed is an agent for the Red Hat OpenShift Container Platform. It helps users with general OpenShift and Red Hat products knowledge, cluster resources' lifecycle management, troubleshooting, root cause analysis, remediation, observability and more. Powered by large language models (LLMs) and retrieval-augmented generation (RAG), OpenShift Lightspeed makes OpenShift more accessible to users and helps increase user productivity. 
+OpenShift Lightspeed is an agent for the Red Hat OpenShift Container Platform. It helps users with general OpenShift and Red Hat product knowledge, lifecycle management of cluster resources, troubleshooting, root cause analysis, remediation, observability, and more. Powered by large language models (LLMs) and retrieval-augmented generation (RAG), OpenShift Lightspeed makes OpenShift more accessible to users and helps increase user productivity.
 
 OpenShift Lightspeed presents two complementary capabilities:
 
-* **OpenShift Lightspeed intelligent assistant** — a conversational AI chatbot that OpenShift users can use to understand concepts, get configuration guidance, generate YAML, create, monitor and manage workloads running in the cluster and troubleshoot issues through natural language chat.
-* **OpenShift Lightspeed autonomous agents** — an autonomous layer on your cluster that can investigate problems, propose remediation plans, apply approved fixes, and verify outcomes. All driven by plain-language descriptions, cluster update paths or firing alerts, without step-by-step guidance from the user.
+* *OpenShift Lightspeed intelligent assistant* — a conversational AI chatbot that OpenShift users can use to understand concepts, get configuration guidance, generate YAML, create, monitor and manage workloads running in the cluster and troubleshoot issues through natural language chat.
+* *OpenShift Lightspeed autonomous agents* — an autonomous layer on your cluster that can investigate problems, propose remediation plans, apply approved fixes, and verify outcomes. All driven by plain-language descriptions, cluster update paths or firing alerts, without step-by-step guidance from the user.
 
-NOTE: OpenShift Lightspeed autonomous agents is a Technology Preview feature introduced in OpenShift Lightspeed 2.0 that requires OpenShift Container Platform 5.0 onwards. The intelligent assistant supports OpenShift Container Platform 4.16 and later.
+NOTE: OpenShift Lightspeed autonomous agents is a Technology Preview feature introduced in OpenShift Lightspeed 2.0 that requires OpenShift Container Platform 5.0 and later. The intelligent assistant supports OpenShift Container Platform 4.16 and later.
 
 OpenShift Lightspeed today is a relatively small and lightweight system that you deploy into each OpenShift Container Platform cluster. The operator deploys the following core components:
 
-* Two web console plugins (the chat interface and the agentic runs dashboards)
+* Two web console plugins (the chat interface and the agentic runs dashboard)
 * A back-end application server (processes questions, calls the LLM, runs tool loops)
 * An agentic back-end (orchestrates the agentic workflows)
 * An OpenTelemetry collector (audit logging and tracing for AI-assisted and agentic workflows)
@@ -21,11 +21,11 @@ OpenShift Lightspeed today is a relatively small and lightweight system that you
 
 == OpenShift Lightspeed intelligent assistant architecture
 
-The AI chatbot capabilities follows the following architecture:
+The AI chatbot capability follows this architecture:
 
 image::ols-arch.png[OpenShift Lightspeed architecture, align="center", link=self, window=blank]
 
-You can also see that OpenShift Lightspeed talks to a model provider. In the case of this lab environment, the model used is **claude-sonnet**. 
+You can also see that OpenShift Lightspeed talks to a model provider. In the case of this lab environment, the model used is *claude-sonnet*.
 
 There are five supported public model providers:
 
@@ -40,18 +40,18 @@ Additionally, if you want to self-manage your LLM, we also support the Red Hat o
 * Red Hat OpenShift AI
 * Red Hat Enterprise Linux AI (RHEL AI)
 
-== RAG Basics
+== RAG basics
 
 RAG is a way of providing additional context to an LLM to help improve the quality of responses. OpenShift Lightspeed gets this context from the Red Hat Offline Knowledge Portal (RHOKP) component. When relying on only the LLM, two common problems can arise:
 
-1. Hallucination - the model invents an answer that is not grounded in fact, even when the model was trained with the answer
-2. Missing data - the model was never trained on the required information in the first place, so answers could be anything
+1. Hallucination — the model invents an answer that is not grounded in fact, even when the model was trained with the answer
+2. Missing data — the model was never trained on the required information in the first place, so answers could be anything
 
-When providing contextual information to the LLM at the time of asking a question, the response quality can be dramatically improved, even if the model was never trained on the specific contextual information.
+When you provide contextual information to the LLM along with your question, response quality can improve dramatically, even if the model was never trained on the specific contextual information.
 
 RHOKP serves the relevant OpenShift Container Platform documentation matched to the cluster version, and OpenShift Lightspeed uses that content as additional context when answering user questions.
 
-== The Full Picture
+== The full picture
 
 The architecture image above shows the core components, but this lab exercises quite a few more moving pieces: additional RAG databases, custom MCP servers, and even integration with Perses Dashboards. Here is the complete map of everything you will touch:
 
@@ -59,6 +59,6 @@ image::arch-full.svg[Full OpenShift Lightspeed architecture for this lab, align=
 
 Don't worry about absorbing it all now. Each hands-on module begins with this same diagram, with the components that module exercises highlighted in red and everything else dimmed, so you always know where you are.
 
-NOTE: This lab environment runs version 2.0 of the OpenShift Lightspeed operator in an OpenShift 5.0 cluster. If you are running an older cluster version or an older operator release in your own environment, some of the features covered in this lab may not be available.
+NOTE: This lab environment runs version 2.0 of the OpenShift Lightspeed Operator in an OpenShift 5.0 cluster. If you are running an older cluster version or an older operator release in your own environment, some of the features covered in this lab may not be available.
 
 Now, with your understanding of the fundamentals, let's use OpenShift Lightspeed.
