@@ -21,7 +21,6 @@ NOTE: In this module you consume a BYOK image that has already been built. If yo
 
 In the OpenShift Console, navigate to *Ecosystem* -> *Installed Operators* -> *OpenShift Lightspeed Operator* -> *OLSConfig* -> `cluster` -> *YAML*. Once in the YAML editor, scroll down until you spot the _rag_ stanza. It should look something like:
 
-[source,yaml,role="execute",subs=attributes+]
 ----
 ...
 spec:

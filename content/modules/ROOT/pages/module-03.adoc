@@ -208,7 +208,6 @@ Now add your image as a second RAG database. From within the cluster, the image 
 
 As in module 2, navigate to *Ecosystem* -> *Installed Operators* -> *OpenShift Lightspeed Operator* -> *OLSConfig* -> `cluster` -> *YAML*, and extend the _rag_ list:
 
-[source,yaml,role="execute"]
 ----
 ...
 spec:

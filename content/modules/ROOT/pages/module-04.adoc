@@ -15,7 +15,6 @@ The cluster interaction feature is enabled by default. Optionally, you can check
 
 Back in the OpenShift web console, navigate to *Ecosystem* -> *Installed Operators* -> *OpenShift Lightspeed Operator* -> *OLSConfig* -> `cluster` -> *YAML*. Once in the YAML editor, scroll down until you spot the _introspectionEnabled_ flag. It should be set to _true_:
 
-[source,yaml,role="execute",subs=attributes+]
 ----
 ...
 spec:

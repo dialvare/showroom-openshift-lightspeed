@@ -2,7 +2,7 @@
 
 include::partial$console-access.adoc[]
 
-Time to put the intelligent assistant to the real test. The key to effective troubleshooting with it is using the resource attachment feature. By clicking the *Plus (+)* button next to the message box in the chat interface, you can attach YAML definitions and other components to your question, giving the assistant the precise context it needs to diagnose the problem.
+Time to put the intelligent assistant to the real test. For effective troubleshooting, the chat interface allows users to attach YAML definitions and other components to the question, giving the assistant the additional context it needs to diagnose the problem.
 
 image::arch-module05.svg[Architecture with the built-in MCP server highlighted, align="center", link=self, window=blank]
 
@@ -33,13 +33,6 @@ What's wrong with this pod?
 ----
 
 You should get some detailed information about nodes and node selectors.
-
-Now go ahead and attach the *Full YAML file*, and then ask:
-
-[source,role="copypaste"]
-----
-How can I fix it?
-----
 
 Fortunately, this is a pretty obvious typo: `worker` is spelled wrong. The model identifies the typo as the likely problem and suggests ways to fix it.
 
