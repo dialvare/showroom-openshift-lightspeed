@@ -149,7 +149,14 @@ podman images
 [#push-the-image]
 == Push the Image to the Internal Registry
 
-Instead of an external registry such as quay.io, you will push the image to the cluster's internal image registry. First, expose the registry outside the cluster and store its address in a variable:
+Instead of an external registry such as quay.io, you will push the image to the cluster's internal image registry. First, create a project to hold the image — the internal registry maps projects to repositories:
+
+[source,bash,role="execute"]
+----
+oc new-project byok-workshop
+----
+
+Then expose the registry outside the cluster, wait for it to settle, and store its address in a variable:
 
 [source,bash,role="execute"]
 ----
@@ -158,16 +165,19 @@ REGISTRY=$(oc get route default-route -n openshift-image-registry -o jsonpath='{
 echo $REGISTRY
 ----
 
-Create a project to hold the image — the internal registry maps projects to repositories — and log podman into the registry with your cluster credentials:
+[source,bash,role="execute"]
+----
+oc wait --for=condition=Available deployment/image-registry -n openshift-image-registry --timeout=180s
+----
+
+NOTE: Exposing the registry makes the image registry operator roll the registry pods, and on this single-node cluster the API can briefly return errors while that happens. The wait command above retries until the registry is back — if an `oc` command fails around this point, give it a minute and try again.
+
+Finally, log podman into the registry. The bastion's `oc` session is certificate-based and cannot produce a login token, so create one for the `builder` service account, which has push permissions in its project:
 
 [source,bash,role="execute"]
 ----
-oc new-project byok-workshop
-----
-
-[source,bash,role="execute",subs=attributes+]
-----
-podman login -u {openshift_cluster_admin_username} -p {openshift_cluster_admin_password} $REGISTRY
+TOKEN=$(oc create token builder -n byok-workshop --duration=8h)
+podman login -u builder -p $TOKEN $REGISTRY
 ----
 
 Tag the generated image with its destination and push it:
