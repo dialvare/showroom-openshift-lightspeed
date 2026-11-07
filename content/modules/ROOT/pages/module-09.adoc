@@ -140,23 +140,29 @@ spec:
 EOF
 ----
 
-In the OpenShift web console, go to *Agentic Runs* -> *Agentic Runs* in the left navigation menu. You should see your run listed — along with the runs created automatically by the Cluster Version Operator — all in a *Pending* state, because Analysis is set to _Manual_ in the ApprovalPolicy. Click on the `deploy-test-workload` run to open its detail view.
+In the OpenShift web console, go to *Agentic Runs* -> *Agentic Runs* in the left navigation menu. You should see your run listed — along with the runs created automatically by the Cluster Version Operator — all in a *Pending* state, because Analysis is set to _Manual_ in the ApprovalPolicy.
+
+Before driving it, review the approval configuration by clicking the *engine icon* in the upper-right corner. The page shows the actual approval policy and allows you to change it:
+
+image::ols-approval-settings.png[Agentic Runs approval settings, align="center", link=self, window=blank]
+
+As mentioned before, _Analysis_ and _Execution_ are set to _Manual_, meaning you need to trigger the analysis yourself and review the execution plan before accepting it. Do not change this configuration. Navigate back to *Agentic Runs* -> *Agentic Runs* and click on the `deploy-test-workload` run to open its detail view.
+
+image::agentic-run.png[Agentic run view, align="center", link=self, window=blank]
 
 Click *Approve Analysis* twice. A sandbox pod starts, queries the cluster for context, calls the LLM, and writes its findings. You can track the progress by clicking *View Analysis logs*.
 
-Once it finishes, the status transitions to *Proposed* — meaning the agent has a plan ready and is waiting for your decision before touching anything. The *View plan details* section shows the analysis results: confirmation that no conflicting _hello-test_ workload exists, and the plan of what will be created.
+Once it finishes, the agent shows different plans and is waiting for your decision before touching anything. *Select plan 1* and click on *View plan details* section to see the analysis results: confirmation that no conflicting _hello-test_ workload exists, and the plan of what will be created.
 
-NOTE: Nothing has been deployed yet. The agent completed the analysis and is now waiting. It cannot proceed without your explicit approval.
+image::agentic-execute-plan.png[Select the Agentic Run proposal, align="center", link=self, window=blank]
 
 This is the Human-in-the-Loop gate. Review the deployment plan the agent proposed. Once you agree with it, click the *Execute remediation* button twice to approve and unlock the next phase.
 
-image::agentic-execute-plan.png[Select and approve the Agentic Lightspeed proposal, align="center", link=self, window=blank]
+A new sandbox pod is deployed, the agent runs the required commands against the cluster, and reports the result. You can follow the process by clicking *View Execution logs*.
 
-The *Executing* phase begins: a new sandbox pod is deployed, the agent runs the required commands against the cluster, and reports the result. You can follow the process by clicking *View Execution logs*.
+Once execution completes, *Verification* starts automatically. No further approval needed, because the verification phase was set to _Automatic_ in the ApprovalPolicy. Once the verification sandbox confirms the workload is running, the status moves to *Completed*.
 
-Once execution completes, *Verification* starts automatically. No further approval needed, because the verification phase was set to _Automatic_ in the ApprovalPolicy. The verification sandbox confirms the workload is running and the status moves to *Completed*.
-
-NOTE: If verification determines the workload did not reach the expected state, the run transitions to *Escalating* instead of *Completed*. An escalation record is created with details for human review — the agent tells you precisely what it could not complete rather than silently marking the run as successful.
+NOTE: If verification determines the workload did not reach the expected state, the run transitions to *Escalation*. An escalation record is created with details for human review.
 
 To confirm the workload was deployed, navigate to *Workloads* -> *Deployments* in the `lightspeed-demo` namespace. You should see the `hello-test` Deployment with its pod in *Running* state.
 
@@ -184,13 +190,7 @@ oc rollout restart deployment/lightspeed-agentic-alerts-adapter -n openshift-lig
 
 NOTE: In a standard deployment the OpenShift Lightspeed operator detects ConfigMap changes and rolls out the updated configuration automatically. This demo environment requires a manual restart.
 
-Back in the OpenShift web console, under *Agentic Runs* -> *Agentic Runs*, you should see a new run created automatically by the adapter, called `poddisruptionbudgetlimit-critical`, in a *Pending* state.
-
-Before driving it, review the approval configuration by clicking the *engine icon* in the upper-right corner. The page shows the actual approval policy and allows you to change it:
-
-image::ols-approval-settings.png[Agentic Runs approval settings, align="center", link=self, window=blank]
-
-As mentioned before, _Analysis_ and _Execution_ are set to _Manual_, meaning you need to trigger the analysis yourself and review the execution plan before accepting it. Do not change this configuration. Navigate back to *Agentic Runs* -> *Agentic Runs* and click on the `poddisruptionbudgetlimit-critical` run to open its detail view:
+Back in the OpenShift web console, under *Agentic Runs* -> *Agentic Runs*, you should see a new run created automatically by the adapter, called `poddisruptionbudgetlimit-critical`, in a *Pending* state. Click on it to open its detail view:
 
 image::ols-agentic-run.png[PodDisruptionBudgetLimit AgenticRun details, align="center", link=self, window=blank]
 
