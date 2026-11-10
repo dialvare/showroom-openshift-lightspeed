@@ -206,6 +206,13 @@ metadata:
   name: mcp-system
 ---
 apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: openshift-default
+spec:
+  controllerName: openshift.io/gateway-controller/v1
+---
+apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: mcp-gateway
@@ -413,7 +420,7 @@ oc wait --for=condition=Ready mcpserver/openshift-mcp-server -n mcp-servers --ti
 [#enable-toolsets]
 == 5. Enable additional toolsets
 
-The MCP server loads its toolsets from the `config.toml` in its ConfigMap. The deployment so far enables only the `core` and `config` toolsets; you can extend what the assistant can do by updating the ConfigMap with more toolsets and restarting the server. This example enables the `metrics`, `netedge`, `openshift`, and `ossm` toolsets: `metrics` queries the in-cluster Thanos querier, `netedge` diagnoses routers, ingress, and DNS, and `ossm` queries Service Mesh resources through Kiali:
+The MCP server loads its toolsets from the `config.toml` in its ConfigMap. The deployment so far enables only the `core` and `config` toolsets; you can extend what the assistant can do by updating the ConfigMap with more toolsets and restarting the server. This example enables the `observability/metrics`, `netedge`, `openshift`, and `ossm` toolsets: `observability/metrics` queries the in-cluster monitoring stack, `netedge` diagnoses routers, ingress, and DNS, and `ossm` queries Service Mesh resources through Kiali. Other available toolsets include `kubevirt`, `ovn-kubernetes`, `cni-diagnostics`, `cluster-diagnostics`, `netobserv`, `observability/logs`, `observability/traces`, `openshift/mustgather`, `helm`, `tekton`, and `oadp`:
 
 [source,bash,role="execute"]
 ----
@@ -435,7 +442,7 @@ data:
     skip_jwt_verification = true
     disable_dynamic_client_registration = true
     require_tls = false
-    toolsets = ["core", "config", "metrics", "netedge", "openshift", "ossm"]
+    toolsets = ["core", "config", "observability/metrics", "netedge", "openshift", "ossm"]
     [[denied_resources]]
     group = ""
     version = "v1"
@@ -445,10 +452,6 @@ data:
     max_body_bytes = 1048576
     rate_limit_rps = 2
     rate_limit_burst = 4
-    [toolset_configs.metrics]
-    prometheus_url = "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
-    insecure = true
-    auth_mode = "header"
     [toolset_configs.netedge]
     auth_mode = "header"
     insecure = true
@@ -466,7 +469,7 @@ oc rollout restart deployment/openshift-mcp-server -n mcp-servers
 oc wait --for=condition=Ready mcpserver/openshift-mcp-server -n mcp-servers --timeout=300s
 ----
 
-NOTE: The `ossm` toolset and the Kiali configuration expect an OpenShift Service Mesh deployment with Kiali in the `istio-system` namespace. On a cluster without a mesh, those tools return no results, while the `metrics` and `netedge` toolsets work on any OpenShift cluster.
+NOTE: The `ossm` toolset and the Kiali configuration expect an OpenShift Service Mesh deployment with Kiali in the `istio-system` namespace. On a cluster without a mesh, those tools return no results, while the `observability/metrics` and `netedge` toolsets work on any OpenShift cluster.
 
 [#register-mcp-server]
 == 6. Register the MCP server
