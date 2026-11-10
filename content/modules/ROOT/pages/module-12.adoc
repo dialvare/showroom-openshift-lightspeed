@@ -4,7 +4,7 @@ include::partial$console-access.adoc[]
 
 Instead of connecting OpenShift Lightspeed to each MCP server individually, you can route all MCP tool calls through a single, centrally managed gateway endpoint. The gateway aggregates every registered MCP server behind one URL, so platform teams can apply consistent authentication, authorization, and policy enforcement to every tool call. From the perspective of OpenShift Lightspeed, the gateway is just a single MCP server.
 
-This appendix deploys the full stack behind the gateway: Red Hat OpenShift AI, Connectivity Link, the MCP Gateway operator, the MCP Lifecycle operator, and the MCP server for Red Hat OpenShift. All the work happens in the *Bastion* tab.
+This appendix deploys the full stack behind the gateway: Red Hat OpenShift AI, Connectivity Link with its MCP Gateway, the MCP Lifecycle operator, and the MCP server for Red Hat OpenShift. All the work happens in the *Bastion* tab.
 
 [#install-rhoai]
 == 1. Install Red Hat OpenShift AI
@@ -32,19 +32,90 @@ metadata:
   name: rhods-operator
   namespace: redhat-ods-operator
 spec:
-  channel: stable
+  channel: stable-3.x
   installPlanApproval: Automatic
   name: rhods-operator
-  source: redhat-operators
+  source: redhat-operators-snapshot-lightspeed
   sourceNamespace: openshift-marketplace
+  startingCSV: rhods-operator.3.5.0
 EOF
 ----
 
-The operator creates the `default-dsc` DataScienceCluster automatically. Wait for it to become ready:
+Wait for the operator installation to complete:
+
+[source,bash,role="execute"]
+----
+oc wait csv -n redhat-ods-operator -l operators.coreos.com/rhods-operator.redhat-ods-operator="" --for=jsonpath='{.status.phase}'=Succeeded --timeout=900s
+----
+
+Create the `default-dsc` DataScienceCluster with only the components this appendix needs: the dashboard (which hosts the MCP catalog) and the MCP Lifecycle operator. Every other component is explicitly removed to keep the footprint minimal:
+
+[source,bash,role="execute"]
+----
+oc apply -f - <<'EOF'
+apiVersion: datasciencecluster.opendatahub.io/v2
+kind: DataScienceCluster
+metadata:
+  name: default-dsc
+spec:
+  components:
+    dashboard:
+      managementState: Managed
+    mcplifecycleoperator:
+      managementState: Managed
+    workbenches:
+      managementState: Removed
+    aipipelines:
+      managementState: Removed
+    kserve:
+      managementState: Removed
+    kueue:
+      managementState: Removed
+    ray:
+      managementState: Removed
+    trustyai:
+      managementState: Removed
+    modelregistry:
+      managementState: Removed
+    trainingoperator:
+      managementState: Removed
+    feastoperator:
+      managementState: Removed
+    llamastackoperator:
+      managementState: Removed
+    ogx:
+      managementState: Removed
+    mlflowoperator:
+      managementState: Removed
+    trainer:
+      managementState: Removed
+    sparkoperator:
+      managementState: Removed
+    aigateway:
+      managementState: Removed
+EOF
+----
+
+Wait for the DataScienceCluster to become ready:
 
 [source,bash,role="execute"]
 ----
 oc wait --for=condition=Ready datasciencecluster/default-dsc --timeout=1200s
+----
+
+Wait for the MCP Lifecycle operator to be running:
+
+[source,bash,role="execute"]
+----
+oc wait --for=condition=Available deployment -l app.kubernetes.io/name=mcp-lifecycle-operator -n redhat-ods-applications --timeout=600s
+----
+
+Finally, turn on the MCP catalog in the OpenShift AI dashboard. This adds the *AI hub* -> *MCP servers* section, where MCP servers can also be deployed and managed from the web console:
+
+[source,bash,role="execute"]
+----
+oc patch odhdashboardconfig odh-dashboard-config -n redhat-ods-applications \
+  --type=merge -p '{"spec":{"dashboardConfig":{"mcpCatalog":true}}}'
 ----
 
 [#install-connectivity-link]
@@ -74,12 +145,27 @@ metadata:
   name: rhcl-operator
   namespace: kuadrant-system
 spec:
-  channel: stable-1.4
+  channel: stable-1.5
   installPlanApproval: Automatic
   name: rhcl-operator
   source: redhat-operators
   sourceNamespace: openshift-marketplace
----
+  startingCSV: rhcl-operator.v1.5.0
+EOF
+----
+
+Wait for the operator installation to complete:
+
+[source,bash,role="execute"]
+----
+oc wait csv -n kuadrant-system -l operators.coreos.com/rhcl-operator.kuadrant-system="" --for=jsonpath='{.status.phase}'=Succeeded --timeout=600s
+----
+
+Then create the `Kuadrant` custom resource:
+
+[source,bash,role="execute"]
+----
+oc apply -f - <<'EOF'
 apiVersion: kuadrant.io/v1beta1
 kind: Kuadrant
 metadata:
@@ -97,9 +183,16 @@ oc wait kuadrant/kuadrant --for="condition=Ready=true" -n kuadrant-system --time
 ----
 
 [#deploy-mcp-gateway]
-== 3. Deploy the MCP Gateway operator
+== 3. Deploy the MCP Gateway
 
-Install the MCP Gateway operator, then create the `Gateway` that listens for MCP traffic and the `MCPGatewayExtension` that activates the gateway on it:
+With Connectivity Link 1.5, the `Kuadrant` custom resource deploys the MCP Gateway controller automatically: the `mcp-gateway-controller` pod runs in the `kuadrant-system` namespace, and the `mcp.kuadrant.io` custom resource definitions are already in place. No separate operator subscription is needed. Confirm that the controller is running:
+
+[source,bash,role="execute"]
+----
+oc wait --for=condition=Available deployment/mcp-gateway-controller -n kuadrant-system --timeout=300s
+----
+
+Then create the `Gateway` that listens for MCP traffic and the `MCPGatewayExtension` that activates the gateway on it:
 
 [source,bash,role="execute"]
 ----
@@ -109,41 +202,6 @@ kind: Namespace
 metadata:
   name: mcp-system
 ---
-apiVersion: operators.coreos.com/v1
-kind: OperatorGroup
-metadata:
-  name: mcp-gateway
-  namespace: mcp-system
-spec:
-  targetNamespaces:
-    - mcp-system
----
-apiVersion: operators.coreos.com/v1alpha1
-kind: Subscription
-metadata:
-  name: mcp-gateway
-  namespace: mcp-system
-spec:
-  channel: preview
-  installPlanApproval: Automatic
-  name: mcp-gateway
-  source: redhat-operators
-  sourceNamespace: openshift-marketplace
-EOF
-----
-
-Wait for the operator installation to complete:
-
-[source,bash,role="execute"]
-----
-oc wait csv -n mcp-system -l operators.coreos.com/mcp-gateway.mcp-system="" --for=jsonpath='{.status.phase}'=Succeeded --timeout=600s
-----
-
-Then create the `Gateway` and the `MCPGatewayExtension`:
-
-[source,bash,role="execute"]
-----
-oc apply -f - <<'EOF'
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
@@ -153,13 +211,14 @@ spec:
   gatewayClassName: openshift-default
   listeners:
     - name: mcp
+      hostname: mcp-gateway-istio.mcp-system.svc.cluster.local
       port: 8080
       protocol: HTTP
       allowedRoutes:
         namespaces:
           from: All
 ---
-apiVersion: mcp.kuadrant.io/v1alpha1
+apiVersion: mcp.kuadrant.io/v1
 kind: MCPGatewayExtension
 metadata:
   name: mcp-gateway-ext
@@ -182,32 +241,18 @@ Wait for the extension to become ready:
 oc wait --for=condition=Ready mcpgatewayextension/mcp-gateway-ext -n mcp-system --timeout=300s
 ----
 
-[#enable-mcp-lifecycle]
-== 4. Enable MCP lifecycle management
-
-The MCP Lifecycle operator manages the lifecycle of `MCPServer` resources. Enable it as a DataScienceCluster component and turn on the MCP catalog in the OpenShift AI dashboard:
+Optionally, enable the Connectivity Link console plugin to visualize and manage the gateway from the web console:
 
 [source,bash,role="execute"]
 ----
-oc patch datasciencecluster default-dsc --type=merge \
-  -p '{"spec":{"components":{"mcplifecycleoperator":{"managementState":"Managed"}}}}'
+oc patch console.operator.openshift.io cluster --type json \
+  -p '[{"op":"add","path":"/spec/plugins/-","value":"kuadrant-console-plugin"}]'
 ----
 
-[source,bash,role="execute"]
-----
-oc patch odhdashboardconfig odh-dashboard-config -n redhat-ods-applications \
-  --type=merge -p '{"spec":{"dashboardConfig":{"mcpCatalog":true}}}'
-----
-
-Wait for the operator to be running:
-
-[source,bash,role="execute"]
-----
-oc wait --for=condition=Available deployment/mcp-lifecycle-operator -n redhat-ods-applications --timeout=600s
-----
+The console reloads automatically and a *Connectivity Link* section appears in the navigation menu. Its *MCP management* pages list the gateway extensions, the registered MCP servers with their online status, and the attached policies, and the *MCP Inspector* lets you validate and run individual tools directly.
 
 [#deploy-mcp-server]
-== 5. Deploy the MCP server for Red Hat OpenShift
+== 4. Deploy the MCP server for Red Hat OpenShift
 
 Deploy the MCP server for Red Hat OpenShift as an `MCPServer` resource, with its configuration, service account, and read-only RBAC:
 
@@ -360,7 +405,7 @@ oc wait --for=condition=Ready mcpserver/openshift-mcp-server -n mcp-servers --ti
 ----
 
 [#register-mcp-server]
-== 6. Register the MCP server
+== 5. Register the MCP server
 
 Expose the MCP server to the gateway with an `HTTPRoute` labeled for discovery, then register it with an `MCPServerRegistration`:
 
@@ -375,9 +420,12 @@ metadata:
   labels:
     mcp-server: 'true'
 spec:
+  hostnames:
+    - mcp-gateway-istio.mcp-system.svc.cluster.local
   parentRefs:
     - name: mcp-gateway
       namespace: mcp-system
+      sectionName: mcp
   rules:
     - matches:
         - path:
@@ -387,7 +435,7 @@ spec:
         - name: openshift-mcp-server
           port: 8080
 ---
-apiVersion: mcp.kuadrant.io/v1alpha1
+apiVersion: mcp.kuadrant.io/v1
 kind: MCPServerRegistration
 metadata:
   name: openshift-mcp-server
@@ -411,14 +459,13 @@ oc get mcpsr -n mcp-servers
 ----
 
 [#configure-ols]
-== 7. Point OpenShift Lightspeed at the gateway
+== 6. Point OpenShift Lightspeed at the gateway
 
-Finally, reconfigure the `OLSConfig` to route MCP tool calls through the gateway. The gateway exposes its Streamable HTTP endpoint at the `/mcp` path, and the `Authorization` header forwards the logged-in user's bearer token so the gateway can authorize each request:
+Finally, reconfigure the `OLSConfig` to route MCP tool calls through the gateway. The gateway is reachable in-cluster at the listener hostname, exposes its Streamable HTTP endpoint at the `/mcp` path, and the `Authorization` header forwards the logged-in user's bearer token so the gateway can authorize each request:
 
 [source,bash,role="execute"]
 ----
-GW_HOST=$(oc get gateway mcp-gateway -n mcp-system -o jsonpath='{.status.addresses[0].value}')
-oc patch olsconfig cluster --type merge -p "{\"spec\":{\"featureGates\":[\"MCPServer\"],\"mcpServers\":[{\"name\":\"mcp-gateway\",\"url\":\"http://${GW_HOST}:8080/mcp\",\"timeout\":30,\"headers\":[{\"name\":\"Authorization\",\"valueFrom\":{\"type\":\"kubernetes\"}}]}]}}"
+oc patch olsconfig cluster --type merge -p '{"spec":{"featureGates":["MCPServer"],"mcpServers":[{"name":"mcp-gateway","url":"http://mcp-gateway-istio.mcp-system.svc.cluster.local:8080/mcp","timeout":30,"headers":[{"name":"Authorization","valueFrom":{"type":"kubernetes"}}]}]}}'
 ----
 
 NOTE: The patch replaces the whole _mcpServers_ list, so any MCP server registered directly (as in the custom MCP servers module) is superseded by the gateway. Register those servers behind the gateway instead.
