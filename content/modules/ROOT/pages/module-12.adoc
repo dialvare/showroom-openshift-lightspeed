@@ -305,7 +305,9 @@ The console reloads automatically and a *Connectivity Link* section appears in t
 [#deploy-mcp-server]
 == 4. Deploy the MCP server for Red Hat OpenShift
 
-Deploy the MCP server for Red Hat OpenShift as an `MCPServer` resource, with its configuration, service account, and RBAC. The service account is bound to the standard `edit` cluster role, which grants read and write access to cluster resources without allowing RBAC or namespace management: the write tools can create, update, and delete workloads, while the `[[denied_resources]]` block in the configuration still keeps Secret contents away from the LLM:
+Deploy the MCP server for Red Hat OpenShift as an `MCPServer` resource, with its configuration, service account, and RBAC. The service account is bound to the standard `edit` cluster role, which grants read and write access to cluster resources without allowing RBAC or namespace management: the write tools can create, update, and delete workloads, while the `[[denied_resources]]` block in the configuration still keeps Secret contents away from the LLM.
+
+Note that the Red Hat image ships different defaults than the upstream configuration reference documents: both `read_only` and `disable_destructive` default to `true`, so the configuration must explicitly set both to `false` to expose the write tools. Setting only `read_only = false` is not enough — `disable_destructive` hides every tool annotated with `destructiveHint=true` on its own, which covers `resources_create_or_update`, `resources_delete`, `resources_scale`, `pods_delete`, and `pods_exec`:
 
 [source,bash,role="execute"]
 ----
@@ -344,6 +346,7 @@ data:
     port = "8080"
     stateless = true
     read_only = false
+    disable_destructive = false
     list_output = "table"
     cluster_provider_strategy = "in-cluster"
     cluster_auth_mode = "passthrough"
@@ -444,6 +447,7 @@ data:
     port = "8080"
     stateless = true
     read_only = false
+    disable_destructive = false
     list_output = "table"
     cluster_provider_strategy = "in-cluster"
     cluster_auth_mode = "passthrough"
