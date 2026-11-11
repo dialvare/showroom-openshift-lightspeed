@@ -801,14 +801,18 @@ data:
           "publicClient": false,
           "secret": "openshift-mcp-server-secret",
           "standardFlowEnabled": false,
-          "defaultClientScopes": ["basic", "roles"],
-          "roles": [
+          "defaultClientScopes": ["basic", "roles"]
+        }
+      ],
+      "roles": {
+        "client": {
+          "mcp-servers/openshift-mcp-server": [
             { "name": "tool:pods_list" },
             { "name": "tool:pods_get" },
             { "name": "tool:events_list" }
           ]
         }
-      ],
+      },
       "groups": [
         {
           "name": "team-a",
@@ -881,7 +885,8 @@ spec:
             periodSeconds: 10
           volumeMounts:
             - name: realm-import
-              mountPath: /opt/keycloak/data/import
+              mountPath: /opt/keycloak/data/import/mcp-realm.json
+              subPath: mcp-realm.json
       volumes:
         - name: realm-import
           configMap:
