@@ -67,7 +67,7 @@ Which virtual machines in the cluster are not in a Running state?
 
 The assistant will use cluster interaction tools to query the VirtualMachine resources across your cluster. You should see that there's a RHEL 9 VM in an _ImagePullBackOff_ state that's failing to start.
 
-Now let's dig deeper into what's wrong with this VM. In the OpenShift console, navigate to *Virtualization* -> *VirtualMachines*. Select the `lightspeed-demo` project. Find the failing *RHEL 9 VM* called `rhel9-demo`, and click the VM name to open its details page.
+Now let's dig deeper into what's wrong with this VM. In the OpenShift console, navigate to *Virtualization* -> *VirtualMachines*. Select the *RHEL 9 VM* called `rhel9-demo` to open its details page.
 
 Now, return to the OpenShift Lightspeed chat interface. Then click the *Plus (+)* button to attach information. Go ahead and attach the *Full YAML file* for this VM.
 

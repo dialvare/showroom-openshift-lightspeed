@@ -20,19 +20,21 @@ Review the response when it completes: it summarizes the cluster's overall readi
 [#agentic-runs-from-the-cluster-version-operator]
 == Agentic runs from the Cluster Version Operator
 
-The precheck you just ran was conversational, but the Cluster Version Operator also creates `AgenticRun` resources when updates are available. This is the third way they come into existence, and the one you already glimpsed in the previous module, where runs created by the operator sat alongside your own in a *Pending* state.
+The precheck you just ran was conversational, but the Cluster Version Operator also creates `AgenticRun` resources when updates are available. This is the third way they come into existence, and the one you already glimpsed in the previous module, where runs created by the operator sat alongside your own in a _Pending_ state.
 
 When an upgrade path is available in your cluster, the Cluster Version Operator automatically creates `AgenticRun` resources to analyze the recommended and conditional update targets. Instead of you describing the problem, the cluster itself describes it: each run investigates whether the cluster can safely move to a specific version, so potential blockers surface before you commit to the update.
 
 NOTE: This is currently a Technology Preview feature of OpenShift Lightspeed.
 
-Back on the *Cluster Settings* page, you can see a *Select Update Path* dropdown listing all the available cluster upgrade paths:
+Now go to the *Administration* -> *Cluster Update* page. There, you can see a *Select Update Path* dropdown listing all the available cluster upgrade paths:
 
 image::agentic-cluster-update.png[Agentic cluster updates, align="center", link=self, window=blank]
 
 Select the one you prefer and click *Analyse*.
 
 This triggers the corresponding AgenticRun in the background, the kind you saw pending in the previous module. In this case, the AgenticRun only analyzes your environment: no execution plans are generated, just a detailed summary of the status of the cluster and its operators, the feasibility of updating it, and any possible conflicts.
+
+image::agentic-update-result.png[Agentic cluster updates results, align="center", link=self, window=blank]
 
 == What's Next?
 

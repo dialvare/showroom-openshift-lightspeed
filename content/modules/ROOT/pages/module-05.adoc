@@ -19,7 +19,7 @@ Now, in the pod list, click the `broken-pod` which you can see is in the _Pendin
 
 Open the OpenShift Lightspeed chat interface if you minimized it, and make sure to press *Clear chat* (trash can). Then, click the *Plus (+)* button to attach information.
 
-Because you are on the pod's details page, the attach menu shows the resource you are currently viewing along with options like *Full YAML file*, *Filtered YAML*, *Events* and *Logs*. In this case, as this pod is currently _Pending_, there are no logs we can attach, and we don't really care about the events, either.
+Because you are on the pod's details page, the attach menu shows the resource you are currently viewing along with options like _Full YAML file_, _Filtered YAML_, _Events_ and _Logs_. In this case, as this pod is currently _Pending_, there are no logs we can attach, and we don't really care about the events, either.
 
 Go ahead and attach the *Filtered YAML*, which will include the status information for this pod.
 

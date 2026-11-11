@@ -36,7 +36,6 @@ Now use the *Resources* box to search for the following custom resources:
 
 In the *Resources* box, type `LLMProvider` and select it from the drop-down. You will see the `maas` provider listed. Click on it and open the *YAML* tab, where you should see something similar to the following:
 
-[source,yaml,role="execute"]
 ----
 apiVersion: agentic.openshift.io/v1alpha1
 kind: LLMProvider
@@ -58,7 +57,6 @@ NOTE: While connecting OpenShift Lightspeed to MaaS works, it is not an official
 
 Navigate back to *Home* -> *Search*. In the *Resources* box, type `Agent` and select it from the drop-down. Open the `default` Agent and switch to the *YAML* tab:
 
-[source,yaml,role="execute"]
 ----
 apiVersion: agentic.openshift.io/v1alpha1
 kind: Agent
@@ -80,7 +78,6 @@ Notice the _model_ field (claude-sonnet-4-6) and the per-step _timeouts_. These 
 
 Lastly, go back to *Home* -> *Search*, and search for `ApprovalPolicy`. Open the `cluster` resource that appears. In the *YAML* tab you can see that all phases run automatically except for Analysis and Execution, which require manual approval:
 
-[source,yaml,role="execute"]
 ----
 apiVersion: agentic.openshift.io/v1alpha1
 kind: ApprovalPolicy
@@ -181,15 +178,6 @@ oc patch configmap alerts-adapter-config -n openshift-lightspeed \
   --type merge -p '{"data":{"config.yaml":"pollInterval: 30s\npostRunDelay: 1h\nfiltering:\n  allowedReceivers:\n    - critical\ndeduplication:\n  ignoredLabels:\n    - pod\n    - instance\n    - endpoint\n    - uid\ntools:\n  skills:\n    - image: quay.io/openshiftanalytics/agentic-skills:latest\n      paths:\n        - /skills/cluster-troubleshoot/investigate-alert\n"}}'
 ----
 
-Then restart the adapter so it picks up the new configuration:
-
-[source,bash,role="execute"]
-----
-oc rollout restart deployment/lightspeed-agentic-alerts-adapter -n openshift-lightspeed
-----
-
-NOTE: In a standard deployment the OpenShift Lightspeed Operator detects ConfigMap changes and rolls out the updated configuration automatically. This demo environment requires a manual restart.
-
 Back in the OpenShift web console, under *Agentic Runs* -> *Agentic Runs*, you should see a new run created automatically by the adapter, called `poddisruptionbudgetlimit-critical`, in a *Pending* state. Click on it to open its detail view:
 
 image::ols-agentic-run.png[PodDisruptionBudgetLimit AgenticRun details, align="center", link=self, window=blank]
@@ -197,7 +185,7 @@ image::ols-agentic-run.png[PodDisruptionBudgetLimit AgenticRun details, align="c
 Work through each phase of the run:
 
 . Click *Approve Analysis* twice. A sandbox pod queries Alertmanager, inspects the affected resources, calls the LLM, and writes its findings. Track progress in *View Analysis logs*.
-. Once analysis completes, review the proposed fix under the _Remediation plans_ section. If multiple execution plans appear, select the plan titled _Remove the init container_.
+. Once analysis completes, review the proposed fix under the _Remediation plans_ section. If multiple execution plans appear, select the plan titled *Remove the init container*.
 +
 image::ols-execute-remediation.png[Remediation plans proposed by the autonomous agents, align="center", link=self, window=blank]
 . Review the remediation plan in *View plan details*. Each plan provides a root cause analysis, the proposed commands, and the required permissions.
