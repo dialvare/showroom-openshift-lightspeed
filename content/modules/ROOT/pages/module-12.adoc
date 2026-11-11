@@ -226,7 +226,7 @@ With Connectivity Link 1.5, the `Kuadrant` custom resource deploys the MCP Gatew
 oc wait --for=condition=Available deployment/mcp-gateway-controller -n kuadrant-system --timeout=300s
 ----
 
-Then create the `Gateway` that listens for MCP traffic and the `MCPGatewayExtension` that activates the gateway on it:
+Then create the `Gateway` and the `MCPGatewayExtension` that activates the gateway on it. The Gateway has two listeners: the `mcp` listener has the gateway's own hostname and serves the broker endpoint that clients talk to, and the `mcps` listener is a wildcard listener where every registered MCP server attaches with its own hostname:
 
 [source,bash,role="execute"]
 ----
@@ -255,6 +255,13 @@ spec:
   listeners:
     - name: mcp
       hostname: mcp-gateway-openshift-default.mcp-system.svc.cluster.local
+      port: 8080
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: mcps
+      hostname: "*.mcp.internal"
       port: 8080
       protocol: HTTP
       allowedRoutes:
@@ -422,7 +429,7 @@ oc wait --for=condition=Ready mcpserver/openshift-mcp-server -n mcp-servers --ti
 [#enable-toolsets]
 == 5. Enable additional toolsets
 
-The MCP server loads its toolsets from the `config.toml` in its ConfigMap. The deployment so far enables only the `core` and `config` toolsets; you can extend what the assistant can do by updating the ConfigMap with more toolsets and restarting the server. This example enables the `observability/metrics`, `netedge`, `openshift`, and `ossm` toolsets: `observability/metrics` queries the in-cluster monitoring stack, `netedge` diagnoses routers, ingress, and DNS, and `ossm` queries Service Mesh resources through Kiali. Other available toolsets include `kubevirt`, `ovn-kubernetes`, `cni-diagnostics`, `cluster-diagnostics`, `netobserv`, `observability/logs`, `observability/traces`, `openshift/mustgather`, `helm`, `tekton`, and `oadp`:
+The MCP server loads its toolsets from the `config.toml` in its ConfigMap. The deployment so far enables only the `core` and `config` toolsets; you can extend what the assistant can do by updating the ConfigMap with more toolsets and restarting the server. This example enables the `observability/metrics`, `netedge`, and `ossm` toolsets: `observability/metrics` queries the in-cluster monitoring stack, `netedge` diagnoses routers, ingress, and DNS, and `ossm` queries Service Mesh resources through Kiali. Other available toolsets include `kubevirt`, `ovn-kubernetes`, `cni-diagnostics`, `cluster-diagnostics`, `netobserv`, `observability/logs`, `observability/traces`, `openshift/mustgather`, `helm`, `tekton`, and `oadp`:
 
 [source,bash,role="execute"]
 ----
@@ -444,7 +451,7 @@ data:
     skip_jwt_verification = true
     disable_dynamic_client_registration = true
     require_tls = false
-    toolsets = ["core", "config", "observability/metrics", "netedge", "openshift", "ossm"]
+    toolsets = ["core", "config", "observability/metrics", "netedge", "ossm"]
     [[denied_resources]]
     group = ""
     version = "v1"
@@ -454,20 +461,16 @@ data:
     max_body_bytes = 1048576
     rate_limit_rps = 2
     rate_limit_burst = 4
-    [toolset_configs.netedge]
-    auth_mode = "header"
-    insecure = true
     [toolset_configs.kiali]
     url = "https://kiali.istio-system.svc.cluster.local:20001"
     insecure = true
 EOF
 ----
 
-Restart the MCP server to reload the configuration, and wait for it to be ready again:
+The MCP Lifecycle operator watches the ConfigMaps and Secrets referenced by the `MCPServer` CR and rolls the deployment automatically whenever their content changes — there is no need to restart anything by hand. Wait for the server to become ready again:
 
 [source,bash,role="execute"]
 ----
-oc rollout restart deployment/openshift-mcp-server -n mcp-servers
 oc wait --for=condition=Ready mcpserver/openshift-mcp-server -n mcp-servers --timeout=300s
 ----
 
@@ -476,7 +479,7 @@ NOTE: The `ossm` toolset and the Kiali configuration expect an OpenShift Service
 [#register-mcp-server]
 == 6. Register the MCP server
 
-Expose the MCP server to the gateway with an `HTTPRoute` labeled for discovery, then register it with an `MCPServerRegistration`:
+Expose the MCP server to the gateway with an `HTTPRoute` labeled for discovery, then register it with an `MCPServerRegistration`. The route attaches to the wildcard `mcps` listener with a hostname of its own: the gateway routes the broker and every registered server by Host header, so each server needs a distinct hostname — otherwise tool calls forwarded to the server land on the broker's route instead:
 
 [source,bash,role="execute"]
 ----
@@ -490,11 +493,11 @@ metadata:
     mcp-server: 'true'
 spec:
   hostnames:
-    - mcp-gateway-openshift-default.mcp-system.svc.cluster.local
+    - openshift-mcp-server.mcp.internal
   parentRefs:
     - name: mcp-gateway
       namespace: mcp-system
-      sectionName: mcp
+      sectionName: mcps
   rules:
     - matches:
         - path:
@@ -511,6 +514,11 @@ metadata:
   namespace: mcp-servers
 spec:
   prefix: openshift_
+  category:
+    - openshift
+  hint: >-
+    Inspect and manage OpenShift cluster resources — pods, workloads, nodes,
+    events, and configuration.
   targetRef:
     group: gateway.networking.k8s.io
     kind: HTTPRoute
@@ -530,16 +538,24 @@ oc get mcpsr -n mcp-servers
 [#configure-ols]
 == 7. Point OpenShift Lightspeed at the gateway
 
-Finally, reconfigure the `OLSConfig` to route MCP tool calls through the gateway. The gateway is reachable in-cluster at the listener hostname, exposes its Streamable HTTP endpoint at the `/mcp` path, and the `Authorization` header forwards the logged-in user's bearer token so the gateway can authorize each request:
+Finally, reconfigure the `OLSConfig` to route MCP tool calls through the gateway. The gateway is reachable in-cluster at the listener hostname, exposes its Streamable HTTP endpoint at the `/mcp` path, and the `Authorization` header forwards the logged-in user's bearer token so the gateway can authorize each request. Setting `introspectionEnabled` to `false` also shuts down the operator-managed OpenShift MCP server that the cluster interaction module used, so its tools are not duplicated next to the ones federated through the gateway:
 
 [source,bash,role="execute"]
 ----
-oc patch olsconfig cluster --type merge -p '{"spec":{"featureGates":["MCPServer"],"mcpServers":[{"name":"mcp-gateway","url":"http://mcp-gateway-openshift-default.mcp-system.svc.cluster.local:8080/mcp","timeout":30,"headers":[{"name":"Authorization","valueFrom":{"type":"kubernetes"}}]}]}}'
+oc patch olsconfig cluster --type merge -p '{"spec":{"featureGates":["MCPServer"],"ols":{"introspectionEnabled":false},"mcpServers":[{"name":"mcp-gateway","url":"http://mcp-gateway-openshift-default.mcp-system.svc.cluster.local:8080/mcp","timeout":30,"headers":[{"name":"Authorization","valueFrom":{"type":"kubernetes"}}]}]}}'
 ----
 
 NOTE: The patch replaces the whole _mcpServers_ list, so any MCP server registered directly (as in the custom MCP servers module) is superseded by the gateway. Register those servers behind the gateway instead.
 
-The OpenShift Lightspeed app server pod redeploys with the new configuration. Once it is running, the intelligent assistant discovers the tools of every MCP server registered behind the gateway, prefixed with the registration prefix. Ask a question that requires cluster introspection and the tool calls now route through the gateway.
+The operator picks up the change, rolls out the OpenShift Lightspeed app server pod with the new configuration, and reports the overall status on the `OLSConfig` again. Wait for both before using the assistant:
+
+[source,bash,role="execute"]
+----
+oc rollout status deployment/lightspeed-app-server -n openshift-lightspeed --timeout=300s
+oc wait olsconfig cluster --for=jsonpath='{.status.overallStatus}'=Ready --timeout=600s
+----
+
+Once the app server is running, the intelligent assistant discovers the tools of every MCP server registered behind the gateway, prefixed with the registration prefix. Ask a question that requires cluster introspection and the tool calls now route through the gateway.
 
 The remaining sections are optional hardening for the gateway: content guardrails, authentication, and rate limits.
 
@@ -737,11 +753,11 @@ To see the guardrails in action, ask the assistant a question whose tool call wo
 [#gateway-authentication]
 == 9. Require authentication at the gateway
 
-By default, the gateway accepts any request that reaches it. To require authentication, attach an `AuthPolicy` to the gateway that validates JWT tokens issued by an OIDC provider. This section adds a second listener for authenticated clients, so the `mcp` listener keeps accepting the OpenShift Lightspeed bearer-token passthrough.
+By default, the gateway accepts any request that reaches it. To require authentication, attach an `AuthPolicy` to the gateway that validates JWT tokens issued by an OIDC provider. This section adds a dedicated listener for authenticated clients, so the `mcp` listener keeps accepting the OpenShift Lightspeed bearer-token passthrough and the `mcps` listener keeps serving the registered servers.
 
 NOTE: These steps assume an OIDC provider such as Keycloak is deployed and reachable, with a realm, clients, and users already configured. The `issuerUrl` in the AuthPolicy must point to your provider's issuer endpoint. See the Red Hat Connectivity Link documentation for the supported single sign-on options.
 
-Add an authenticated listener to the `Gateway`:
+Add an authenticated listener to the `Gateway`. The `mcp` and `mcps` listeners are reapplied unchanged so the existing routes keep working:
 
 [source,bash,role="execute"]
 ----
@@ -762,6 +778,13 @@ spec:
         namespaces:
           from: All
     - name: mcps
+      hostname: "*.mcp.internal"
+      port: 8080
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: mcp-auth
       hostname: mcp-auth.mcp-system.svc.cluster.local
       port: 8080
       protocol: HTTP
@@ -786,7 +809,7 @@ spec:
     group: gateway.networking.k8s.io
     kind: Gateway
     name: mcp-gateway
-    sectionName: mcps
+    sectionName: mcp-auth
   rules:
     authentication:
       jwt:
