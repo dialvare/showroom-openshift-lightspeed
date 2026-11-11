@@ -9,7 +9,40 @@ This appendix deploys the full stack behind the gateway: Red Hat OpenShift AI, C
 [#install-rhoai]
 == 1. Install Red Hat OpenShift AI
 
-The MCP Lifecycle operator is a Red Hat OpenShift AI component, so OpenShift AI must be installed first:
+Red Hat OpenShift AI is not yet published in the `redhat-operators` catalog on OpenShift 5. Point the cluster at the RHDP snapshot of the 4.22 Red Hat Operators catalog instead.
+
+[source,bash,role="execute"]
+----
+oc apply -f - <<'EOF'
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: redhat-operators-snapshot
+  namespace: openshift-marketplace
+spec:
+  sourceType: grpc
+  image: quay.io/rhpds/olm_snapshot_redhat_catalog:v4.22_2026_11_11
+  displayName: Red Hat Operators (4.22 Snapshot)
+  publisher: Red Hat AgnosticD
+  priority: -500
+  grpcPodConfig:
+    extractContent:
+      cacheDir: /tmp/cache
+      catalogDir: /configs
+    memoryTarget: "30Mi"
+    securityContextConfig: restricted
+EOF
+----
+
+Wait for the catalog to be ready:
+
+[source,bash,role="execute"]
+----
+oc wait catalogsource/redhat-operators-snapshot -n openshift-marketplace \
+  --for=jsonpath='{.status.connectionState.lastObservedState}'=READY --timeout=300s
+----
+
+The MCP Lifecycle operator is a Red Hat OpenShift AI component, so OpenShift AI must be installed next:
 
 [source,bash,role="execute"]
 ----
@@ -32,12 +65,11 @@ metadata:
   name: rhods-operator
   namespace: redhat-ods-operator
 spec:
-  channel: stable-3.x
+  channel: beta
   installPlanApproval: Automatic
   name: rhods-operator
-  source: redhat-operators-snapshot-lightspeed
+  source: redhat-operators-snapshot
   sourceNamespace: openshift-marketplace
-  startingCSV: rhods-operator.3.5.0
 EOF
 ----
 
@@ -48,7 +80,7 @@ Wait for the operator installation to complete:
 oc wait csv -n redhat-ods-operator -l operators.coreos.com/rhods-operator.redhat-ods-operator="" --for=jsonpath='{.status.phase}'=Succeeded --timeout=900s
 ----
 
-Create the `default-dsc` DataScienceCluster with only the components this appendix needs: the dashboard (which hosts the MCP catalog), the MCP Lifecycle operator, and TrustyAI (used by the guardrails section). Every other component is explicitly removed to keep the footprint minimal:
+Create the `default-dsc` DataScienceCluster with only the components this appendix needs: the dashboard (which hosts the MCP catalog), the model registry (the MCP catalog stores its server metadata in the model registry database, and the dashboard hides the section unless the component is deployed), the MCP Lifecycle operator, and TrustyAI (used by the guardrails section). Every other component is explicitly removed to keep the footprint minimal:
 
 [source,bash,role="execute"]
 ----
@@ -76,10 +108,8 @@ spec:
       managementState: Removed
     ray:
       managementState: Removed
-    trustyai:
-      managementState: Removed
     modelregistry:
-      managementState: Removed
+      managementState: Managed
     trainingoperator:
       managementState: Removed
     feastoperator:
@@ -113,13 +143,15 @@ Wait for the MCP Lifecycle operator to be running:
 oc wait --for=condition=Available deployment -l app.kubernetes.io/name=mcp-lifecycle-operator -n redhat-ods-applications --timeout=600s
 ----
 
-Finally, turn on the MCP catalog in the OpenShift AI dashboard. This adds the *AI hub* -> *MCP servers* section, where MCP servers can also be deployed and managed from the web console:
+Finally, turn on the MCP catalog in the OpenShift AI dashboard. This adds the *AI hub* -> *MCP servers* section, where MCP servers can also be deployed and managed from the web console. The dashboard only shows the section when both this flag is set *and* the model registry component from the `DataScienceCluster` above is deployed:
 
 [source,bash,role="execute"]
 ----
 oc patch odhdashboardconfig odh-dashboard-config -n redhat-ods-applications \
   --type=merge -p '{"spec":{"dashboardConfig":{"mcpCatalog":true}}}'
 ----
+
+Refresh the browser if the section does not appear right away.
 
 [#install-connectivity-link]
 == 2. Install Connectivity Link
@@ -153,7 +185,6 @@ spec:
   name: rhcl-operator
   source: redhat-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: rhcl-operator.v1.5.0
 EOF
 ----
 
@@ -267,7 +298,7 @@ The console reloads automatically and a *Connectivity Link* section appears in t
 [#deploy-mcp-server]
 == 4. Deploy the MCP server for Red Hat OpenShift
 
-Deploy the MCP server for Red Hat OpenShift as an `MCPServer` resource, with its configuration, service account, and read-only RBAC:
+Deploy the MCP server for Red Hat OpenShift as an `MCPServer` resource, with its configuration, service account, and RBAC. The service account is bound to the standard `edit` cluster role, which grants read and write access to cluster resources without allowing RBAC or namespace management: the write tools can create, update, and delete workloads, while the `[[denied_resources]]` block in the configuration still keeps Secret contents away from the LLM:
 
 [source,bash,role="execute"]
 ----
@@ -280,61 +311,32 @@ metadata:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: openshift-mcp-server-ro
+  name: openshift-mcp-server
   namespace: mcp-servers
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: openshift-mcp-server-ro
-rules:
-  - apiGroups: [""]
-    resources: [namespaces, nodes]
-    verbs: [get, list]
-  - apiGroups: [project.openshift.io]
-    resources: [projects]
-    verbs: [get, list]
-  - apiGroups: [metrics.k8s.io]
-    resources: [pods, nodes]
-    verbs: [get, list]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: openshift-mcp-server-ro
+  name: openshift-mcp-server-edit
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: openshift-mcp-server-ro
+  name: edit
 subjects:
   - kind: ServiceAccount
-    name: openshift-mcp-server-ro
-    namespace: mcp-servers
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: openshift-mcp-server-ro-view
-  namespace: mcp-servers
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: view
-subjects:
-  - kind: ServiceAccount
-    name: openshift-mcp-server-ro
+    name: openshift-mcp-server
     namespace: mcp-servers
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: openshift-mcp-server
+  name: openshift-mcp-server-config
   namespace: mcp-servers
 data:
   config.toml: |
     port = "8080"
     stateless = true
-    read_only = true
+    read_only = false
     list_output = "table"
     cluster_provider_strategy = "in-cluster"
     cluster_auth_mode = "passthrough"
@@ -362,7 +364,7 @@ spec:
   source:
     type: ContainerImage
     containerImage:
-      ref: registry.redhat.io/openshift-mcp-tech-preview/openshift-mcp-server-rhel9@sha256:855466299c3178f7d9f96a1511005ca6161b8cc6b294df9907c234ce8ecfd0f2
+      ref: registry.redhat.io/openshift-mcp/openshift-mcp-server-rhel9@sha256:aa9f92d7c542cc11bb7d5ac9a18f9bf52bf1305f2f75cf2f44382914b42037ac
   config:
     port: 8080
     path: /mcp
@@ -373,7 +375,7 @@ spec:
         source:
           type: ConfigMap
           configMap:
-            name: openshift-mcp-server
+            name: openshift-mcp-server-config
       - path: /tmp
         permissions: ReadWrite
         source:
@@ -386,7 +388,7 @@ spec:
       requests: {cpu: 100m, memory: 128Mi}
       limits: {cpu: 500m, memory: 512Mi}
     security:
-      serviceAccountName: openshift-mcp-server-ro
+      serviceAccountName: openshift-mcp-server
       podSecurityContext:
         runAsNonRoot: true
         seccompProfile: {type: RuntimeDefault}
@@ -428,13 +430,13 @@ oc apply -f - <<'EOF'
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: openshift-mcp-server
+  name: openshift-mcp-server-config
   namespace: mcp-servers
 data:
   config.toml: |
     port = "8080"
     stateless = true
-    read_only = true
+    read_only = false
     list_output = "table"
     cluster_provider_strategy = "in-cluster"
     cluster_auth_mode = "passthrough"
@@ -864,4 +866,4 @@ EOF
 
 Requests beyond the limit receive HTTP 429. If the gateway requires authentication as in the previous section, the limit can be counted per identity by adding a counter expression such as `auth.identity.sub` to the limit, so each user gets their own quota.
 
-Together with the query filters from the first module, the human-in-the-loop approvals for write tools, the MCP server's own `read_only` and `denied_resources` settings, and the gateway policies from these sections, the lab now demonstrates defense in depth across every layer of the stack.
+Together with the query filters from the first module, the human-in-the-loop approvals for write tools, the MCP server's `denied_resources` settings, the `edit` RBAC bound to its service account, and the gateway policies from these sections, the lab now demonstrates defense in depth across every layer of the stack.
