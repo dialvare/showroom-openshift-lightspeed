@@ -942,6 +942,8 @@ kind: Gateway
 metadata:
   name: mcp-gateway
   namespace: mcp-system
+  annotations:
+    networking.istio.io/service-type: ClusterIP
 spec:
   gatewayClassName: openshift-default
   listeners:
@@ -987,15 +989,16 @@ spec:
     sectionName: mcp-auth
   rules:
     authentication:
-      jwt:
-        issuerUrl: ${SSO_URL}/realms/mcp
+      keycloak-jwt:
+        jwt:
+          issuerUrl: ${SSO_URL}/realms/mcp
         credentials:
           authorizationHeader:
             prefix: Bearer
 EOF
 ----
 
-NOTE: If token validation later fails even though the token is valid, Authorino may not trust the Route's TLS certificate — check `oc logs -n kuadrant-system deployment/authorino`. As a workaround, replace `issuerUrl` with a `jwksUrl` that points straight at Keycloak's in-cluster HTTP endpoint: `http://keycloak.keycloak.svc.cluster.local:8080/realms/mcp/protocol/openid-connect/certs`.
+NOTE: The `issuerUrl` must sit inside the `jwt` block of a named authenticator — anything else at that level, including `credentials`, is a property of the authenticator itself, and the API server silently drops unknown fields there. If token validation later fails even though the token is valid, Authorino may not trust the Route's TLS certificate — check `oc logs -n kuadrant-system deployment/authorino`. As a workaround, replace `issuerUrl` with a `jwksUrl` inside the same `jwt` block, pointing straight at Keycloak's in-cluster HTTP endpoint: `http://keycloak.keycloak.svc.cluster.local:8080/realms/mcp/protocol/openid-connect/certs`.
 
 Give the authenticated listener a route, so requests that pass the `AuthPolicy` actually reach the MCP server:
 
@@ -1058,12 +1061,23 @@ spec:
 EOF
 ----
 
+The bastion sits outside the cluster's DNS, so the gateway's in-cluster hostname does not resolve there. Forward a local port to the gateway's Service instead: the tunnel is transparent, and the gateway still routes by the `Host` header, so every request below keeps the hostname it needs:
+
+[source,bash,role="execute"]
+----
+oc port-forward -n mcp-system svc/mcp-gateway-openshift-default 18080:8080 >/dev/null 2>&1 &
+export GW="http://localhost:18080"
+sleep 2
+----
+
+NOTE: The port-forward runs in the background of the terminal session and is reused by the tests in the rest of this module. If a request to `$GW` ever returns no HTTP code at all again, the tunnel has dropped — re-run the `oc port-forward` command.
+
 Verify that unauthenticated requests to the authenticated listener are rejected:
 
 [source,bash,role="execute"]
 ----
 curl -s -o /dev/null -w '%{http_code}\n' -H 'Host: mcp-auth.mcp-system.svc.cluster.local' \
-  http://mcp-gateway-openshift-default.mcp-system.svc.cluster.local:8080/mcp
+  ${GW}/mcp
 ----
 
 The response should be `401`. Requests carrying a valid token from the issuer are accepted, and the JWT claims become available to other policies: the last section of this module demonstrates an `AuthPolicy` pattern that maps Keycloak roles to individual tools, so different teams can be granted access to different subsets of tools behind the same gateway.
@@ -1282,12 +1296,14 @@ oc patch olsconfig cluster --type merge \
 oc rollout status deployment/lightspeed-otel-collector -n openshift-lightspeed --timeout=300s
 ----
 
-To see it all working, generate some traffic: ask the intelligent assistant any question in the console, and make a gateway request from the bastion:
+To see it all working, generate some traffic: ask the intelligent assistant any question in the console, and make a gateway request from the bastion through the port-forward from step 9:
 
 [source,bash,role="execute"]
 ----
-curl -sk -o /dev/null -w '%{http_code}\n' -H 'Content-Type: application/json' \
-  http://mcp-gateway-openshift-default.mcp-system.svc.cluster.local:8080/mcp \
+curl -sk -o /dev/null -w '%{http_code}\n' \
+  -H 'Host: mcp-gateway-openshift-default.mcp-system.svc.cluster.local' \
+  -H 'Content-Type: application/json' \
+  ${GW}/mcp \
   -d '{"jsonrpc":"2.0","id":0,"method":"tools/list"}'
 ----
 
@@ -1303,7 +1319,7 @@ Browse to that host in a new browser tab. In the *Search* tab, select the `mcp-g
 [#test-the-stack]
 == 12. Test the full stack
 
-Everything is in place: tools federated through the gateway, guardrails, authentication, rate limits, and tracing. This section drives each layer — prompts for the intelligent assistant run in the *Console* tab, and the verification commands run in the *Bastion* tab.
+Everything is in place: tools federated through the gateway, guardrails, authentication, rate limits, and tracing. This section drives each layer — prompts for the intelligent assistant run in the *Console* tab, and the verification commands run in the *Bastion* tab. The bastion commands reach the gateway through the port-forward established in step 9, referenced as `$GW` — if your terminal session was recycled along the way, re-run the `oc port-forward` command from that step first.
 
 [#test-federation]
 === Federated tools through the intelligent assistant
@@ -1356,6 +1372,15 @@ Create a ConfigMap named customer-record in the lightspeed-demo namespace with t
 ----
 
 The assistant decides to create the ConfigMap and issues the tool call, which now carries the personal data — and the gateway's input self-check rail blocks it. The tool call fails with an HTTP `403` and a `blocked by guardrails` message, which the assistant reports in the chat.
+
+There is no dashboard for the guardrails — the NeMo server is a headless service. Its logs are the place to see the verdicts: after the blocked call, inspect the recent log lines,
+
+[source,bash,role="execute"]
+----
+oc logs deployment/nemo-guardrails -n mcp-system --tail=30
+----
+
+and find the request the gateway sent for the self-check input rail and the verdict it returned. The *Connectivity Link* -> *MCP management* pages in the console are the closest thing to a UI: the MCP Inspector lets you run a tool call directly and shows the same `403` response, unfiltered by the assistant.
 
 Optionally, verify that the guardrails fail closed: with `failMode: deny`, requests must be rejected when the NeMo server itself is unavailable.
 
@@ -1428,12 +1453,12 @@ Now call the authenticated listener with and without a token:
 curl -sk -o /dev/null -w '%{http_code}\n' \
   -H 'Host: mcp-auth.mcp-system.svc.cluster.local' \
   -H 'Content-Type: application/json' \
-  http://mcp-gateway-openshift-default.mcp-system.svc.cluster.local:8080/mcp \
+  ${GW}/mcp \
   -d '{"jsonrpc":"2.0","id":0,"method":"tools/list"}'
 curl -sk -o /dev/null -w '%{http_code}\n' \
   -H 'Host: mcp-auth.mcp-system.svc.cluster.local' \
   -H "Authorization: Bearer $USER1_TOKEN" -H 'Content-Type: application/json' \
-  http://mcp-gateway-openshift-default.mcp-system.svc.cluster.local:8080/mcp \
+  ${GW}/mcp \
   -d '{"jsonrpc":"2.0","id":0,"method":"tools/list"}'
 ----
 
@@ -1443,7 +1468,7 @@ The request without a token is rejected with `401`; the request with `user1`'s t
 ----
 curl -sk -H 'Host: mcp-auth.mcp-system.svc.cluster.local' \
   -H "Authorization: Bearer $USER1_TOKEN" -H 'Content-Type: application/json' \
-  http://mcp-gateway-openshift-default.mcp-system.svc.cluster.local:8080/mcp \
+  ${GW}/mcp \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' \
   | jq -r '.result.tools[].name' | head -8
 ----
@@ -1461,7 +1486,7 @@ for i in $(seq 1 35); do
   CODE=$(curl -sk -o /dev/null -w '%{http_code}' --max-time 5 \
     -H 'Host: mcp-auth.mcp-system.svc.cluster.local' \
     -H "Authorization: Bearer $USER1_TOKEN" -H 'Content-Type: application/json' \
-    http://mcp-gateway-openshift-default.mcp-system.svc.cluster.local:8080/mcp \
+    ${GW}/mcp \
     -d '{"jsonrpc":"2.0","id":0,"method":"tools/list"}')
   echo "Request ${i}: HTTP ${CODE}"
   sleep 0.7
@@ -1475,7 +1500,7 @@ The first requests return `200`; once the quota is exhausted they return `429`. 
 curl -svk -o /dev/null \
   -H 'Host: mcp-auth.mcp-system.svc.cluster.local' \
   -H "Authorization: Bearer $USER1_TOKEN" -H 'Content-Type: application/json' \
-  http://mcp-gateway-openshift-default.mcp-system.svc.cluster.local:8080/mcp \
+  ${GW}/mcp \
   -d '{"jsonrpc":"2.0","id":0,"method":"tools/list"}' 2>&1 | grep -iE '< HTTP|< x-ratelimit'
 ----
 
@@ -1486,7 +1511,7 @@ The `x-ratelimit-limit`, `x-ratelimit-remaining`, and `x-ratelimit-reset` header
 curl -sk -o /dev/null -w '%{http_code}\n' \
   -H 'Host: mcp-auth.mcp-system.svc.cluster.local' \
   -H "Authorization: Bearer $USER2_TOKEN" -H 'Content-Type: application/json' \
-  http://mcp-gateway-openshift-default.mcp-system.svc.cluster.local:8080/mcp \
+  ${GW}/mcp \
   -d '{"jsonrpc":"2.0","id":0,"method":"tools/list"}'
 ----
 
@@ -1502,7 +1527,7 @@ for i in $(seq 1 10); do
   CODE=$(curl -sk -o /dev/null -w '%{http_code}' --max-time 5 \
     -H 'Host: mcp-auth.mcp-system.svc.cluster.local' \
     -H "Authorization: Bearer $USER1_TOKEN" -H 'Content-Type: application/json' \
-    http://mcp-gateway-openshift-default.mcp-system.svc.cluster.local:8080/mcp \
+    ${GW}/mcp \
     -d '{"jsonrpc":"2.0","id":0,"method":"tools/list"}')
   echo "Request ${i}: HTTP ${CODE}"
   sleep 0.7
@@ -1573,8 +1598,10 @@ Then test the per-tool check from the bastion, calling through the open `mcp` li
 
 [source,bash,role="execute"]
 ----
-curl -sk -H "Authorization: Bearer $USER1_TOKEN" -H 'Content-Type: application/json' \
-  http://mcp-gateway-openshift-default.mcp-system.svc.cluster.local:8080/mcp \
+curl -sk -H "Authorization: Bearer $USER1_TOKEN" \
+  -H 'Host: mcp-gateway-openshift-default.mcp-system.svc.cluster.local' \
+  -H 'Content-Type: application/json' \
+  ${GW}/mcp \
   -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"openshift_pods_list","arguments":{}}}' \
   | jq -r '.result.content[0].text // .error.message'
 ----
@@ -1586,8 +1613,9 @@ Now call the same tool as `user2`, who has no roles:
 [source,bash,role="execute"]
 ----
 curl -sk -o /dev/null -w '%{http_code}\n' -H "Authorization: Bearer $USER2_TOKEN" \
+  -H 'Host: mcp-gateway-openshift-default.mcp-system.svc.cluster.local' \
   -H 'Content-Type: application/json' \
-  http://mcp-gateway-openshift-default.mcp-system.svc.cluster.local:8080/mcp \
+  ${GW}/mcp \
   -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"openshift_pods_list","arguments":{}}}'
 ----
 
